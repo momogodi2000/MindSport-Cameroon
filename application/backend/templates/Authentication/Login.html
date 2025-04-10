@@ -1,0 +1,348 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Mental Health Platform for Athletes</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9fafb;
+            overflow-x: hidden;
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        .slide-in {
+            animation: slideIn 0.6s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .form-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-sky-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="{% url 'homepage' %}" class="flex items-center space-x-2">
+                <span class="text-blue-600">
+                    <i class="fas fa-brain text-2xl"></i>
+                </span>
+                <span class="font-bold text-gray-800 text-lg">MindSport Cameroon</span>
+            </a>
+            <div class="hidden md:flex space-x-6 items-center">
+                <a href="{% url 'homepage' %}" class="text-gray-600 hover:text-blue-600 transition">Home</a>
+                <a href="{% url 'register' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">Register</a>
+            </div>
+            <button class="md:hidden text-gray-600" id="mobile-menu-button">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- Mobile menu -->
+        <div class="md:hidden bg-white hidden" id="mobile-menu">
+            <div class="px-4 py-3 space-y-3">
+                <a href="{% url 'homepage' %}" class="block text-gray-600 hover:text-blue-600 transition">Home</a>
+                <a href="{% url 'register' %}" class="block text-gray-600 hover:text-blue-600 transition">Register</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
+        <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+            <!-- Left side - Form -->
+            <div class="w-full md:w-1/2 bg-white p-6 md:p-8 rounded-2xl shadow-lg custom-shadow slide-in">
+                <div class="text-center mb-8">
+                    <div class="inline-block p-3 bg-blue-100 rounded-full mb-4">
+                        <i class="fas fa-user-circle text-blue-600 text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Welcome Back</h2>
+                    <p class="text-gray-600 mt-2">Sign in to access your account</p>
+                </div>
+                
+                <form id="login-form" class="space-y-5" method="POST" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    
+                    <!-- Display Django messages if any -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="{% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %} px-4 py-3 rounded-md mb-4">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <input type="email" id="email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input" required>
+                        <p class="text-red-500 text-xs mt-1 hidden error-message"></p>
+                    </div>
+                    
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <a href="{% url 'forgot_password' %}" class="text-sm text-blue-600 hover:text-blue-500">Forgot password?</a>
+                        </div>
+                        <div class="relative">
+                            <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input" required>
+                            <button type="button" id="toggle-password" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                        <p class="text-red-500 text-xs mt-1 hidden error-message"></p>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-600">Remember me</label>
+                    </div>
+                    
+                    <div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition transform hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                            Sign In
+                        </button>
+                    </div>
+                    
+                    <div class="relative flex items-center justify-center py-4">
+                        <div class="border-t border-gray-300 absolute w-full"></div>
+                        <div class="bg-white px-4 relative text-sm text-gray-500">or continue with</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <button type="button" class="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fab fa-google text-red-500 mr-2"></i>
+                            <span class="text-sm font-medium text-gray-700">Google</span>
+                        </button>
+                        <button type="button" class="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fab fa-facebook-f text-blue-600 mr-2"></i>
+                            <span class="text-sm font-medium text-gray-700">Facebook</span>
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-sm text-gray-600">Don't have an account? <a href="{% url 'register' %}" class="text-blue-600 hover:underline font-medium">Sign up</a></p>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Right side - Content -->
+            <div class="w-full md:w-1/2 fade-in">
+                <div class="md:pl-8">
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Your Mental Fitness Journey Continues Here</h1>
+                    
+                    <div class="bg-sky-100 border-l-4 border-sky-500 p-4 mb-8 rounded-r-lg">
+                        <p class="text-sky-700 italic">
+                            "Mental strength is just as important as physical strength in combat sports. Welcome back to your support system."
+                        </p>
+                    </div>
+                    
+                    <div class="space-y-5">
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-blue-100 p-2 rounded-full">
+                                <i class="fas fa-calendar-check text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Scheduled Sessions</h3>
+                                <p class="text-gray-600 text-sm">Access your upcoming appointments with mental health professionals.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-blue-100 p-2 rounded-full">
+                                <i class="fas fa-book text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Resource Library</h3>
+                                <p class="text-gray-600 text-sm">Access tailored resources specific to combat sports mental wellness.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-blue-100 p-2 rounded-full">
+                                <i class="fas fa-comments text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Community Forum</h3>
+                                <p class="text-gray-600 text-sm">Connect with peers and share experiences in a safe environment.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-blue-100 p-2 rounded-full">
+                                <i class="fas fa-medal text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Progress Tracking</h3>
+                                <p class="text-gray-600 text-sm">View your mental wellness achievements and growth over time.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 p-4 bg-white rounded-lg shadow-md">
+                        <div class="flex items-start">
+                            <div class="mr-4">
+                                <img src="{% static 'avatars/avartar.jpeg' %}" alt="Testimonial" class="w-12 h-12 rounded-full">
+                            </div>
+                            <div>
+                                <p class="text-gray-700 italic">"This platform has transformed my approach to competition. The mental tools I've gained have been as valuable as years of physical training."</p>
+                                <p class="text-sm font-medium text-gray-900 mt-2">Samuel Njock</p>
+                                <p class="text-sm text-gray-600">National Boxing Champion</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-12">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">MindSport Cameroon</h3>
+                    <p class="text-gray-300 text-sm">Providing mental health and wellness solutions specifically designed for Cameroonian combat athletes.</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-300 hover:text-white transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li><a href="#" class="hover:text-white transition">Home</a></li>
+                        <li><a href="#" class="hover:text-white transition">About Us</a></li>
+                        <li><a href="#" class="hover:text-white transition">Services</a></li>
+                        <li><a href="#" class="hover:text-white transition">Resources</a></li>
+                        <li><a href="#" class="hover:text-white transition">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li class="flex items-start space-x-2">
+                            <i class="fas fa-map-marker-alt mt-1"></i>
+                            <span>Yaoundé, Cameroon</span>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <i class="fas fa-phone mt-1"></i>
+                            <span>+237 123 456 789</span>
+                        </li>
+                        <li class="flex items-start space-x-2">
+                            <i class="fas fa-envelope mt-1"></i>
+                            <span>info@mindsportcameroon.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-400">
+                <p>&copy; 2025 MindSport Cameroon. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            document.getElementById('mobile-menu-button').addEventListener('click', function() {
+                const mobileMenu = document.getElementById('mobile-menu');
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Password toggle visibility
+            document.getElementById('toggle-password').addEventListener('click', function() {
+                const passwordInput = document.getElementById('password');
+                const icon = this.querySelector('i');
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+
+            // Client-side form validation - will be in addition to server-side validation
+            document.getElementById('login-form').addEventListener('submit', function(e) {
+                let isValid = true;
+                
+                // Reset all error messages
+                document.querySelectorAll('.error-message').forEach(el => {
+                    el.classList.add('hidden');
+                    el.textContent = '';
+                });
+                
+                // Validate email
+                const email = document.getElementById('email');
+                if (!email.value.trim()) {
+                    showError(email, 'Email is required');
+                    isValid = false;
+                } else if (!isValidEmail(email.value)) {
+                    showError(email, 'Please enter a valid email address');
+                    isValid = false;
+                }
+                
+                // Validate password
+                const password = document.getElementById('password');
+                if (!password.value) {
+                    showError(password, 'Password is required');
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    e.preventDefault(); // Prevent form submission if validation fails
+                }
+                // If valid, the form will submit normally to the server
+            });
+            
+            // Helper functions
+            function showError(input, message) {
+                const errorElement = input.nextElementSibling;
+                if (errorElement && errorElement.classList.contains('error-message')) {
+                    errorElement.textContent = message;
+                    errorElement.classList.remove('hidden');
+                }
+            }
+            
+            function isValidEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+        });
+    </script>
+</body>
+</html>

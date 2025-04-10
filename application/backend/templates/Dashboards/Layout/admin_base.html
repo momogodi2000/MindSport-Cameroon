@@ -1,0 +1,324 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mental Health Platform Admin{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eef7ff',
+                            100: '#d9edff',
+                            200: '#bce0ff',
+                            300: '#8ecdff',
+                            400: '#59b0ff',
+                            500: '#3498ff',
+                            600: '#1a7af8',
+                            700: '#1566e0',
+                            800: '#1654b5',
+                            900: '#174a8f',
+                        },
+                        secondary: {
+                            50: '#f5f7fa',
+                            100: '#ebeef5',
+                            200: '#d2d9e7',
+                            300: '#abb9d2',
+                            400: '#7d91b5',
+                            500: '#5e7199',
+                            600: '#4a5a7e',
+                            700: '#3e4a68',
+                            800: '#353e57',
+                            900: '#2f364a',
+                        },
+                    },
+                    fontFamily: {
+                        'sans': ['Poppins', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .animate-slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #3498ff;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #1a7af8;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64 bg-primary-700 text-white">
+                <div class="flex items-center justify-center h-16 border-b border-primary-800">
+                    <div class="flex items-center">
+                        <img src="{% static 'images/logo.png' %}" alt="Logo" class="h-8 w-auto mr-2">
+                        <span class="text-xl font-semibold">Mental Health</span>
+                    </div>
+                </div>
+                <div class="flex flex-col flex-grow px-4 mt-5">
+                    <nav class="flex-1 space-y-1 pb-4">
+                        <a href="{% url 'admin_dashboard' %}" class="{% block dashboard_active %}{% endblock %} group flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-600 transition-all duration-200">
+                            <i class="fas fa-tachometer-alt mr-3 text-primary-300 group-hover:text-white"></i>
+                            Dashboard
+                        </a>
+                        <a href="{% url 'admin_user' %}" class="{% block users_active %}{% endblock %} group flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-600 transition-all duration-200">
+                            <i class="fas fa-users mr-3 text-primary-300 group-hover:text-white"></i>
+                            Users
+                        </a>
+                        <a href="#" class="{% block psychologists_active %}{% endblock %} group flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-600 transition-all duration-200">
+                            <i class="fas fa-brain mr-3 text-primary-300 group-hover:text-white"></i>
+                            Psychologists
+                        </a>
+                        <a href="#" class="{% block nutritionists_active %}{% endblock %} group flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-600 transition-all duration-200">
+                            <i class="fas fa-apple-alt mr-3 text-primary-300 group-hover:text-white"></i>
+                            Nutritionists
+                        </a>
+                        <a href="#" class="{% block coaches_active %}{% endblock %} group flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-600 transition-all duration-200">
+                            <i class="fas fa-running mr-3 text-primary-300 group-hover:text-white"></i>
+                            Mental Coaches
+                        </a>
+                        <a href="#" class="{% block resources_active %}{% endblock %} group flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-600 transition-all duration-200">
+                            <i class="fas fa-book mr-3 text-primary-300 group-hover:text-white"></i>
+                            Resources
+                        </a>
+                        <a href="#" class="{% block forums_active %}{% endblock %} group flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-600 transition-all duration-200">
+                            <i class="fas fa-comments mr-3 text-primary-300 group-hover:text-white"></i>
+                            Forums
+                        </a>
+                        <a href="#" class="{% block appointments_active %}{% endblock %} group flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-600 transition-all duration-200">
+                            <i class="fas fa-calendar-alt mr-3 text-primary-300 group-hover:text-white"></i>
+                            Appointments
+                        </a>
+                        <a href="#" class="{% block reports_active %}{% endblock %} group flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-600 transition-all duration-200">
+                            <i class="fas fa-chart-bar mr-3 text-primary-300 group-hover:text-white"></i>
+                            Reports
+                        </a>
+                        <a href="#" class="{% block settings_active %}{% endblock %} group flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-600 transition-all duration-200">
+                            <i class="fas fa-cog mr-3 text-primary-300 group-hover:text-white"></i>
+                            Settings
+                        </a>
+                    </nav>
+                </div>
+                <div class="p-4 border-t border-primary-800">
+                    <a href="{% url 'logout' %}" class="flex items-center text-sm font-medium text-primary-200 hover:text-white transition-colors duration-200">
+                        <i class="fas fa-sign-out-alt mr-3"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Mobile sidebar -->
+        <div class="md:hidden">
+            <div id="mobile-sidebar" class="fixed inset-0 z-40 hidden">
+                <div class="fixed inset-0 bg-gray-600 bg-opacity-75" id="sidebar-backdrop"></div>
+                <div class="relative flex-1 flex flex-col max-w-xs w-full pt-5 pb-4 bg-primary-700">
+                    <div class="absolute top-0 right-0 -mr-12 pt-2">
+                        <button id="close-sidebar" class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                            <span class="sr-only">Close sidebar</span>
+                            <i class="fas fa-times text-white"></i>
+                        </button>
+                    </div>
+                    <div class="flex-shrink-0 flex items-center px-4">
+                        <img src="{% static 'images/logo.png' %}" alt="Logo" class="h-8 w-auto mr-2">
+                        <span class="text-xl font-semibold text-white">Mental Health</span>
+                    </div>
+                    <div class="mt-5 flex-1 h-0 overflow-y-auto">
+                        <nav class="px-2 space-y-1">
+                            <a href="{% url 'admin_dashboard' %}" class="{% block mobile_dashboard_active %}{% endblock %} group flex items-center px-2 py-2 text-base font-medium rounded-md text-white hover:bg-primary-600">
+                                <i class="fas fa-tachometer-alt mr-4 text-primary-300 group-hover:text-white"></i>
+                                Dashboard
+                            </a>
+                            <a href="{% url 'admin_user' %}" class="{% block mobile_users_active %}{% endblock %} group flex items-center px-2 py-2 text-base font-medium rounded-md text-white hover:bg-primary-600">
+                                <i class="fas fa-users mr-4 text-primary-300 group-hover:text-white"></i>
+                                Users
+                            </a>
+                            <a href="#" class="{% block mobile_psychologists_active %}{% endblock %} group flex items-center px-2 py-2 text-base font-medium rounded-md text-white hover:bg-primary-600">
+                                <i class="fas fa-brain mr-4 text-primary-300 group-hover:text-white"></i>
+                                Psychologists
+                            </a>
+                            <a href="#" class="{% block mobile_nutritionists_active %}{% endblock %} group flex items-center px-2 py-2 text-base font-medium rounded-md text-white hover:bg-primary-600">
+                                <i class="fas fa-apple-alt mr-4 text-primary-300 group-hover:text-white"></i>
+                                Nutritionists
+                            </a>
+                            <a href="#" class="{% block mobile_coaches_active %}{% endblock %} group flex items-center px-2 py-2 text-base font-medium rounded-md text-white hover:bg-primary-600">
+                                <i class="fas fa-running mr-4 text-primary-300 group-hover:text-white"></i>
+                                Mental Coaches
+                            </a>
+                            <a href="#" class="{% block mobile_resources_active %}{% endblock %} group flex items-center px-2 py-2 text-base font-medium rounded-md text-white hover:bg-primary-600">
+                                <i class="fas fa-book mr-4 text-primary-300 group-hover:text-white"></i>
+                                Resources
+                            </a>
+                            <a href="#" class="{% block mobile_forums_active %}{% endblock %} group flex items-center px-2 py-2 text-base font-medium rounded-md text-white hover:bg-primary-600">
+                                <i class="fas fa-comments mr-4 text-primary-300 group-hover:text-white"></i>
+                                Forums
+                            </a>
+                            <a href="#" class="{% block mobile_appointments_active %}{% endblock %} group flex items-center px-2 py-2 text-base font-medium rounded-md text-white hover:bg-primary-600">
+                                <i class="fas fa-calendar-alt mr-4 text-primary-300 group-hover:text-white"></i>
+                                Appointments
+                            </a>
+                            <a href="#" class="{% block mobile_reports_active %}{% endblock %} group flex items-center px-2 py-2 text-base font-medium rounded-md text-white hover:bg-primary-600">
+                                <i class="fas fa-chart-bar mr-4 text-primary-300 group-hover:text-white"></i>
+                                Reports
+                            </a>  
+                            <a href="{% url 'logout' %}" class="{% block mobile_logout_active %}{% endblock %} group flex items-center px-2 py-2 text-base font-medium rounded-md text-white hover:bg-primary-600">
+                                <i class="fas fa-chart-bar mr-4 text-primary-300 group-hover:text-white"></i>
+                                Logout
+                            </a>    
+                            <!-- Other mobile navigation items -->
+                            <!-- Copy the same links from desktop sidebar but with mobile styling -->
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col w-0 flex-1 overflow-hidden">
+            <!-- Top navbar -->
+            <div class="relative z-10 flex-shrink-0 flex h-16 bg-white shadow">
+                <button id="open-sidebar" class="md:hidden px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:bg-gray-100 focus:text-gray-600">
+                    <span class="sr-only">Open sidebar</span>
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="flex-1 px-4 flex justify-between">
+                    <div class="flex-1 flex items-center">
+                        <h1 class="text-2xl font-semibold text-gray-800">{% block page_title %}Admin Dashboard{% endblock %}</h1>
+                    </div>
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <!-- Notifications -->
+                        <div class="relative">
+                            <button class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                <span class="sr-only">View notifications</span>
+                                <i class="fas fa-bell"></i>
+                            </button>
+                            <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white"></span>
+                        </div>
+
+                        <!-- Profile dropdown -->
+                        <div class="ml-3 relative">
+                            <div>
+                                <button id="user-menu-button" class="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                    <span class="sr-only">Open user menu</span>
+                                    <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
+                                </button>
+                            </div>
+                            <div id="user-menu" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Your Profile</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Settings</a>
+                                <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Sign out</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main content -->
+            <main class="flex-1 relative overflow-y-auto focus:outline-none" tabindex="0">
+                <div class="py-6">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+                        {% block breadcrumbs %}
+                        <div class="flex items-center text-sm text-gray-500 mb-4">
+                            <a href="{% url 'admin_dashboard' %}" class="hover:text-primary-600">Dashboard</a>
+                            <i class="fas fa-chevron-right mx-2 text-xs"></i>
+                            <span class="text-gray-700">{% block current_page %}{% endblock %}</span>
+                        </div>
+                        {% endblock %}
+
+                        <!-- Content -->
+                        <div class="animate-fade-in">
+                            {% block content %}{% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Mobile sidebar toggle
+        document.getElementById('open-sidebar').addEventListener('click', function() {
+            document.getElementById('mobile-sidebar').classList.remove('hidden');
+        });
+
+        document.getElementById('close-sidebar').addEventListener('click', function() {
+            document.getElementById('mobile-sidebar').classList.add('hidden');
+        });
+
+        document.getElementById('sidebar-backdrop').addEventListener('click', function() {
+            document.getElementById('mobile-sidebar').classList.add('hidden');
+        });
+
+        // User dropdown toggle
+        document.getElementById('user-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('user-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('user-menu');
+            const button = document.getElementById('user-menu-button');
+            if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Add animation to all cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.animate-on-load');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('animate-slide-in');
+                    card.style.opacity = 1;
+                }, index * 100);
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

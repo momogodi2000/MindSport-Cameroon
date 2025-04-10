@@ -1,0 +1,566 @@
+{% extends "Dashboards/Layout/admin_base.html" %}
+
+{% block title %}User Management{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+        <div class="mb-4 md:mb-0">
+            <h1 class="text-3xl font-bold text-blue-800">User Management</h1>
+            <p class="text-gray-600 mt-2">Manage all users and their permissions</p>
+        </div>
+        <div class="flex space-x-3">
+            <form method="GET" action="{% url 'admin_get_users' %}" class="flex">
+                <div class="relative">
+                    <input type="text" name="search" placeholder="Search users..." value="{{ request.GET.search|default:'' }}"
+                        class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <button type="submit" class="hidden">Search</button>
+            </form>
+            <a href="{% url 'admin_create_user' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-lg transform hover:-translate-y-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add User
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters and Stats Section -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Total Users -->
+            <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500 transition-all duration-300 hover:shadow-md">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-sm font-medium text-gray-600">Total Users</h2>
+                        <p class="text-2xl font-semibold text-gray-800">{{ statistics.total_users|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Athletes -->
+            <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-green-500 transition-all duration-300 hover:shadow-md">
+                <div class="flex items-center">
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-sm font-medium text-gray-600">Athletes</h2>
+                        <p class="text-2xl font-semibold text-gray-800">{{ statistics.athlete_count|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Professionals -->
+            <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-purple-500 transition-all duration-300 hover:shadow-md">
+                <div class="flex items-center">
+                    <div class="bg-purple-100 p-3 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-sm font-medium text-gray-600">Professionals</h2>
+                        <p class="text-2xl font-semibold text-gray-800">{{ statistics.professional_count|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- New This Month -->
+            <div class="bg-blue-50 rounded-lg p-4 border-l-4 border-amber-500 transition-all duration-300 hover:shadow-md">
+                <div class="flex items-center">
+                    <div class="bg-amber-100 p-3 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-sm font-medium text-gray-600">New This Month</h2>
+                        <p class="text-2xl font-semibold text-gray-800">{{ statistics.new_users_30_days|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter Controls -->
+        <form method="GET" action="{% url 'admin_get_users' %}" class="mt-6 flex flex-col md:flex-row md:items-center md:space-x-4">
+            <div class="mb-4 md:mb-0">
+                <label for="userTypeFilter" class="block text-sm font-medium text-gray-700 mb-1">User Type</label>
+                <select id="userTypeFilter" name="user_type" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All Types</option>
+                    <option value="athlete" {% if request.GET.user_type == 'athlete' %}selected{% endif %}>Athletes</option>
+                    <option value="psychologist" {% if request.GET.user_type == 'psychologist' %}selected{% endif %}>Psychologists</option>
+                    <option value="coach" {% if request.GET.user_type == 'coach' %}selected{% endif %}>Mental Coaches</option>
+                    <option value="nutritionist" {% if request.GET.user_type == 'nutritionist' %}selected{% endif %}>Nutritionists</option>
+                    <option value="admin" {% if request.GET.user_type == 'admin' %}selected{% endif %}>Administrators</option>
+                </select>
+            </div>
+            
+            <div class="mb-4 md:mb-0">
+                <label for="sportFilter" class="block text-sm font-medium text-gray-700 mb-1">Sport</label>
+                <select id="sportFilter" name="sport" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All Sports</option>
+                    <option value="boxing" {% if request.GET.sport == 'boxing' %}selected{% endif %}>Boxing</option>
+                    <option value="wrestling" {% if request.GET.sport == 'wrestling' %}selected{% endif %}>Wrestling</option>
+                    <option value="judo" {% if request.GET.sport == 'judo' %}selected{% endif %}>Judo</option>
+                    <option value="karate" {% if request.GET.sport == 'karate' %}selected{% endif %}>Karate</option>
+                    <option value="taekwondo" {% if request.GET.sport == 'taekwondo' %}selected{% endif %}>Taekwondo</option>
+                    <option value="mma" {% if request.GET.sport == 'mma' %}selected{% endif %}>Mixed Martial Arts</option>
+                    <option value="other" {% if request.GET.sport == 'other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+            
+            <div class="mb-4 md:mb-0">
+                <label for="levelFilter" class="block text-sm font-medium text-gray-700 mb-1">Level</label>
+                <select id="levelFilter" name="level" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All Levels</option>
+                    <option value="amateur" {% if request.GET.level == 'amateur' %}selected{% endif %}>Amateur</option>
+                    <option value="semi-pro" {% if request.GET.level == 'semi-pro' %}selected{% endif %}>Semi-Professional</option>
+                    <option value="professional" {% if request.GET.level == 'professional' %}selected{% endif %}>Professional</option>
+                    <option value="elite" {% if request.GET.level == 'elite' %}selected{% endif %}>Elite</option>
+                </select>
+            </div>
+            
+            <div class="mb-4 md:mb-0">
+                <label for="statusFilter" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select id="statusFilter" name="status" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">All Status</option>
+                    <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+            
+            <div class="mb-4 md:mb-0 md:mt-7">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-all duration-300">
+                    Apply Filters
+                </button>
+                <a href="{% url 'admin_get_users' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md ml-2 transition-all duration-300">
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Statistics and Graphs Section -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">User Statistics</h2>
+            <a href="{% url 'admin_get_statistics' %}" class="text-blue-600 hover:text-blue-800 flex items-center">
+                <span>View Detailed Statistics</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </a>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- User Distribution Chart -->
+            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                <h3 class="text-lg font-medium text-gray-700 mb-2">User Type Distribution</h3>
+                <div class="h-64 flex items-center justify-center">
+                    <div class="w-full h-full" id="userTypeChart"></div>
+                </div>
+            </div>
+            
+            <!-- Sport Distribution Chart -->
+            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                <h3 class="text-lg font-medium text-gray-700 mb-2">Sport Distribution</h3>
+                <div class="h-64 flex items-center justify-center">
+                    <div class="w-full h-full" id="sportDistributionChart"></div>
+                </div>
+            </div>
+            
+            <!-- User Growth Chart -->
+            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                <h3 class="text-lg font-medium text-gray-700 mb-2">User Growth Trend</h3>
+                <div class="h-64 flex items-center justify-center">
+                    <div class="w-full h-full" id="userGrowthChart"></div>
+                </div>
+            </div>
+            
+            <!-- Activity Status Chart -->
+            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                <h3 class="text-lg font-medium text-gray-700 mb-2">Activity Status</h3>
+                <div class="h-64 flex items-center justify-center">
+                    <div class="w-full h-full" id="activityStatusChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table Section -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-blue-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            User
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Email
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Type
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Sport
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Level
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Experience
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for user in users %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    {% if user.profile_image %}
+                                    <img class="h-10 w-10 rounded-full" src="{{ user.profile_image.url }}" alt="{{ user.get_full_name }}">
+                                    {% else %}
+                                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                        <span class="text-blue-500 font-semibold">{{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ user.get_full_name }}</div>
+                                    <div class="text-sm text-gray-500">Joined {{ user.date_joined|date:"M d, Y" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ user.email }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if user.user_type == 'athlete' %}bg-green-100 text-green-800
+                                {% elif user.user_type == 'psychologist' %}bg-purple-100 text-purple-800
+                                {% elif user.user_type == 'coach' %}bg-blue-100 text-blue-800
+                                {% elif user.user_type == 'nutritionist' %}bg-yellow-100 text-yellow-800
+                                {% elif user.user_type == 'admin' %}bg-red-100 text-red-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ user.get_user_type_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ user.sport|default:"-" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ user.level|default:"-" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ user.years_experience|default:"0" }} years
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if user.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ user.is_active|yesno:"Active,Inactive" }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <a href="{% url 'admin_update_user' user.id %}" class="text-blue-600 hover:text-blue-900">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </a>
+                                <a href="{% url 'admin_get_user' user.id %}" class="text-green-600 hover:text-green-900">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </a>
+                                <form method="POST" action="{% url 'admin_delete_user' user.id %}" class="inline" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-red-600 hover:text-red-900">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                            No users found. <a href="{% url 'admin_create_user' %}" class="text-blue-600 hover:underline">Add a user</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if users.has_other_pages %}
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div class="flex-1 flex justify-between sm:hidden">
+                {% if users.has_previous %}
+                <a href="?page={{ users.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                   class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Previous
+                </a>
+                {% else %}
+                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white cursor-not-allowed">
+                    Previous
+                </span>
+                {% endif %}
+                
+                {% if users.has_next %}
+                <a href="?page={{ users.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                   class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Next
+                </a>
+                {% else %}
+                <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white cursor-not-allowed">
+                    Next
+                </span>
+                {% endif %}
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        Showing <span class="font-medium">{{ users.start_index }}</span> to <span class="font-medium">{{ users.end_index }}</span> of <span class="font-medium">{{ users.paginator.count }}</span> users
+                    </p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        {% if users.has_previous %}
+                        <a href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                           class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">First</span>
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                <path fill-rule="evenodd" d="M8.707 5.293a1 1 0 010 1.414L5.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        <a href="?page={{ users.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                           class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Previous</span>
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                        
+                        {% for i in users.paginator.page_range %}
+                            {% if users.number == i %}
+                            <span class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600">
+                                {{ i }}
+                            </span>
+                            {% elif i > users.number|add:"-3" and i < users.number|add:"3" %}
+                            <a href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                {{ i }}
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if users.has_next %}
+                        <a href="?page={{ users.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                           class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Next</span>
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        <a href="?page={{ users.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                           class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Last</span>
+                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                <path fill-rule="evenodd" d="M11.293 14.707a1 1 0 010-1.414L14.586 10 11.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Chart.js Script for Charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script>
+    // User Type Distribution Chart
+    const userTypeCtx = document.getElementById('userTypeChart').getContext('2d');
+    const userTypeChart = new Chart(userTypeCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Athletes', 'Psychologists', 'Mental Coaches', 'Nutritionists', 'Administrators'],
+            datasets: [{
+                data: [
+                    {{ statistics.athlete_count|default:"0" }},
+                    {{ statistics.psychologist_count|default:"0" }},
+                    {{ statistics.coach_count|default:"0" }},
+                    {{ statistics.nutritionist_count|default:"0" }},
+                    {{ statistics.admin_count|default:"0" }}
+                ],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(255, 99, 132, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 12
+                    }
+                }
+            }
+        }
+    });
+    
+    // Sport Distribution Chart
+    const sportCtx = document.getElementById('sportDistributionChart').getContext('2d');
+    const sportChart = new Chart(sportCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Boxing', 'Wrestling', 'Judo', 'Karate', 'Taekwondo', 'MMA', 'Other'],
+            datasets: [{
+                label: 'Number of Users',
+                data: [
+                    {{ statistics.boxing_count|default:"0" }},
+                    {{ statistics.wrestling_count|default:"0" }},
+                    {{ statistics.judo_count|default:"0" }},
+                    {{ statistics.karate_count|default:"0" }},
+                    {{ statistics.taekwondo_count|default:"0" }},
+                    {{ statistics.mma_count|default:"0" }},
+                    {{ statistics.other_sport_count|default:"0" }}
+                ],
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+    
+    // User Growth Chart
+    const growthCtx = document.getElementById('userGrowthChart').getContext('2d');
+    const months = {{ user_growth_months|safe }};
+    const growthData = {{ user_growth_data|safe }};
+    
+    const growthChart = new Chart(growthCtx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'New Users',
+                data: growthData,
+                fill: false,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.1,
+                pointBackgroundColor: 'rgba(75, 192, 192, 1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+    
+    // Activity Status Chart
+    const activityCtx = document.getElementById('activityStatusChart').getContext('2d');
+    const activityChart = new Chart(activityCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Active', 'Inactive'],
+            datasets: [{
+                data: [
+                    {{ statistics.active_users|default:"0" }},
+                    {{ statistics.inactive_users|default:"0" }}
+                ],
+                backgroundColor: [
+                    'rgba(75, 192, 92, 0.7)',
+                    'rgba(201, 203, 207, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 92, 1)',
+                    'rgba(201, 203, 207, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            cutout: '70%'
+        }
+    });
+    
+    // Filter form auto-submission
+    document.querySelectorAll('#userTypeFilter, #sportFilter, #levelFilter, #statusFilter').forEach(select => {
+        select.addEventListener('change', function() {
+            this.form.submit();
+        });
+    });
+</script>
+{% endblock %}

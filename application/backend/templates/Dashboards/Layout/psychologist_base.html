@@ -1,0 +1,345 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mental Health Platform for Cameroonian Athletes{% endblock %}</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Animation library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-light: #93c5fd;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #0ea5e9;
+            --accent-color: #0284c7;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --bg-light: #f8fafc;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-icon {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .sidebar-icon:hover {
+            transform: translateY(-3px);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .notification-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 10px;
+            height: 10px;
+            background-color: #ef4444;
+            border-radius: 50%;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            transition: all 0.3s ease;
+        }
+        
+        .show-dropdown {
+            display: block;
+        }
+        
+        .active-nav-item {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid white;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="h-screen flex flex-col">
+    <!-- Top Navigation -->
+    <header class="bg-white shadow-md py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+        <div class="flex items-center">
+            <button id="sidebar-toggle" class="lg:hidden text-gray-600 mr-3">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <a href="{% url 'psychologist_dashboard' %}" class="flex items-center">
+                <img src="{% static 'images/logo.png' %}" alt="Logo" class="h-8 w-auto">
+                <span class="ml-2 text-lg font-semibold text-blue-600 hidden sm:inline-block">Mental Health Platform</span>
+            </a>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+            <!-- Search -->
+            <div class="hidden md:block relative">
+                <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-300">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+            
+            <!-- Notifications -->
+            <div class="relative">
+                <button id="notifications-dropdown" class="text-gray-600 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span class="notification-dot"></span>
+                </button>
+                <div id="notifications-menu" class="dropdown-menu absolute right-0 mt-2 w-72 bg-white rounded-md shadow-lg z-10">
+                    <div class="p-3 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800">Notifications</h3>
+                    </div>
+                    <div class="max-h-72 overflow-y-auto">
+                        <a href="#" class="block p-3 border-b border-gray-200 hover:bg-blue-50">
+                            <p class="text-sm font-medium text-gray-700">New appointment with Athlete: Jean Claude</p>
+                            <p class="text-xs text-gray-500">10 minutes ago</p>
+                        </a>
+                        <a href="#" class="block p-3 border-b border-gray-200 hover:bg-blue-50">
+                            <p class="text-sm font-medium text-gray-700">Assessment completed by Marie Nguemo</p>
+                            <p class="text-xs text-gray-500">1 hour ago</p>
+                        </a>
+                        <a href="#" class="block p-3 border-b border-gray-200 hover:bg-blue-50">
+                            <p class="text-sm font-medium text-gray-700">Message from Administration</p>
+                            <p class="text-xs text-gray-500">Yesterday</p>
+                        </a>
+                    </div>
+                    <div class="p-2 text-center border-t border-gray-200">
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800">View all notifications</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Messages -->
+            <div class="relative">
+                <button id="messages-dropdown" class="text-gray-600 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-envelope text-xl"></i>
+                    <span class="notification-dot"></span>
+                </button>
+                <div id="messages-menu" class="dropdown-menu absolute right-0 mt-2 w-72 bg-white rounded-md shadow-lg z-10">
+                    <div class="p-3 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-800">Messages</h3>
+                    </div>
+                    <div class="max-h-72 overflow-y-auto">
+                        <a href="#" class="block p-3 border-b border-gray-200 hover:bg-blue-50">
+                            <div class="flex items-center">
+                                <img src="{% static 'images/avatar1.jpg' %}" alt="Avatar" class="h-8 w-8 rounded-full">
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-700">Edith Mbofa</p>
+                                    <p class="text-xs text-gray-500 truncate">I'd like to discuss my training plan...</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="block p-3 border-b border-gray-200 hover:bg-blue-50">
+                            <div class="flex items-center">
+                                <img src="{% static 'images/avatar2.jpg' %}" alt="Avatar" class="h-8 w-8 rounded-full">
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-700">Francis Ngannou</p>
+                                    <p class="text-xs text-gray-500 truncate">Thank you for yesterday's session...</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="p-2 text-center border-t border-gray-200">
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800">View all messages</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Profile -->
+            <div class="relative">
+                <button id="profile-dropdown" class="flex items-center space-x-2">
+                    <img src="{% static 'images/psychologist_avatar.jpg' %}" alt="Profile" class="h-8 w-8 rounded-full border-2 border-blue-500">
+                    <span class="text-sm font-medium text-gray-700 hidden md:inline-block">Dr. Kameni Julie</span>
+                    <i class="fas fa-chevron-down text-xs text-gray-500 hidden md:inline-block"></i>
+                </button>
+                <div id="profile-menu" class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">
+                        <i class="fas fa-user mr-2"></i> My Profile
+                    </a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">
+                        <i class="fas fa-cog mr-2"></i> Settings
+                    </a>
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">
+                        <i class="fas fa-calendar-alt mr-2"></i> My Schedule
+                    </a>
+                    <div class="border-t border-gray-200"></div>
+                    <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="sidebar w-64 fixed lg:relative inset-y-0 left-0 z-30 transform lg:translate-x-0 -translate-x-full transition duration-300 ease-in-out flex flex-col h-screen overflow-y-auto text-white">
+            <div class="flex-1 py-6 px-4 space-y-6">
+                <div class="flex flex-col items-center space-y-2 pb-6 mb-6 border-b border-blue-400 border-opacity-40">
+                    <img src="{% static 'images/psychologist_avatar.jpg' %}" alt="Profile" class="h-24 w-24 rounded-full border-4 border-white">
+                    <h3 class="text-lg font-semibold">Dr. Kameni Julie</h3>
+                    <p class="text-sm text-blue-100">Sports Psychologist</p>
+                    <div class="flex items-center bg-blue-600 rounded-full px-3 py-1 text-xs">
+                        <span class="h-2 w-2 bg-green-400 rounded-full mr-1"></span>
+                        <span>Available</span>
+                    </div>
+                </div>
+                
+                <nav class="space-y-1">
+                    <a href="{% url 'psychologist_dashboard' %}" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm {% if request.resolver_match.url_name == 'psychologist_dashboard' %}active-nav-item{% endif %}">
+                        <i class="fas fa-tachometer-alt w-6 sidebar-icon"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm {% if request.resolver_match.url_name == 'appointments' %}active-nav-item{% endif %}">
+                        <i class="fas fa-calendar-check w-6 sidebar-icon"></i>
+                        <span>Appointments</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm {% if request.resolver_match.url_name == 'patients' %}active-nav-item{% endif %}">
+                        <i class="fas fa-users w-6 sidebar-icon"></i>
+                        <span>My Athletes</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm {% if request.resolver_match.url_name == 'assessments' %}active-nav-item{% endif %}">
+                        <i class="fas fa-clipboard-list w-6 sidebar-icon"></i>
+                        <span>Assessments</span>
+                    </a>
+                    <a href="#}" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm {% if request.resolver_match.url_name == 'resources' %}active-nav-item{% endif %}">
+                        <i class="fas fa-book w-6 sidebar-icon"></i>
+                        <span>Resources</span>
+                    </a>
+                    <a href="#}" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm {% if request.resolver_match.url_name == 'forum' %}active-nav-item{% endif %}">
+                        <i class="fas fa-comments w-6 sidebar-icon"></i>
+                        <span>Community Forum</span>
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm {% if request.resolver_match.url_name == 'reports' %}active-nav-item{% endif %}">
+                        <i class="fas fa-chart-bar w-6 sidebar-icon"></i>
+                        <span>Reports</span>
+                    </a>
+                </nav>
+            </div>
+            
+            <!-- Bottom Sidebar -->
+            <div class="p-4 border-t border-blue-400 border-opacity-40">
+                <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm">
+                    <i class="fas fa-question-circle w-6 sidebar-icon"></i>
+                    <span>Help & Support</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm">
+                    <i class="fas fa-cog w-6 sidebar-icon"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        // Toggle sidebar on mobile
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+        
+        // Toggle dropdowns
+        function setupDropdown(buttonId, menuId) {
+            const button = document.getElementById(buttonId);
+            const menu = document.getElementById(menuId);
+            
+            if (button && menu) {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    menu.classList.toggle('show-dropdown');
+                    
+                    // Close other dropdowns
+                    document.querySelectorAll('.dropdown-menu').forEach(function(dropdown) {
+                        if (dropdown.id !== menuId && dropdown.classList.contains('show-dropdown')) {
+                            dropdown.classList.remove('show-dropdown');
+                        }
+                    });
+                });
+            }
+        }
+        
+        setupDropdown('notifications-dropdown', 'notifications-menu');
+        setupDropdown('messages-dropdown', 'messages-menu');
+        setupDropdown('profile-dropdown', 'profile-menu');
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.dropdown-menu').forEach(function(dropdown) {
+                dropdown.classList.remove('show-dropdown');
+            });
+        });
+        
+        // Prevent dropdown closing when clicking inside
+        document.querySelectorAll('.dropdown-menu').forEach(function(dropdown) {
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+        
+        // Add animation class to elements when they come into view
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('.animate-on-scroll');
+            
+            elements.forEach(function(element) {
+                const position = element.getBoundingClientRect();
+                
+                // If element is in viewport
+                if(position.top < window.innerHeight && position.bottom >= 0) {
+                    element.classList.add('animate-fade-in');
+                }
+            });
+        }
+        
+        // Call on load and scroll
+        window.addEventListener('load', animateOnScroll);
+        window.addEventListener('scroll', animateOnScroll);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

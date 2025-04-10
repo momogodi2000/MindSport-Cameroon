@@ -1,0 +1,391 @@
+{% extends 'Dashboards/Layout/psychologist_base.html' %}
+{% load static %}
+
+{% block title %}Psychologist Dashboard | Mental Health Platform{% endblock %}
+
+{% block extra_css %}
+<style>
+    .progress-ring {
+        transform: rotate(-90deg);
+    }
+    
+    .animate-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: .5;
+        }
+    }
+    
+    .appointment-card {
+        transition: all 0.3s ease;
+    }
+    
+    .appointment-card:hover {
+        background-color: #f0f9ff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="animate-on-scroll">
+    <!-- Welcome Section -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Welcome back, Dr. Kameni Julie</h1>
+            <p class="text-gray-600 mt-1">{{ today_date|date:"l, d F Y" }}</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex space-x-3">
+            <button class="btn-primary px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-colors flex items-center">
+                <i class="fas fa-video mr-2"></i> Start Session
+            </button>
+            <button class="px-4 py-2 bg-white text-blue-600 border border-blue-500 rounded-lg shadow-sm hover:bg-blue-50 transition-colors flex items-center">
+                <i class="fas fa-calendar-plus mr-2"></i> New Appointment
+            </button>
+        </div>
+    </div>
+    
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Athletes -->
+        <div class="card bg-white p-6 rounded-xl shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Athletes</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1">32</h3>
+                    <p class="text-xs text-green-600 mt-2 flex items-center">
+                        <i class="fas fa-arrow-up mr-1"></i> 12% from last month
+                    </p>
+                </div>
+                <div class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">
+                    <i class="fas fa-users text-xl"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scheduled Sessions -->
+        <div class="card bg-white p-6 rounded-xl shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Sessions This Week</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1">18</h3>
+                    <p class="text-xs text-green-600 mt-2 flex items-center">
+                        <i class="fas fa-arrow-up mr-1"></i> 4% from last week
+                    </p>
+                </div>
+                <div class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">
+                    <i class="fas fa-calendar-check text-xl"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Session Hours -->
+        <div class="card bg-white p-6 rounded-xl shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Hours This Month</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1">48.5</h3>
+                    <p class="text-xs text-green-600 mt-2 flex items-center">
+                        <i class="fas fa-arrow-up mr-1"></i> 8% from last month
+                    </p>
+                </div>
+                <div class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">
+                    <i class="fas fa-clock text-xl"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Completion Rate -->
+        <div class="card bg-white p-6 rounded-xl shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Assessment Completion</p>
+                    <h3 class="text-2xl font-bold text-gray-900 mt-1">86%</h3>
+                    <p class="text-xs text-red-600 mt-2 flex items-center">
+                        <i class="fas fa-arrow-down mr-1"></i> 2% from last month
+                    </p>
+                </div>
+                <div class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-500">
+                    <i class="fas fa-clipboard-check text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Dashboard Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Today's Schedule -->
+        <div class="lg:col-span-2 card bg-white rounded-xl shadow overflow-hidden">
+            <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white flex justify-between items-center">
+                <h3 class="font-semibold text-lg">Today's Schedule</h3>
+                <div class="flex space-x-2">
+                    <button class="p-1 hover:bg-blue-400 rounded transition-colors">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="p-1 hover:bg-blue-400 rounded transition-colors">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                {% if today_appointments %}
+                    <div class="space-y-4">
+                        <!-- Upcoming Appointment With Progress -->
+                        <div class="appointment-card p-4 border-l-4 border-yellow-500 bg-yellow-50 rounded-r flex justify-between items-center">
+                            <div class="flex-1">
+                                <div class="flex items-center">
+                                    <span class="h-2 w-2 bg-yellow-500 rounded-full animate-pulse mr-2"></span>
+                                    <span class="text-yellow-600 text-sm font-semibold">Starting in 15 minutes</span>
+                                </div>
+                                <h4 class="font-semibold mt-1">Marie Nguemo - Boxing</h4>
+                                <div class="flex items-center text-sm text-gray-600 mt-1">
+                                    <i class="far fa-clock mr-2"></i> 10:30 - 11:30 AM
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mt-1">
+                                    <i class="fas fa-map-marker-alt mr-2"></i> Video Call
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                                    <i class="fas fa-video"></i>
+                                </button>
+                                <button class="p-2 bg-white text-gray-600 border border-gray-300 rounded hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-file-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Regular Appointment -->
+                        <div class="appointment-card p-4 border border-gray-200 rounded flex justify-between items-center">
+                            <div class="flex-1">
+                                <h4 class="font-semibold">Edith Mbofa - Taekwondo</h4>
+                                <div class="flex items-center text-sm text-gray-600 mt-1">
+                                    <i class="far fa-clock mr-2"></i> 1:00 - 2:00 PM
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mt-1">
+                                    <i class="fas fa-map-marker-alt mr-2"></i> Office #3
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                                    <i class="fas fa-user"></i>
+                                </button>
+                                <button class="p-2 bg-white text-gray-600 border border-gray-300 rounded hover:bg-gray-100 transition-colors">
+                                    <i class="fas fa-file-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Regular Appointment -->
+                        <div class="appointment-card p-4 border border-gray-200 rounded flex justify-between items-center">
+                            <div class="flex-1">
+                                <h4 class="font-semibold">Jean Claude - Judo</h4>
+                                <div class="flex items-center text-sm text-gray-600 mt-1">
+                                    <i class="far fa-clock mr-2"></i> 3:30 - 4:30 PM
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600 mt-1">
+                                    <i class="fas fa-map-marker-alt mr-2"></i> Video Call
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+                                    <i class="fas fa-video"></i>
+                                </button>
+                                <button class="p-2 bg-white text-gray-600 border border-gray-300 rounded hover:bg-gray-100 transition colors">
+<i class="fas fa-file-alt"></i>
+</button>
+</div>
+</div>
+</div>
+{% else %}
+<div class="text-center py-8">
+<i class="far fa-calendar-check text-4xl text-gray-300 mb-3"></i>
+<h4 class="text-lg font-medium text-gray-500">No appointments scheduled for today</h4>
+<p class="text-gray-400 mt-1">You can schedule new appointments using the button below</p>
+<button class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+<i class="fas fa-calendar-plus mr-2"></i> Schedule Appointment
+</button>
+</div>
+{% endif %}
+</div>
+</div>
+
+    <!-- Recent Assessments -->
+    <div class="card bg-white rounded-xl shadow overflow-hidden">
+        <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white flex justify-between items-center">
+            <h3 class="font-semibold text-lg">Recent Assessments</h3>
+            <div class="flex space-x-2">
+                <button class="p-1 hover:bg-blue-400 rounded transition-colors">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="p-1 hover:bg-blue-400 rounded transition-colors">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="space-y-4">
+                <!-- Assessment Item -->
+                <div class="flex items-start">
+                    <div class="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 mr-4">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium">Stress Level Assessment</h4>
+                        <p class="text-sm text-gray-600">Francis Ngannou - Boxing</p>
+                        <div class="flex items-center mt-1">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 65%"></div>
+                            </div>
+                            <span class="text-xs text-gray-500 ml-2">65%</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Completed 2 days ago</p>
+                    </div>
+                </div>
+                
+                <!-- Assessment Item -->
+                <div class="flex items-start">
+                    <div class="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 mr-4">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium">Mental Toughness Scale</h4>
+                        <p class="text-sm text-gray-600">Marie Nguemo - Boxing</p>
+                        <div class="flex items-center mt-1">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 92%"></div>
+                            </div>
+                            <span class="text-xs text-gray-500 ml-2">92%</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Completed 3 days ago</p>
+                    </div>
+                </div>
+                
+                <!-- Assessment Item -->
+                <div class="flex items-start">
+                    <div class="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-500 mr-4">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium">Anxiety Inventory</h4>
+                        <p class="text-sm text-gray-600">Edith Mbofa - Taekwondo</p>
+                        <div class="flex items-center mt-1">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-red-500 h-2 rounded-full" style="width: 42%"></div>
+                            </div>
+                            <span class="text-xs text-gray-500 ml-2">42%</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Completed 1 week ago</p>
+                    </div>
+                </div>
+                
+                <!-- View All Button -->
+                <div class="pt-2">
+                    <a href="#" class="text-blue-500 text-sm font-medium hover:text-blue-700 transition-colors flex items-center">
+                        View all assessments
+                        <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts and Additional Data -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Weekly Sessions Chart -->
+    <div class="card bg-white rounded-xl shadow p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-semibold text-lg">Weekly Sessions</h3>
+            <div class="flex space-x-2">
+                <button class="p-1 text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+        </div>
+        <div class="h-64">
+            <canvas id="weeklySessionsChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Athlete Status -->
+    <div class="card bg-white rounded-xl shadow p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-semibold text-lg">Athlete Status</h3>
+            <div class="flex space-x-2">
+                <button class="p-1 text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+        </div>
+        <div class="h-64">
+            <canvas id="athleteStatusChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Messages -->
+<div class="card bg-white rounded-xl shadow overflow-hidden mb-8">
+    <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white flex justify-between items-center">
+        <h3 class="font-semibold text-lg">Recent Messages</h3>
+        <div class="flex space-x-2">
+            <button class="p-1 hover:bg-blue-400 rounded transition-colors">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+            <button class="p-1 hover:bg-blue-400 rounded transition-colors">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+        </div>
+    </div>
+    <div class="p-6">
+        <div class="space-y-4">
+            <!-- Message Item -->
+            <div class="flex items-start pb-4 border-b border-gray-200">
+                <img src="{% static 'images/avatar1.jpg' %}" alt="Avatar" class="h-10 w-10 rounded-full mr-4">
+                <div class="flex-1">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-medium">Edith Mbofa</h4>
+                        <span class="text-xs text-gray-500">2 hours ago</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-1">Hello doctor, I wanted to follow up on our last session. I've been practicing the techniques you suggested...</p>
+                    <button class="mt-2 text-blue-500 text-sm hover:text-blue-700 transition-colors">
+                        Reply <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Message Item -->
+            <div class="flex items-start pb-4 border-b border-gray-200">
+                <img src="{% static 'images/avatar2.jpg' %}" alt="Avatar" class="h-10 w-10 rounded-full mr-4">
+                <div class="flex-1">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-medium">Francis Ngannou</h4>
+                        <span class="text-xs text-gray-500">Yesterday</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-1">Thank you for the resources you shared. They've been very helpful in managing my pre-competition anxiety...</p>
+                    <button class="mt-2 text-blue-500 text-sm hover:text-blue-700 transition-colors">
+                        Reply <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- View All Button -->
+            <div class="pt-2">
+                <a href="#" class="text-blue-500 text-sm font-medium hover:text-blue-700 transition-colors flex items-center">
+                    View all messages
+                    <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</div> {% endblock %}
+{% block extra_js %}
+
+<script> // Weekly Sessions Chart const weeklySessionsCtx = document.getElementById('weeklySessionsChart').getContext('2d'); const weeklySessionsChart = new Chart(weeklySessionsCtx, { type: 'bar', data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ label: 'Sessions', data: [8, 12, 6, 10, 14, 4, 2], backgroundColor: '#3b82f6', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { drawBorder: false } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } } }); // Athlete Status Chart const athleteStatusCtx = document.getElementById('athleteStatusChart').getContext('2d'); const athleteStatusChart = new Chart(athleteStatusCtx, { type: 'doughnut', data: { labels: ['Optimal', 'Moderate', 'At Risk'], datasets: [{ data: [18, 10, 4], backgroundColor: [ '#10b981', '#f59e0b', '#ef4444' ], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } } }); </script>
+{% endblock %}

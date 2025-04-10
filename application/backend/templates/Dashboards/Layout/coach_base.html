@@ -1,0 +1,249 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mental Health Platform - Coach Dashboard{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Alpine.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.0/cdn.min.js" defer></script>
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-in {
+            animation: slideIn 0.5s ease-in-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex flex-col" x-data="{ sidebarOpen: false }">
+        <!-- Mobile Navigation Bar -->
+        <div class="lg:hidden bg-white shadow-md p-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="{% static 'img/logo.png' %}" alt="Logo" class="h-10 w-auto">
+                <span class="ml-3 text-xl font-semibold text-blue-600">MentalHealth Coach</span>
+            </div>
+            <button @click="sidebarOpen = !sidebarOpen" class="text-gray-600 focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+
+        <div class="flex flex-1">
+            <!-- Sidebar -->
+            <div 
+                :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}" 
+                class="fixed inset-y-0 left-0 z-50 w-64 bg-blue-600 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto">
+                <!-- Sidebar header -->
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <img src="{% static 'img/logo.png' %}" alt="Logo" class="h-10 w-auto">
+                            <span class="ml-3 text-xl font-semibold">Coach Portal</span>
+                        </div>
+                        <button @click="sidebarOpen = false" class="lg:hidden text-white">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Sidebar Navigation -->
+                <nav class="mt-6">
+                    <div class="px-4 py-2 text-xs text-blue-200 uppercase tracking-wider">
+                        Main
+                    </div>
+                    <a href="{% url 'coach_dashboard' %}" class="block py-3 px-6 my-1 mx-2 rounded transition-all duration-200 {% if request.resolver_match.url_name == 'coach_dashboard' %}bg-white bg-opacity-30 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-20{% endif %}">
+                        <i class="fas fa-home mr-3"></i> Dashboard
+                    </a>
+                    <a href="#" class="block py-3 px-6 my-1 mx-2 rounded transition-all duration-200 {% if request.resolver_match.url_name == 'coach_appointments' %}bg-white bg-opacity-30 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-20{% endif %}">
+                        <i class="fas fa-calendar-alt mr-3"></i> Appointments
+                    </a>
+                    <a href="#" class="block py-3 px-6 my-1 mx-2 rounded transition-all duration-200 {% if request.resolver_match.url_name == 'coach_athletes' %}bg-white bg-opacity-30 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-20{% endif %}">
+                        <i class="fas fa-users mr-3"></i> My Athletes
+                    </a>
+                    <a href="#" class="block py-3 px-6 my-1 mx-2 rounded transition-all duration-200 {% if request.resolver_match.url_name == 'coach_resources' %}bg-white bg-opacity-30 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-20{% endif %}">
+                        <i class="fas fa-book mr-3"></i> Resources
+                    </a>
+                    
+                    <div class="px-4 py-2 mt-8 text-xs text-blue-200 uppercase tracking-wider">
+                        Community
+                    </div>
+                    <a href="#" class="block py-3 px-6 my-1 mx-2 rounded transition-all duration-200 {% if request.resolver_match.url_name == 'coach_forum' %}bg-white bg-opacity-30 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-20{% endif %}">
+                        <i class="fas fa-comments mr-3"></i> Forums
+                    </a>
+                    <a href="#" class="block py-3 px-6 my-1 mx-2 rounded transition-all duration-200 {% if request.resolver_match.url_name == 'coach_messaging' %}bg-white bg-opacity-30 text-white font-semibold{% else %}text-blue-100 hover:bg-white hover:bg-opacity-20{% endif %}">
+                        <i class="fas fa-envelope mr-3"></i> Messages
+                    </a>
+                </nav>
+                
+                <!-- Profile section -->
+                <div class="mt-auto p-4">
+                    <div class="border-t border-blue-500 pt-4">
+                        <a href="#" class="flex items-center p-2 rounded hover:bg-blue-700 transition duration-200">
+                            <img src="{% static 'img/avatar.jpg' %}" alt="Coach Profile" class="h-10 w-10 rounded-full object-cover border-2 border-blue-300">
+                            <div class="ml-3">
+                                <p class="font-medium text-sm">{{ request.user.get_full_name }}</p>
+                                <p class="text-xs text-blue-200">Mental Coach</p>
+                            </div>
+                        </a>
+                        <a href="{% url 'logout' %}" class="block w-full mt-4 py-2 px-4 text-center bg-blue-700 hover:bg-blue-800 rounded text-white transition duration-200">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1 overflow-hidden">
+                <!-- Top Navigation Bar -->
+                <header class="bg-white shadow-sm py-3 px-6 hidden lg:block">
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4 items-center">
+                            <h1 class="text-2xl font-semibold text-gray-800">{% block header_title %}Dashboard{% endblock %}</h1>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="relative" x-data="{ isOpen: false }">
+                                <button @click="isOpen = !isOpen" class="p-2 bg-gray-100 rounded-full relative">
+                                    <i class="fas fa-bell text-gray-600"></i>
+                                    <span class="absolute top-0 right-0 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-white text-xs">3</span>
+                                </button>
+                                <div x-show="isOpen" @click.away="isOpen = false" class="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-50" style="display: none;">
+                                    <div class="py-2 px-4 text-sm font-semibold text-gray-700 border-b">Notifications</div>
+                                    <div class="max-h-64 overflow-y-auto">
+                                        <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 border-b">
+                                            <div class="font-medium">New appointment request</div>
+                                            <div class="text-gray-500">Athlete Jean Paul has requested a session</div>
+                                            <div class="text-xs text-blue-500 mt-1">10 minutes ago</div>
+                                        </a>
+                                        <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 border-b">
+                                            <div class="font-medium">Assessment completed</div>
+                                            <div class="text-gray-500">Athlete Marie Noelle completed the stress assessment</div>
+                                            <div class="text-xs text-blue-500 mt-1">1 hour ago</div>
+                                        </a>
+                                        <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100">
+                                            <div class="font-medium">Forum activity</div>
+                                            <div class="text-gray-500">New response to your post about pre-competition anxiety</div>
+                                            <div class="text-xs text-blue-500 mt-1">Yesterday</div>
+                                        </a>
+                                    </div>
+                                    <a href="#" class="block py-2 text-sm font-medium text-center text-blue-600 bg-gray-50 hover:text-blue-700">View all notifications</a>
+                                </div>
+                            </div>
+                            <div class="relative" x-data="{ isOpen: false }">
+                                <button @click="isOpen = !isOpen" class="flex items-center space-x-2">
+                                    <img src="{% static 'img/avatar.jpg' %}" alt="Profile" class="h-10 w-10 rounded-full object-cover border-2 border-gray-200">
+                                    <span class="hidden md:block text-sm font-medium text-gray-700">{{ request.user.get_full_name }}</span>
+                                    <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                                </button>
+                                <div x-show="isOpen" @click.away="isOpen = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50" style="display: none;">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-user mr-2 text-blue-500"></i> My Profile
+                                    </a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-cog mr-2 text-blue-500"></i> Settings
+                                    </a>
+                                    <div class="border-t border-gray-100"></div>
+                                    <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-sign-out-alt mr-2 text-blue-500"></i> Logout
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Page Content -->
+                <main class="p-6 overflow-y-auto" style="height: calc(100vh - 4rem);">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="mb-4 p-4 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-700{% else %}bg-blue-100 text-blue-700{% endif %} flex items-start">
+                                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} mt-1 mr-3"></i>
+                                <div>
+                                    <p class="font-medium">{{ message }}</p>
+                                </div>
+                                <button class="ml-auto" onclick="this.parentElement.remove()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    {% block content %}
+                    <!-- This is where the page-specific content will go -->
+                    {% endblock %}
+                </main>
+
+                <!-- Footer -->
+                <footer class="bg-white p-4 text-center text-gray-500 text-sm border-t">
+                    &copy; {% now "Y" %} Mental Health Platform for Cameroonian Combat Athletes. All rights reserved.
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backdrop for mobile sidebar -->
+    <div 
+        x-show="sidebarOpen" 
+        @click="sidebarOpen = false" 
+        class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+        style="display: none;"
+    ></div>
+
+    {% block extra_js %}{% endblock %}
+    <script>
+        // Initialize any global JavaScript here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add fade-in animation to main content
+            document.querySelector('main').classList.add('fade-in');
+            
+            // Add slide-in animation to sidebar items with delay
+            document.querySelectorAll('nav a').forEach((item, index) => {
+                item.classList.add('slide-in');
+                item.style.animationDelay = `${index * 0.05}s`;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-4 sm:p-6 md:p-8">
+  <div class="w-full max-w-lg bg-white p-6 sm:p-8 rounded-xl shadow-xl transform transition-all duration-300 hover:shadow-2xl">
+    <div class="mb-8 text-center">
+      <h2 class="text-2xl sm:text-3xl font-bold text-blue-800 mb-2">Complete Your Profile</h2>
+      <p class="text-blue-600">Tell us more about yourself to get started</p>
+    </div>
+    
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      
+      <div class="bg-blue-50 p-4 rounded-lg transition-all duration-300 hover:bg-blue-100">
+        <label class="block text-sm font-semibold text-blue-800 mb-1">Email</label>
+        <p class="text-blue-700">{{ user.email }}</p>
+      </div>
+      
+      <div class="relative group">
+        <label for="id_user_type" class="block text-sm font-semibold text-blue-800 mb-2">I am a:</label>
+        <div class="relative">
+          <select id="id_user_type" name="user_type" class="block w-full px-4 py-3 text-blue-800 bg-blue-50 border border-blue-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300">
+            {{ form.user_type.html|safe }}
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-700">
+            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+            </svg>
+          </div>
+        </div>
+        {% if form.user_type.errors %}
+          <div class="text-red-500 text-sm mt-1 animate-pulse">{{ form.user_type.errors }}</div>
+        {% endif %}
+      </div>
+      
+      <div id="athlete-fields" class="hidden space-y-5 opacity-0 transform -translate-y-4 transition-all duration-500">
+        <h3 class="text-lg font-semibold text-blue-700 border-b border-blue-200 pb-2">Athlete Information</h3>
+        <div class="relative group">
+          <label for="id_sport" class="block text-sm font-semibold text-blue-800 mb-2">Sport</label>
+          <select id="id_sport" name="sport" class="block w-full px-4 py-3 text-blue-800 bg-blue-50 border border-blue-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300">
+            {{ form.sport.html|safe }}
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-700">
+            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+            </svg>
+          </div>
+          {% if form.sport.errors %}
+            <div class="text-red-500 text-sm mt-1 animate-pulse">{{ form.sport.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="relative group">
+          <label for="id_level" class="block text-sm font-semibold text-blue-800 mb-2">Level</label>
+          <select id="id_level" name="level" class="block w-full px-4 py-3 text-blue-800 bg-blue-50 border border-blue-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300">
+            {{ form.level.html|safe }}
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-700">
+            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+            </svg>
+          </div>
+          {% if form.level.errors %}
+            <div class="text-red-500 text-sm mt-1 animate-pulse">{{ form.level.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div id="professional-fields" class="hidden space-y-5 opacity-0 transform -translate-y-4 transition-all duration-500">
+        <h3 class="text-lg font-semibold text-blue-700 border-b border-blue-200 pb-2">Professional Information</h3>
+        <div class="relative group">
+          <label for="id_qualifications" class="block text-sm font-semibold text-blue-800 mb-2">Qualifications</label>
+          <textarea id="id_qualifications" name="qualifications" rows="3" class="block w-full px-4 py-3 text-blue-800 bg-blue-50 border border-blue-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none">{{ form.qualifications.value|default:'' }}</textarea>
+          {% if form.qualifications.errors %}
+            <div class="text-red-500 text-sm mt-1 animate-pulse">{{ form.qualifications.errors }}</div>
+          {% endif %}
+        </div>
+        
+        <div class="relative group">
+          <label for="id_years_experience" class="block text-sm font-semibold text-blue-800 mb-2">Years of Experience</label>
+          <input type="number" id="id_years_experience" name="years_experience" min="0" step="1" value="{{ form.years_experience.value|default:'' }}" class="block w-full px-4 py-3 text-blue-800 bg-blue-50 border border-blue-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300">
+          {% if form.years_experience.errors %}
+            <div class="text-red-500 text-sm mt-1 animate-pulse">{{ form.years_experience.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="flex items-start p-4 bg-blue-50 rounded-lg transition-all duration-300 hover:bg-blue-100">
+        <div class="flex items-center h-5">
+          <input id="id_terms_accepted" name="terms_accepted" type="checkbox" class="w-4 h-4 text-blue-600 border-blue-300 rounded focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300" {% if form.terms_accepted.value %}checked{% endif %}>
+        </div>
+        <div class="ml-3 text-sm">
+          <label for="id_terms_accepted" class="font-medium text-blue-800">{{ form.terms_accepted.label }}</label>
+          {% if form.terms_accepted.errors %}
+            <div class="text-red-500 text-sm mt-1 animate-pulse">{{ form.terms_accepted.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="pt-4">
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg flex items-center justify-center">
+          <span>Complete Registration</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.getElementById('id_user_type').addEventListener('change', function() {
+    const athleteFields = document.getElementById('athlete-fields');
+    const professionalFields = document.getElementById('professional-fields');
+    
+    if (this.value === 'athlete') {
+      // Hide professional fields first
+      professionalFields.classList.add('hidden');
+      professionalFields.classList.add('opacity-0');
+      professionalFields.classList.add('-translate-y-4');
+      
+      // Then show athlete fields with animation
+      athleteFields.classList.remove('hidden');
+      setTimeout(() => {
+        athleteFields.classList.remove('opacity-0');
+        athleteFields.classList.remove('-translate-y-4');
+      }, 50);
+    } else if (['psychologist', 'coach', 'nutritionist'].includes(this.value)) {
+      // Hide athlete fields first
+      athleteFields.classList.add('hidden');
+      athleteFields.classList.add('opacity-0');
+      athleteFields.classList.add('-translate-y-4');
+      
+      // Then show professional fields with animation
+      professionalFields.classList.remove('hidden');
+      setTimeout(() => {
+        professionalFields.classList.remove('opacity-0');
+        professionalFields.classList.remove('-translate-y-4');
+      }, 50);
+    } else {
+      // Hide both with animation
+      athleteFields.classList.add('opacity-0');
+      athleteFields.classList.add('-translate-y-4');
+      professionalFields.classList.add('opacity-0');
+      professionalFields.classList.add('-translate-y-4');
+      
+      setTimeout(() => {
+        athleteFields.classList.add('hidden');
+        professionalFields.classList.add('hidden');
+      }, 300);
+    }
+  });
+
+  // Initialize fields based on default selection
+  document.addEventListener('DOMContentLoaded', function() {
+    const userTypeSelect = document.getElementById('id_user_type');
+    if (userTypeSelect.value === 'athlete') {
+      const athleteFields = document.getElementById('athlete-fields');
+      athleteFields.classList.remove('hidden');
+      setTimeout(() => {
+        athleteFields.classList.remove('opacity-0');
+        athleteFields.classList.remove('-translate-y-4');
+      }, 50);
+    } else if (['psychologist', 'coach', 'nutritionist'].includes(userTypeSelect.value)) {
+      const professionalFields = document.getElementById('professional-fields');
+      professionalFields.classList.remove('hidden');
+      setTimeout(() => {
+        professionalFields.classList.remove('opacity-0');
+        professionalFields.classList.remove('-translate-y-4');
+      }, 50);
+    }
+  });
+</script>
+{% endblock %}

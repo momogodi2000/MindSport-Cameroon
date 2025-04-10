@@ -1,0 +1,183 @@
+
+{% extends "Dashboards/Layout/admin_base.html" %}
+
+{% block title %}Update User{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Section -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-blue-800">Update User</h1>
+            <p class="text-gray-600 mt-2">Edit user information and settings</p>
+        </div>
+        <div>
+            <a href="{% url 'admin_get_users' %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Users
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <!-- Display Messages -->
+        {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+                <div class="p-4 mb-4 {% if message.tags == 'success' %}bg-green-100 text-green-700 border-l-4 border-green-500{% elif message.tags == 'error' %}bg-red-100 text-red-700 border-l-4 border-red-500{% else %}bg-blue-100 text-blue-700 border-l-4 border-blue-500{% endif %} rounded">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'admin_update_user' user.id %}" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Basic Information -->
+                <div class="space-y-6">
+                    <h2 class="text-xl font-semibold text-gray-800 border-b pb-2">Personal Information</h2>
+                    
+                    <div class="space-y-4">
+                        <!-- First Name -->
+                        <div>
+                            <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <!-- Last Name -->
+                        <div>
+                            <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <!-- Email -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address <span class="text-red-500">*</span></label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" required
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        
+                        <!-- Password -->
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password (Optional)</label>
+                            <input type="password" id="password" name="password"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">Leave empty to keep current password.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Account Settings -->
+                <div class="space-y-6">
+                    <h2 class="text-xl font-semibold text-gray-800 border-b pb-2">Account Settings</h2>
+                    
+                    <div class="space-y-4">
+                        <!-- User Type -->
+                        <div>
+                            <label for="user_type" class="block text-sm font-medium text-gray-700 mb-1">User Type <span class="text-red-500">*</span></label>
+                            <select id="user_type" name="user_type" required
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="athlete" {% if user.user_type == 'athlete' %}selected{% endif %}>Athlete</option>
+                                <option value="psychologist" {% if user.user_type == 'psychologist' %}selected{% endif %}>Psychologist</option>
+                                <option value="coach" {% if user.user_type == 'coach' %}selected{% endif %}>Mental Coach</option>
+                                <option value="nutritionist" {% if user.user_type == 'nutritionist' %}selected{% endif %}>Nutritionist</option>
+                                <option value="admin" {% if user.user_type == 'admin' %}selected{% endif %}>Administrator</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Sport (for Athletes) -->
+                        <div id="sportField" class="{% if user.user_type != 'athlete' %}hidden{% endif %}">
+                            <label for="sport" class="block text-sm font-medium text-gray-700 mb-1">Sport</label>
+                            <select id="sport" name="sport"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Select Sport</option>
+                                <option value="boxing" {% if user.sport == 'boxing' %}selected{% endif %}>Boxing</option>
+                                <option value="wrestling" {% if user.sport == 'wrestling' %}selected{% endif %}>Wrestling</option>
+                                <option value="judo" {% if user.sport == 'judo' %}selected{% endif %}>Judo</option>
+                                <option value="karate" {% if user.sport == 'karate' %}selected{% endif %}>Karate</option>
+                                <option value="taekwondo" {% if user.sport == 'taekwondo' %}selected{% endif %}>Taekwondo</option>
+                                <option value="mma" {% if user.sport == 'mma' %}selected{% endif %}>Mixed Martial Arts</option>
+                                <option value="other" {% if user.sport == 'other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        
+                       <!-- Level (for Athletes) -->
+<div id="levelField" class="{% if user.user_type != 'athlete' %}hidden{% endif %}">
+    <label for="level" class="block text-sm font-medium text-gray-700 mb-1">Level</label>
+    <select id="level" name="level"
+        class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        <option value="">Select Level</option>
+        <option value="amateur" {% if user.level == 'amateur' %}selected{% endif %}>Amateur</option>
+        <option value="semi-pro" {% if user.level == 'semi-pro' %}selected{% endif %}>Semi-Professional</option>
+        <option value="professional" {% if user.level == 'professional' %}selected{% endif %}>Professional</option>
+        <option value="elite" {% if user.level == 'elite' %}selected{% endif %}>Elite</option>
+    </select>
+</div>
+
+<!-- Qualifications (for Professionals) -->
+<div id="qualificationsField" class="{% if user.user_type == 'athlete' or user.user_type == 'admin' %}hidden{% endif %}">
+    <label for="qualifications" class="block text-sm font-medium text-gray-700 mb-1">Qualifications</label>
+    <textarea id="qualifications" name="qualifications" rows="3"
+        class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">{{ user.qualifications }}</textarea>
+</div>
+
+<!-- Years of Experience -->
+<div>
+    <label for="years_experience" class="block text-sm font-medium text-gray-700 mb-1">Years of Experience</label>
+    <input type="number" id="years_experience" name="years_experience" min="0" value="{{ user.years_experience|default:0 }}"
+        class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+</div>
+
+<!-- Active Status -->
+<div class="flex items-center space-x-2">
+    <input type="checkbox" id="is_active" name="is_active" {% if user.is_active %}checked{% endif %}
+        class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4">
+    <label for="is_active" class="text-sm font-medium text-gray-700">Active Account</label>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Submit Button -->
+<div class="pt-5 border-t border-gray-200 flex justify-end space-x-3">
+<a href="{% url 'admin_get_users' %}" class="bg-gray-100 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+    Cancel
+</a>
+<button type="submit" class="bg-blue-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+    Update User
+</button>
+</div>
+</form>
+</div>
+</div>
+
+<script>
+// Show/hide fields based on user type selection
+document.getElementById('user_type').addEventListener('change', function() {
+const userType = this.value;
+const sportField = document.getElementById('sportField');
+const levelField = document.getElementById('levelField');
+const qualificationsField = document.getElementById('qualificationsField');
+
+// Hide all conditional fields first
+sportField.classList.add('hidden');
+levelField.classList.add('hidden');
+qualificationsField.classList.add('hidden');
+
+// Show relevant fields based on user type
+if (userType === 'athlete') {
+sportField.classList.remove('hidden');
+levelField.classList.remove('hidden');
+} else if (['psychologist', 'coach', 'nutritionist'].includes(userType)) {
+qualificationsField.classList.remove('hidden');
+}
+});
+</script>
+{% endblock %}

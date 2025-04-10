@@ -1,0 +1,342 @@
+{% extends 'Dashboards/Layout/nutritionist_base.html' %}
+
+{% block title %}Nutritionist Dashboard | Mental Health Platform{% endblock %}
+
+{% block nav_dashboard %}text-white border-white hover:border-white border-b-2{% endblock %}
+
+{% block content %}
+<div class="py-6 bg-gradient-to-r from-blue-500 to-blue-600 animate-fadeIn">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-2xl font-semibold text-white">Welcome, {{ user.get_full_name }}</h1>
+        <p class="mt-1 text-blue-100">Your nutritionist dashboard | Mental Health Platform for Athletes</p>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Quick Stats Section -->
+    <div class="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Upcoming Appointments Card -->
+        <div class="bg-white overflow-hidden shadow rounded-lg animate-slideIn" style="animation-delay: 0.1s">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Upcoming Appointments</dt>
+                            <dd>
+                                <div class="text-lg font-semibold text-gray-900">{{ appointments_count }}</div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-blue-50 px-5 py-3">
+                <div class="text-sm">
+                    <a href="#" class="font-medium text-blue-600 hover:text-blue-500">View all</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Athletes Card -->
+        <div class="bg-white overflow-hidden shadow rounded-lg animate-slideIn" style="animation-delay: 0.2s">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Active Athletes</dt>
+                            <dd>
+                                <div class="text-lg font-semibold text-gray-900">{{ athletes_count }}</div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-blue-50 px-5 py-3">
+                <div class="text-sm">
+                    <a href="#" class="font-medium text-blue-600 hover:text-blue-500">View all</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nutrition Plans Card -->
+        <div class="bg-white overflow-hidden shadow rounded-lg animate-slideIn" style="animation-delay: 0.3s">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Nutrition Plans</dt>
+                            <dd>
+                                <div class="text-lg font-semibold text-gray-900">{{ nutrition_plans_count }}</div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-blue-50 px-5 py-3">
+                <div class="text-sm">
+                    <a href="#" class="font-medium text-blue-600 hover:text-blue-500">View all</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resources Published Card -->
+        <div class="bg-white overflow-hidden shadow rounded-lg animate-slideIn" style="animation-delay: 0.4s">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Resources Published</dt>
+                            <dd>
+                                <div class="text-lg font-semibold text-gray-900">{{ resources_count }}</div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-blue-50 px-5 py-3">
+                <div class="text-sm">
+                    <a href="#" class="font-medium text-blue-600 hover:text-blue-500">View all</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Upcoming Appointments -->
+        <div class="lg:col-span-2 bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Today's Appointments</h3>
+            </div>
+            <div class="divide-y divide-gray-200">
+                {% if appointments %}
+                    {% for appointment in appointments %}
+                    <div class="px-6 py-4 hover:bg-blue-50 transition-colors duration-150">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <img class="h-10 w-10 rounded-full object-cover" src="{{ appointment.athlete.profile_image.url|default:'/static/images/default-avatar.jpg' }}" alt="{{ appointment.athlete.user.get_full_name }}">
+                                <div class="ml-4">
+                                    <h4 class="text-sm font-medium text-gray-900">{{ appointment.athlete.user.get_full_name }}</h4>
+                                    <p class="text-sm text-gray-500">{{ appointment.sport }} - {{ appointment.notes|truncatechars:20 }}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium text-gray-900 mr-4">
+                                    {{ appointment.start_time|time }} - {{ appointment.end_time|time }}
+                                </span>
+                                <a href="{% url 'appointment_detail' appointment.id %}" class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-500 focus:outline-none focus:border-blue-700 focus:shadow-outline-blue active:bg-blue-700 transition duration-150 ease-in-out">
+                                    Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="px-6 py-8 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No appointments scheduled</h3>
+                        <p class="mt-1 text-sm text-gray-500">You don't have any appointments scheduled for today.</p>
+                        <div class="mt-6">
+                            <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Schedule Appointment
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Athlete Nutrition Status -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Athlete Nutrition Status</h3>
+            </div>
+            <div class="p-6">
+                <div class="h-64">
+                    <canvas id="nutritionChart"></canvas>
+                </div>
+                <div class="mt-4 grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Optimal
+                        </span>
+                        <p class="mt-1 text-sm text-gray-900">{{ optimal_count }}</p>
+                    </div>
+                    <div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Needs Improvement
+                        </span>
+                        <p class="mt-1 text-sm text-gray-900">{{ needs_improvement_count }}</p>
+                    </div>
+                    <div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            At Risk
+                        </span>
+                        <p class="mt-1 text-sm text-gray-900">{{ at_risk_count }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Messages -->
+    <div class="bg-white shadow rounded-lg overflow-hidden mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Recent Messages</h3>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% for message in recent_messages %}
+            <div class="px-6 py-4 hover:bg-blue-50 transition-colors duration-150">
+                <div class="flex items-center">
+                    <img class="h-10 w-10 rounded-full object-cover" src="{{ message.sender.profile_image.url|default:'/static/images/default-avatar.jpg' }}" alt="{{ message.sender.get_full_name }}">
+                    <div class="ml-4 flex-1">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-sm font-medium text-gray-900">{{ message.sender.get_full_name }}</h4>
+                            <span class="text-xs text-gray-500">{{ message.created_at|timesince }} ago</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">{{ message.content|truncatechars:60 }}</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="px-6 py-8 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No messages</h3>
+                <p class="mt-1 text-sm text-gray-500">You don't have any recent messages.</p>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="bg-gray-50 px-6 py-3 text-right">
+            <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                View all messages
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Forum Activity -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Recent Forum Activity</h3>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% for post in recent_posts %}
+            <div class="px-6 py-4 hover:bg-blue-50 transition-colors duration-150">
+                <div class="flex items-start">
+                    <img class="h-10 w-10 rounded-full object-cover" src="{{ post.author.profile_image.url|default:'/static/images/default-avatar.jpg' }}" alt="{{ post.author.get_full_name }}">
+                    <div class="ml-4 flex-1">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-sm font-medium text-gray-900">{{ post.title }}</h4>
+                            <span class="text-xs text-gray-500">{{ post.created_at|timesince }} ago</span>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">{{ post.content|truncatechars:80 }}</p>
+                        <div class="mt-2 flex items-center text-xs text-gray-500">
+                            <span class="inline-flex items-center">
+                                <svg class="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                </svg>
+                                {{ post.comments_count }} comments
+                            </span>
+                            <span class="ml-3 inline-flex items-center">
+                                <svg class="mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
+                                </svg>
+                                {{ post.likes_count }} likes
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="px-6 py-8 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No forum activity</h3>
+                <p class="mt-1 text-sm text-gray-500">There hasn't been any recent forum activity.</p>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="bg-gray-50 px-6 py-3 text-right">
+            <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                View all forum posts
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize nutrition status chart
+    const nutritionCtx = document.getElementById('nutritionChart').getContext('2d');
+    const nutritionChart = new Chart(nutritionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Optimal', 'Needs Improvement', 'At Risk'],
+            datasets: [{
+                data: [{{ optimal_count }}, {{ needs_improvement_count }}, {{ at_risk_count }}],
+                backgroundColor: [
+                    '#10B981',
+                    '#F59E0B',
+                    '#EF4444'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 20
+                    }
+                }
+            }
+        }
+    });
+
+    // Trigger toast notifications from Django messages
+    {% if messages %}
+        {% for message in messages %}
+            window.dispatchEvent(new CustomEvent('notify', {
+                detail: {
+                    message: '{{ message }}',
+                    type: '{{ message.tags }}' || 'info'
+                }
+            }));
+        {% endfor %}
+    {% endif %}
+});
+</script>
+{% endblock %}
