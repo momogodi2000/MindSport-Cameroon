@@ -53,6 +53,8 @@ urlpatterns = [
     path('complete-profile/athlete/', views.complete_athlete_profile, name='complete_athlete_profile'),
     path('payment/status/<str:reference>/', views.payment_status, name='payment_status'),
     path('payment/receipt/download/', views.download_receipt, name='download_receipt'),
+    path('check-profile-completion/athlete/', views.check_profile_completion, name='check_profile_completion'),
+
 
 
 

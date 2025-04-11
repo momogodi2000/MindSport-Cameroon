@@ -1,117 +1,311 @@
-<!-- templates/Athletes/CompleteProfile.html -->
-{% extends 'Dashboards/Layout/admin_base.html' %}
+{% extends 'Dashboards/Layout/athlete_base.html' %}
 {% load static %}
 
 {% block title %}Complete Your Athlete Profile{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Complete Your Athlete Profile</h3>
+<div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 animate-fade-in">
+    <div class="max-w-3xl mx-auto">
+        <!-- Card Container -->
+        <div class="bg-white shadow-xl rounded-lg overflow-hidden transition-all duration-300 hover:shadow-2xl">
+            <!-- Card Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4">
+                <h2 class="text-2xl font-bold text-white flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Complete Your Athlete Profile
+                </h2>
+            </div>
+
+            <!-- Card Body -->
+            <div class="p-6 sm:p-8">
+                <!-- Messages -->
+                {% if messages %}
+                <div class="mb-6 space-y-2">
+                    {% for message in messages %}
+                    <div class="p-3 rounded-md {% if message.tags == 'error' %}bg-red-100 text-red-700 border border-red-200{% else %}bg-blue-100 text-blue-700 border border-blue-200{% endif %} flex items-start">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>{{ message }}</span>
+                    </div>
+                    {% endfor %}
                 </div>
-                <div class="card-body">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }}">
-                                {{ message }}
+                {% endif %}
+                
+                <!-- Welcome Alert -->
+                <div class="mb-6 bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-md animate-pulse">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-indigo-800">Welcome to MindSport Cameroon!</h3>
+                            <div class="mt-2 text-sm text-indigo-700">
+                                <p>Please complete your profile to access all platform features.</p>
+                                <p class="mt-1 font-semibold">Membership Fee: {{ membership_fee }} CFA monthly</p>
                             </div>
-                        {% endfor %}
-                    {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Profile Form -->
+                <form method="post" enctype="multipart/form-data" class="space-y-6" id="profileForm">
+                    {% csrf_token %}
                     
-                    <div class="mb-4">
-                        <div class="alert alert-info">
-                            <p><strong>Welcome!</strong> Please complete your profile to access all platform features.</p>
-                            <p>Membership Fee: <strong>{{ membership_fee }} CFA</strong> monthly</p>
+                    <!-- Name Fields -->
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <!-- First Name -->
+                        <div>
+                            <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700">First Name*</label>
+                            <div class="mt-1 relative">
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% if form.first_name.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.first_name.errors }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Last Name -->
+                        <div>
+                            <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700">Last Name*</label>
+                            <div class="mt-1 relative">
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% if form.last_name.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.last_name.errors }}</p>
+                            {% endif %}
                         </div>
                     </div>
                     
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name*</label>
-                                {{ form.first_name }}
-                                {% if form.first_name.errors %}
-                                    <div class="text-danger">{{ form.first_name.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name*</label>
-                                {{ form.last_name }}
-                                {% if form.last_name.errors %}
-                                    <div class="text-danger">{{ form.last_name.errors }}</div>
-                                {% endif %}
-                            </div>
+                    <!-- Profile Image -->
+                    <div class="space-y-2">
+                        <label for="{{ form.profile_image.id_for_label }}" class="block text-sm font-medium text-gray-700">Profile Image*</label>
+                        <div class="mt-1 flex items-center">
+                            <span class="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100">
+                                <img id="profileImagePreview" class="h-full w-full object-cover" src="{% static 'images/default-profile.png' %}" alt="Profile preview">
+                            </span>
+                            <label for="{{ form.profile_image.id_for_label }}" class="ml-5 relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                <span>Upload a photo</span>
+                                {{ form.profile_image }}
+                            </label>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="{{ form.profile_image.id_for_label }}" class="form-label">Profile Image*</label>
-                            {{ form.profile_image }}
-                            {% if form.profile_image.errors %}
-                                <div class="text-danger">{{ form.profile_image.errors }}</div>
-                            {% endif %}
-                            <div class="form-text">Upload a clear photo of yourself.</div>
-                        </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="{{ form.sport.id_for_label }}" class="form-label">Sport*</label>
+                        {% if form.profile_image.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.profile_image.errors }}</p>
+                        {% endif %}
+                        <p class="text-xs text-gray-500">PNG, JPG, JPEG up to 5MB</p>
+                    </div>
+                    
+                    <!-- Sport and Level -->
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <!-- Sport -->
+                        <div>
+                            <label for="{{ form.sport.id_for_label }}" class="block text-sm font-medium text-gray-700">Sport*</label>
+                            <div class="mt-1 relative">
                                 {{ form.sport }}
                                 {% if form.sport.errors %}
-                                    <div class="text-danger">{{ form.sport.errors }}</div>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
                                 {% endif %}
                             </div>
-                            <div class="col-md-6">
-                                <label for="{{ form.level.id_for_label }}" class="form-label">Level*</label>
+                            {% if form.sport.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.sport.errors }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Level -->
+                        <div>
+                            <label for="{{ form.level.id_for_label }}" class="block text-sm font-medium text-gray-700">Level*</label>
+                            <div class="mt-1 relative">
                                 {{ form.level }}
                                 {% if form.level.errors %}
-                                    <div class="text-danger">{{ form.level.errors }}</div>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
                                 {% endif %}
                             </div>
+                            {% if form.level.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.level.errors }}</p>
+                            {% endif %}
                         </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="{{ form.town.id_for_label }}" class="form-label">Town/City*</label>
+                    </div>
+                    
+                    <!-- Location Fields -->
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <!-- Town -->
+                        <div>
+                            <label for="{{ form.town.id_for_label }}" class="block text-sm font-medium text-gray-700">Town/City*</label>
+                            <div class="mt-1 relative">
                                 {{ form.town }}
                                 {% if form.town.errors %}
-                                    <div class="text-danger">{{ form.town.errors }}</div>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
                                 {% endif %}
                             </div>
-                            <div class="col-md-6">
-                                <label for="{{ form.quartier.id_for_label }}" class="form-label">Quartier/District*</label>
+                            {% if form.town.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.town.errors }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Quartier -->
+                        <div>
+                            <label for="{{ form.quartier.id_for_label }}" class="block text-sm font-medium text-gray-700">Quartier/District*</label>
+                            <div class="mt-1 relative">
                                 {{ form.quartier }}
                                 {% if form.quartier.errors %}
-                                    <div class="text-danger">{{ form.quartier.errors }}</div>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
                                 {% endif %}
                             </div>
+                            {% if form.quartier.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.quartier.errors }}</p>
+                            {% endif %}
                         </div>
+                    </div>
+                    
+                    <!-- Payment Information -->
+                    <div class="pt-4 border-t border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                            </svg>
+                            Payment Information
+                        </h3>
                         
-                        <div class="mb-4">
-                            <h5 class="mb-3">Payment Information</h5>
-                            <div class="mb-3">
-                                <label for="mobile_number" class="form-label">Mobile Number for Payment*</label>
-                                <input type="text" name="mobile_number" id="mobile_number" class="form-control" placeholder="Enter your mobile number" required>
-                                <div class="form-text">We'll use this number to process your membership payment via Campay.</div>
+                        <div>
+                            <label for="mobile_number" class="block text-sm font-medium text-gray-700">Mobile Number for Payment*</label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">+237</span>
+                                </div>
+                                <input type="text" name="mobile_number" id="mobile_number" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md" placeholder="6XX XXX XXX" required>
                             </div>
+                            <p class="mt-2 text-sm text-gray-500">We'll use this number to process your membership payment via Campay.</p>
                         </div>
-                        
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
-                            <label class="form-check-label" for="terms">I accept the terms and conditions*</label>
+                    </div>
+                    
+                    <!-- Terms and Conditions -->
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="terms" name="terms" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" required>
                         </div>
-                        
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">Complete Profile & Process Payment</button>
+                        <div class="ml-3 text-sm">
+                            <label for="terms" class="font-medium text-gray-700">I accept the <a href="#" class="text-indigo-600 hover:text-indigo-500">terms and conditions</a>*</label>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div>
+                        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-[1.01] active:scale-[0.99]">
+                            Complete Profile & Process Payment
+                            <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 -mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Custom CSS for animations -->
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+</style>
+
+<!-- JavaScript for form validation and image preview -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Profile image preview
+        const profileImageInput = document.getElementById('{{ form.profile_image.id_for_label }}');
+        const profileImagePreview = document.getElementById('profileImagePreview');
+        
+        profileImageInput.addEventListener('change', function(event) {
+            if (event.target.files && event.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profileImagePreview.src = e.target.result;
+                }
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        });
+        
+        // Form validation
+        const form = document.getElementById('profileForm');
+        form.addEventListener('submit', function(event) {
+            let isValid = true;
+            
+            // Check required fields
+            const requiredFields = form.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('border-red-500');
+                    isValid = false;
+                } else {
+                    field.classList.remove('border-red-500');
+                }
+            });
+            
+            // Check terms checkbox
+            const termsCheckbox = document.getElementById('terms');
+            if (!termsCheckbox.checked) {
+                termsCheckbox.parentElement.classList.add('ring-2', 'ring-red-500');
+                isValid = false;
+            } else {
+                termsCheckbox.parentElement.classList.remove('ring-2', 'ring-red-500');
+            }
+            
+            if (!isValid) {
+                event.preventDefault();
+                // Scroll to first error
+                const firstError = form.querySelector('.border-red-500, .ring-red-500');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+        
+        // Mobile number validation
+        const mobileNumberInput = document.getElementById('mobile_number');
+        mobileNumberInput.addEventListener('input', function() {
+            // Remove non-numeric characters
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    });
+</script>
 {% endblock %}

@@ -197,10 +197,9 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Campay API Configuration
-CAMPAY_USERNAME =  "JByBUneb4BceuEyoMu1nKlmyTgVomd-QfokOrs4t4B9tPJS7hhqUtpuxOx5EQ7zpT0xmYw3P6DU6LU0mH2DvaQ"
+CAMPAY_USERNAME = "JByBUneb4BceuEyoMu1nKlmyTgVomd-QfokOrs4t4B9tPJS7hhqUtpuxOx5EQ7zpT0xmYw3P6DU6LU0mH2DvaQ"
 CAMPAY_PASSWORD = "m-Xuj9EQIT_zeQ5hSn8hLjYlyJT7KnSTHABYVp7tKeHKgsVnF0x6PEcdtZCVaDM0BN5mX-eylX0fhrGGMZBrWg"
-CAMPAY_ENVIRONMENT = 'PROD'  # or 'TEST' for production
+CAMPAY_ENVIRONMENT = 'TEST'
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'

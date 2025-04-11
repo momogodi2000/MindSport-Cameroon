@@ -199,7 +199,7 @@
                 <div class="relative" id="profile-completion-icon">
                     <button class="p-2 rounded-full hover:bg-primary-500/30 transition-all duration-300 group" title="Complete your profile">
                         <i class="fas fa-user-check text-xl text-white group-hover:text-primary-100"></i>
-                        <span class="absolute top-0 right-0 h-5 w-5 bg-yellow-500 rounded-full notification-badge flex items-center justify-center text-xs font-bold profileCompletionBadge">!</span>
+                        <span id="profile-completion-badge" class="absolute top-0 right-0 h-5 w-5 bg-yellow-500 rounded-full notification-badge flex items-center justify-center text-xs font-bold profileCompletionBadge">!</span>
                     </button>
                 </div>
                 <div class="relative">
@@ -210,12 +210,16 @@
                 </div>
                 <div class="flex items-center space-x-3 group cursor-pointer">
                     <div class="relative">
-                        <img src="{% static 'images/profile.jpg' %}" alt="Profile" class="h-10 w-10 rounded-full border-2 border-white shadow-md group-hover:border-primary-200 transition-all duration-300">
+                        {% if user.profile_image %}
+                            <img src="{{ user.profile_image.url }}" alt="Profile" class="h-10 w-10 rounded-full border-2 border-white shadow-md group-hover:border-primary-200 transition-all duration-300">
+                        {% else %}
+                            <img src="{% static 'images/profile.jpg' %}" alt="Profile" class="h-10 w-10 rounded-full border-2 border-white shadow-md group-hover:border-primary-200 transition-all duration-300">
+                        {% endif %}
                         <span class="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-400 ring-2 ring-white"></span>
                     </div>
                     <div class="hidden md:block">
                         <p class="font-medium text-white group-hover:text-primary-100 transition-colors">{{ user.get_full_name }}</p>
-                        <p class="text-xs text-primary-200">Athlete</p>
+                        <p class="text-xs text-primary-200">{{ user.get_user_type_display }}</p>
                     </div>
                 </div>
             </div>
@@ -242,35 +246,35 @@
                         </a>
                     </li>
                     <li class="px-3">
-                        <a href="#" class="flex items-center space-x-3 {% if active_page == 'appointments' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
+                        <a href="#" class="nav-item flex items-center space-x-3 {% if active_page == 'appointments' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
                             <i class="fas fa-calendar-alt text-lg sidebar-icon group-hover:text-primary-600"></i>
                             <span class="hidden md:block text-sm">Appointments</span>
                             <span class="hidden md:block ml-auto h-2 w-2 rounded-full bg-primary-600 {% if active_page != 'appointments' %}opacity-0{% endif %}"></span>
                         </a>
                     </li>
                     <li class="px-3">
-                        <a href="#" class="flex items-center space-x-3 {% if active_page == 'assessments' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
+                        <a href="#" class="nav-item flex items-center space-x-3 {% if active_page == 'assessments' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
                             <i class="fas fa-clipboard-check text-lg sidebar-icon group-hover:text-primary-600"></i>
                             <span class="hidden md:block text-sm">Mental Assessments</span>
                             <span class="hidden md:block ml-auto h-2 w-2 rounded-full bg-primary-600 {% if active_page != 'assessments' %}opacity-0{% endif %}"></span>
                         </a>
                     </li>
                     <li class="px-3">
-                        <a href="#" class="flex items-center space-x-3 {% if active_page == 'resources' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
+                        <a href="#" class="nav-item flex items-center space-x-3 {% if active_page == 'resources' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
                             <i class="fas fa-book-open text-lg sidebar-icon group-hover:text-primary-600"></i>
                             <span class="hidden md:block text-sm">Wellness Resources</span>
                             <span class="hidden md:block ml-auto h-2 w-2 rounded-full bg-primary-600 {% if active_page != 'resources' %}opacity-0{% endif %}"></span>
                         </a>
                     </li>
                     <li class="px-3">
-                        <a href="#" class="flex items-center space-x-3 {% if active_page == 'community' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
+                        <a href="#" class="nav-item flex items-center space-x-3 {% if active_page == 'community' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
                             <i class="fas fa-users text-lg sidebar-icon group-hover:text-primary-600"></i>
                             <span class="hidden md:block text-sm">Athlete Community</span>
                             <span class="hidden md:block ml-auto h-2 w-2 rounded-full bg-primary-600 {% if active_page != 'community' %}opacity-0{% endif %}"></span>
                         </a>
                     </li>
                     <li class="px-3">
-                        <a href="#" class="flex items-center space-x-3 {% if active_page == 'progress' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
+                        <a href="#" class="nav-item flex items-center space-x-3 {% if active_page == 'progress' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
                             <i class="fas fa-chart-line text-lg sidebar-icon group-hover:text-primary-600"></i>
                             <span class="hidden md:block text-sm">Progress Tracker</span>
                             <span class="hidden md:block ml-auto h-2 w-2 rounded-full bg-primary-600 {% if active_page != 'progress' %}opacity-0{% endif %}"></span>
@@ -379,7 +383,7 @@
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <a href="#" id="go-to-profile" class="flex w-full justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all">
+                        <a href="{% url 'complete_athlete_profile' %}" id="go-to-profile" class="flex w-full justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all">
                             Go to Profile <i class="fas fa-arrow-right ml-2"></i>
                         </a>
                         <button type="button" id="close-modal" class="flex w-full justify-center rounded-md border border-secondary-300 bg-white px-4 py-2 text-sm font-medium text-secondary-700 shadow-sm hover:bg-secondary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all">
@@ -420,42 +424,58 @@
                 });
             });
 
-            // Profile completion verification
-            function verifyProfileCompletion() {
-                // For demonstration, we're simulating an incomplete profile
-                // In a real application, this would come from an API call or user data
-                const isProfileComplete = false;
-                const isAccountVerified = false;
-                
-                if (!isProfileComplete || !isAccountVerified) {
-                    // Show the profile incomplete banner
-                    document.getElementById('profile-incomplete-banner').classList.remove('hidden');
-                    
-                    // Add click event to complete profile icon
-                    document.getElementById('profile-completion-icon').addEventListener('click', function() {
-                        showProfileVerificationModal();
+            // Profile completion verification via API call
+            function checkProfileCompletion() {
+                fetch('{% url "check_profile_completion" %}')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.is_complete) {
+                            // Show the profile incomplete banner
+                            document.getElementById('profile-incomplete-banner').classList.remove('hidden');
+                            
+                            // Show profile completion badge
+                            const badge = document.getElementById('profile-completion-badge');
+                            if (badge) {
+                                badge.classList.remove('hidden');
+                            }
+                            
+                            // Add click event to complete profile icon
+                            document.getElementById('profile-completion-icon').addEventListener('click', function() {
+                                showProfileVerificationModal();
+                            });
+                            
+                            // Show modal when user clicks on restricted features
+                            const restrictedLinks = document.querySelectorAll('.nav-item');
+                            restrictedLinks.forEach(link => {
+                                link.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    showProfileVerificationModal();
+                                });
+                            });
+                            
+                            // Complete profile button in banner
+                            document.getElementById('complete-profile-btn').addEventListener('click', function() {
+                                window.location.href = '{% url "complete_athlete_profile" %}';
+                            });
+                        } else {
+                            // Hide the profile completion badge if profile is complete
+                            const badge = document.getElementById('profile-completion-badge');
+                            if (badge) {
+                                badge.classList.add('hidden');
+                            }
+                            
+                            // Enable all navigation links
+                            const navLinks = document.querySelectorAll('.nav-item');
+                            navLinks.forEach(link => {
+                                // Remove any event listeners by cloning and replacing
+                                const newLink = link.cloneNode(true);
+                                link.parentNode.replaceChild(newLink, link);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking profile completion:', error);
                     });
-                    
-                    // Show modal when user clicks on restricted features
-                    const restrictedLinks = document.querySelectorAll('.nav-links li:not(:first-child) a');
-                    restrictedLinks.forEach(link => {
-                        link.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            showProfileVerificationModal();
-                        });
-                    });
-                    
-                    // Complete profile button in banner
-                    document.getElementById('complete-profile-btn').addEventListener('click', function() {
-                        showProfileVerificationModal();
-                    });
-                } else {
-                    // Hide the profile completion badge if profile is complete
-                    const badge = document.querySelector('.profileCompletionBadge');
-                    if (badge) {
-                        badge.classList.add('hidden');
-                    }
-                }
             }
             
             // Show profile verification modal
@@ -468,13 +488,6 @@
                     modal.classList.add('hidden');
                 });
                 
-                // Go to profile event (in a real app, this would navigate to profile page)
-                document.getElementById('go-to-profile').addEventListener('click', function(e) {
-                    e.preventDefault();
-                    alert('Navigating to profile page. This is a simulation.');
-                    modal.classList.add('hidden');
-                });
-                
                 // Close modal when clicking on backdrop
                 modal.querySelector('.modal-backdrop').addEventListener('click', function() {
                     modal.classList.add('hidden');
@@ -482,7 +495,10 @@
             }
             
             // Run profile verification on page load
-            verifyProfileCompletion();
+            checkProfileCompletion();
+            
+            // Check profile completion status periodically (every 5 minutes)
+            setInterval(checkProfileCompletion, 300000);
         });
     </script>
     {% block extra_js %}{% endblock %}

@@ -955,11 +955,15 @@ from django.http import HttpResponse
 from django.db import transaction
 from django.template.loader import render_to_string
 from django.core.files.base import ContentFile
-
 from campay.sdk import Client as CamPayClient
 from io import BytesIO
 from xhtml2pdf import pisa
-
+from functools import wraps
+from django.urls import reverse
+from .forms import AthleteProfileForm
+from .models import User
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 from .forms import AthleteProfileForm
 from .models import User
 
@@ -991,7 +995,8 @@ def profile_completion_required(view_func):
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
-# Fix the complete_athlete_profile view
+# Set up logger
+logger = logging.getLogger(__name__)
 
 @login_required
 @transaction.atomic
@@ -1023,6 +1028,7 @@ def complete_athlete_profile(request):
                 if not mobile_number.startswith('237'):
                     mobile_number = '237' + mobile_number
                 
+                logger.info(f"Formatted mobile number: {mobile_number}")
                 athlete.mobile_number = mobile_number
                 athlete.terms_accepted = request.POST.get('terms') == 'on'
                 
@@ -1036,26 +1042,59 @@ def complete_athlete_profile(request):
                 
                 # Generate payment reference
                 payment_reference = str(uuid.uuid4())
+                logger.info(f"Generated payment reference: {payment_reference}")
+                
+                # Initialize CamPay client
+                campay_client = CamPayClient({
+                    "app_username": settings.CAMPAY_USERNAME,
+                    "app_password": settings.CAMPAY_PASSWORD,
+                    "environment": settings.CAMPAY_ENVIRONMENT  # "TEST" or "PROD"
+                })
                 
                 # Process payment with CamPay SDK
+                # In the payment processing section of complete_athlete_profile view
                 try:
-                    logger.info(f"Initiating payment for user {athlete.id} with amount {athlete.membership_fee}")
-                    
                     payment_response = campay_client.collect({
-                        "amount": str(athlete.membership_fee),
+                        "amount": str(int(athlete.membership_fee)),
                         "currency": "XAF",
                         "from": mobile_number,
                         "description": f"Athlete membership fee for {athlete.get_full_name()}",
                         "external_reference": payment_reference
                     })
                     
-                    logger.info(f"Payment response: {payment_response}")
+                    logger.info(f"Full payment response: {payment_response}")
+                    
+                    # Check if we got a proper response first
+                    if not payment_response:
+                        logger.error("Empty payment response received")
+                        messages.error(request, "Payment system error: No response received")
+                        return render(request, 'Dashboards/Athlete/CompleteProfile/complete_profile.html', {'form': form})
+                    
+                    # Handle UNAUTHORIZED error specifically
+                    if isinstance(payment_response, dict) and payment_response.get('status') == 'FAILED' and payment_response.get('message') == 'UNAUTHORIZED':
+                        logger.error(f"CamPay authentication failed: {payment_response}")
+                        messages.error(request, "Payment system error: Authentication failed with the payment provider.")
+                        # Record the failed payment attempt
+                        athlete.payment_status = 'failed'
+                        athlete.campay_status = 'FAILED'
+                        athlete.campay_response = payment_response
+                        athlete.save()
+                        return render(request, 'Dashboards/Athlete/CompleteProfile/complete_profile.html', {'form': form})
+                        
+                    # Continue with normal reference checking
+                    if not payment_response.get('reference'):
+                        logger.error(f"Missing reference in payment response: {payment_response}")
+                        messages.error(request, "Payment system error: No reference received")
+                        return render(request, 'Dashboards/Athlete/CompleteProfile/complete_profile.html', {'form': form})
                     
                     # Record payment information
                     athlete.campay_reference = payment_response.get("reference")
                     athlete.campay_transaction_id = payment_response.get("reference")
                     athlete.campay_status = payment_response.get("status")
                     athlete.campay_response = payment_response
+                    athlete.save()
+                    
+                    logger.info(f"Payment reference saved: {athlete.campay_reference}")
                     
                     if payment_response.get('status') == 'SUCCESSFUL':
                         # Update user status for successful payment
@@ -1078,10 +1117,14 @@ def complete_athlete_profile(request):
                         athlete.save()
                         
                         messages.info(request, "Your profile has been saved. Please complete the payment process on your mobile device.")
-                        return redirect('payment_status', reference=payment_response.get("reference"))
+                        
+                        # Make sure we're using the correct reference
+                        payment_reference = payment_response.get("reference")
+                        logger.info(f"Redirecting to payment status with reference: {payment_reference}")
+                        return redirect('payment_status', reference=payment_reference)
                 
                 except Exception as e:
-                    logger.error(f"Payment processing error: {str(e)}")
+                    logger.error(f"Payment processing error: {str(e)}", exc_info=True)
                     messages.error(request, f"Payment processing failed: {str(e)}")
                     
                     # Record failed payment
@@ -1089,9 +1132,10 @@ def complete_athlete_profile(request):
                     athlete.campay_status = 'FAILED'
                     athlete.campay_response = {'error': str(e)}
                     athlete.save()
+                    return render(request, 'Dashboards/Athlete/CompleteProfile/complete_profile.html', {'form': form})
             
             except Exception as e:
-                logger.error(f"Profile completion error: {str(e)}")
+                logger.error(f"Profile completion error: {str(e)}", exc_info=True)
                 messages.error(request, f"Error while completing profile: {str(e)}")
         else:
             for field, errors in form.errors.items():
@@ -1161,47 +1205,71 @@ def is_profile_complete(self):
         return all(required_fields)
     return True  # Admins don't need complete profiles
 
-
-
-
-
 @login_required
 def payment_status(request, reference):
-    """View to check payment status"""
+    """View to check and display payment status"""
     try:
-        # Get the latest payment status from CamPay
-        payment_info = campay_client.check_status(reference)
-        
+        # Get user's transaction
         user = request.user
         
-        # Update user's payment information
-        if payment_info.get('status') == 'SUCCESSFUL':
-            user.payment_status = 'paid'
-            user.last_payment_date = timezone.now()
-            user.next_payment_due = timezone.now() + timezone.timedelta(days=30)
-            user.account_status = 'active'
-            user.campay_status = payment_info.get('status')
+        if not user.campay_reference or user.campay_reference != reference:
+            messages.error(request, "Invalid payment reference.")
+            return redirect('athlete_dashboard')
+        
+        # Check payment status with CamPay
+        try:
+            # Use the correct method name - most likely 'status' or 'get_status'
+            status_response = campay_client.status(reference)
+            # OR if the method is get_status
+            # status_response = campay_client.get_status(reference)
             
-            # Generate receipt if not already generated
-            if not hasattr(user, 'payment_receipt') or not user.payment_receipt:
+            logger.info(f"Payment status response: {status_response}")
+            
+            # Update payment information
+            user.campay_status = status_response.get("status")
+            user.campay_response = status_response
+            
+            if status_response.get('status') == 'SUCCESSFUL':
+                # Update user status for successful payment
+                user.payment_status = 'paid'
+                user.last_payment_date = timezone.now()
+                user.next_payment_due = timezone.now() + timezone.timedelta(days=30)
+                user.account_status = 'active'
+                
+                # Generate receipt
                 receipt_filename, receipt_file = generate_pdf_receipt(user)
                 user.payment_receipt = ContentFile(receipt_file.getvalue(), name=receipt_filename)
-            
-            user.save()
-            
-            messages.success(request, "Payment successful! Your membership is now active.")
-            return redirect('athlete_dashboard')
-        else:
-            # Payment is still pending or failed
-            return render(request, 'Dashboards/Athlete/Receipts/PaymentStatus.html', {
-                'payment_info': payment_info,
-                'reference': reference
-            })
+                
+                user.save()
+                
+                messages.success(request, "Payment successful! Your profile is now complete.")
+                return redirect('athlete_dashboard')
+            else:
+                # Payment is still pending or failed
+                status = status_response.get('status', 'UNKNOWN').upper()
+                if status == 'FAILED':
+                    user.payment_status = 'failed'
+                    messages.error(request, "Payment failed. Please try again.")
+                else:
+                    user.payment_status = 'pending'
+                    messages.info(request, "Your payment is still processing. Please check back later.")
+                
+                user.save()
+        
+        except Exception as e:
+            logger.error(f"Error checking payment status: {str(e)}")
+            messages.error(request, f"Error checking payment status: {str(e)}")
             
     except Exception as e:
-        logger.error(f"Error checking payment status: {str(e)}")
-        messages.error(request, f"Error checking payment status: {str(e)}")
-        return redirect('athlete_dashboard')
+        logger.error(f"Payment status view error: {str(e)}")
+        messages.error(request, "An error occurred while checking your payment status.")
+    
+    return render(request, 'Dashboards/Athlete/CompleteProfile/PaymentStatus.html', {
+        'reference': reference,
+        'status': user.campay_status,
+        'payment_date': user.last_payment_date
+    })
+
 
 def generate_pdf_receipt(user):
     """Generate a PDF receipt for the user's payment"""
