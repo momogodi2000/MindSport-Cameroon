@@ -70,17 +70,17 @@
     @keyframes pulse {
         0% {
             transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.7);
         }
         
         70% {
             transform: scale(1.05);
-            box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            box-shadow: 0 0 0 10px rgba(14, 165, 233, 0);
         }
         
         100% {
             transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            box-shadow: 0 0 0 0 rgba(14, 165, 233, 0);
         }
     }
 </style>
@@ -94,7 +94,7 @@
         <p class="text-gray-600">Here's an overview of your mental wellness journey</p>
     </div>
     <div class="mt-4 md:mt-0">
-        <a href="#" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors shadow-md pulse-btn">
+        <a href="#" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors shadow-md pulse-btn">
             <i class="fas fa-plus"></i>
             <span>Book New Session</span>
         </a>
@@ -107,7 +107,7 @@
         <div class="flex-shrink-0 flex items-center justify-center mb-4 md:mb-0 md:mr-6">
             <svg class="mental-score-ring w-32 h-32" viewBox="0 0 100 100">
                 <circle class="text-gray-200" stroke="currentColor" stroke-width="8" fill="transparent" r="40" cx="50" cy="50" />
-                <circle class="mental-score-circle text-green-500" stroke="currentColor" stroke-width="8" fill="transparent" r="40" cx="50" cy="50" stroke-dasharray="251.2" stroke-dashoffset="{{ mental_score_offset|default:"50.24" }}" />
+                <circle class="mental-score-circle text-blue-500" stroke="currentColor" stroke-width="8" fill="transparent" r="40" cx="50" cy="50" stroke-dasharray="251.2" stroke-dashoffset="{{ mental_score_offset|default:"50.24" }}" />
                 <text x="50" y="50" text-anchor="middle" dominant-baseline="middle" class="text-2xl font-bold" fill="#1F2937">{{ mental_score|default:"80" }}%</text>
             </svg>
         </div>
@@ -230,7 +230,7 @@
             {% endfor %}
             
             <div class="text-center mt-4">
-                <a href="#" class="text-green-600 hover:text-green-800 text-sm font-medium inline-flex items-center">
+                <a href="#" class="text-blue-600 hover:text-blue-800 text-sm font-medium inline-flex items-center">
                     <span>View all appointments</span>
                     <i class="fas fa-chevron-right ml-1 text-xs"></i>
                 </a>
@@ -285,7 +285,7 @@
             {% endfor %}
             
             <div class="text-center mt-4">
-                <a href="#}" class="text-green-600 hover:text-green-800 text-sm font-medium inline-flex items-center">
+                <a href="#}" class="text-blue-600 hover:text-blue-800 text-sm font-medium inline-flex items-center">
                     <span>Explore all resources</span>
                     <i class="fas fa-chevron-right ml-1 text-xs"></i>
                 </a>
@@ -312,7 +312,7 @@
                             <span class="text-gray-500"><i class="far fa-heart mr-1"></i> {{ post.likes_count }}</span>
                             <span class="text-gray-500"><i class="far fa-comment mr-1"></i> {{ post.comments_count }}</span>
                         </div>
-                        <a href="{% url 'community_post_detail' post.id %}" class="text-green-600 font-medium cursor-pointer hover:text-green-800">Reply</a>
+                        <a href="{% url 'community_post_detail' post.id %}" class="text-blue-600 font-medium cursor-pointer hover:text-blue-800">Reply</a>
                     </div>
                 </div>
             {% empty %}
@@ -330,7 +330,7 @@
                             <span class="text-gray-500"><i class="far fa-heart mr-1"></i> 12</span>
                             <span class="text-gray-500"><i class="far fa-comment mr-1"></i> 4</span>
                         </div>
-                        <span class="text-green-600 font-medium cursor-pointer hover:text-green-800">Reply</span>
+                        <span class="text-blue-600 font-medium cursor-pointer hover:text-blue-800">Reply</span>
                     </div>
                 </div>
                 
@@ -348,13 +348,13 @@
                             <span class="text-gray-500"><i class="far fa-heart mr-1"></i> 8</span>
                             <span class="text-gray-500"><i class="far fa-comment mr-1"></i> 3</span>
                         </div>
-                        <span class="text-green-600 font-medium cursor-pointer hover:text-green-800">Reply</span>
+                        <span class="text-blue-600 font-medium cursor-pointer hover:text-blue-800">Reply</span>
                     </div>
                 </div>
             {% endfor %}
             
             <div class="text-center mt-4">
-                <a href="#" class="text-green-600 hover:text-green-800 text-sm font-medium inline-flex items-center">
+                <a href="#" class="text-blue-600 hover:text-blue-800 text-sm font-medium inline-flex items-center">
                     <span>View all community posts</span>
                     <i class="fas fa-chevron-right ml-1 text-xs"></i>
                 </a>
@@ -377,12 +377,12 @@
                 datasets: [{
                     label: 'Mood Level',
                     data: [6, 7, 5, 8, 7, 9, 8],
-                    borderColor: '#10B981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderColor: '#0EA5E9',
+                    backgroundColor: 'rgba(14, 165, 233, 0.1)',
                     borderWidth: 2,
                     fill: true,
                     tension: 0.4,
-                    pointBackgroundColor: '#10B981',
+                    pointBackgroundColor: '#0EA5E9',
                     pointRadius: 4,
                     pointHoverRadius: 6
                 }]

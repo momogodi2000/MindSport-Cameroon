@@ -3,6 +3,11 @@ from .models import ContactMessage, NewsletterSubscriber
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import User
+from django import forms
+from django.core.validators import MinValueValidator, MaxValueValidator
+from .models import User
+from django import forms
+from .models import User
 
 class ContactForm(forms.ModelForm):
     class Meta:
@@ -56,10 +61,34 @@ class UserRegistrationForm(UserCreationForm):
         
         return cleaned_data
     
+class AthleteProfileForm(forms.ModelForm):
+    mobile_number = forms.CharField(max_length=20, required=True, 
+                                    widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your mobile number'}))
+    
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'profile_image', 'sport', 'level', 'town', 'quartier']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your first name'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your last name'}),
+            'sport': forms.Select(attrs={'class': 'form-control'}),
+            'level': forms.Select(attrs={'class': 'form-control'}),
+            'town': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your town'}),
+            'quartier': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your quartier'}),
+            'profile_image': forms.FileInput(attrs={'class': 'form-input'})
+        }
 
+    def __init__(self, *args, **kwargs):
+        super(AthleteProfileForm, self).__init__(*args, **kwargs)
+        # Set all fields as required
+        for field in self.fields:
+            self.fields[field].required = True
 
-from django import forms
-from .models import User
+    def clean_profile_image(self):
+        image = self.cleaned_data.get('profile_image')
+        if not image:
+            raise forms.ValidationError("Profile image is required.")
+        return image
 
 class SocialSignupForm(forms.ModelForm):
     class Meta:
@@ -104,3 +133,6 @@ class SocialSignupForm(forms.ModelForm):
                 self.add_error('years_experience', 'This field is required for professionals')
         
         return cleaned_data
+
+
+

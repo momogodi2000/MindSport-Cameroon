@@ -47,5 +47,13 @@ urlpatterns = [
     # Admin statistics endpoint
     path('crud/statistics/', views.admin_get_statistics, name='admin_get_statistics'),
 
+    path('contact_management/', views.contact_management, name='contact_management'),
+
+
+    path('complete-profile/athlete/', views.complete_athlete_profile, name='complete_athlete_profile'),
+    path('payment/status/<str:reference>/', views.payment_status, name='payment_status'),
+    path('payment/receipt/download/', views.download_receipt, name='download_receipt'),
+
+
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

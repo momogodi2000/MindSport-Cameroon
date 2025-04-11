@@ -12,16 +12,16 @@
                 extend: {
                     colors: {
                         primary: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            200: '#bbf7d0',
-                            300: '#86efac',
-                            400: '#4ade80',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            800: '#166534',
-                            900: '#14532d',
+                            50: '#e6f2ff',
+                            100: '#cce5ff',
+                            200: '#99cbff',
+                            300: '#66b0ff',
+                            400: '#3396ff',
+                            500: '#007bff',
+                            600: '#0062cc',
+                            700: '#004999',
+                            800: '#003166',
+                            900: '#001833',
                         },
                         secondary: {
                             50: '#f8fafc',
@@ -170,6 +170,15 @@
         .wave-shape .shape-fill {
             fill: #FFFFFF;
         }
+
+        /* Profile verification modal styles */
+        .modal {
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .modal-backdrop {
+            backdrop-filter: blur(3px);
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -187,6 +196,12 @@
                 </h1>
             </div>
             <div class="flex items-center space-x-5">
+                <div class="relative" id="profile-completion-icon">
+                    <button class="p-2 rounded-full hover:bg-primary-500/30 transition-all duration-300 group" title="Complete your profile">
+                        <i class="fas fa-user-check text-xl text-white group-hover:text-primary-100"></i>
+                        <span class="absolute top-0 right-0 h-5 w-5 bg-yellow-500 rounded-full notification-badge flex items-center justify-center text-xs font-bold profileCompletionBadge">!</span>
+                    </button>
+                </div>
                 <div class="relative">
                     <button class="p-2 rounded-full hover:bg-primary-500/30 transition-all duration-300 group">
                         <i class="fas fa-bell text-xl text-white group-hover:text-primary-100"></i>
@@ -218,7 +233,7 @@
         <!-- Sidebar -->
         <aside class="w-16 md:w-64 bg-white shadow-xl transition-all duration-300 flex flex-col z-10">
             <nav class="flex-1 py-6">
-                <ul class="space-y-1">
+                <ul class="space-y-1 nav-links">
                     <li class="px-3">
                         <a href="{% url 'athlete_dashboard' %}" class="flex items-center space-x-3 {% if active_page == 'dashboard' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
                             <i class="fas fa-home text-lg sidebar-icon group-hover:text-primary-600"></i>
@@ -277,6 +292,30 @@
 
         <!-- Main Content Area -->
         <main class="flex-1 p-4 md:p-8 overflow-y-auto" id="main-content">
+            <!-- Profile Incomplete Warning Banner -->
+            <div id="profile-incomplete-banner" class="hidden mb-6 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded shadow-md animate-fade-in">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">Profile Incomplete</h3>
+                        <div class="mt-2 text-sm text-yellow-700">
+                            <p>
+                                Your profile is incomplete. Please complete your profile to access all features of AthleteMind.
+                            </p>
+                        </div>
+                        <div class="mt-4">
+                            <div class="-mx-2 -my-1.5 flex">
+                                <button id="complete-profile-btn" class="bg-yellow-100 px-3 py-1.5 rounded-md text-sm font-medium text-yellow-800 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all">
+                                    Complete Profile <i class="fas fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {% block content %}
             <!-- Content will be injected here -->
             {% endblock %}
@@ -312,6 +351,46 @@
         </div>
     </footer>
 
+    <!-- Profile Verification Modal -->
+    <div id="profile-verification-modal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0 bg-secondary-900/50"></div>
+        <div class="flex min-h-screen items-center justify-center p-4">
+            <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl modal animate-slide-up">
+                <div class="mb-4 text-center">
+                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100">
+                        <i class="fas fa-user-shield text-3xl text-yellow-600"></i>
+                    </div>
+                    <h3 class="mt-4 text-xl font-semibold text-secondary-900">Complete Your Profile</h3>
+                    <p class="mt-2 text-sm text-secondary-600">
+                        Your profile is incomplete. You need to complete your profile to access all features of AthleteMind.
+                    </p>
+                </div>
+                <div class="space-y-4">
+                    <div class="rounded-md bg-primary-50 p-3">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-info-circle text-primary-600"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-primary-700">
+                                    Complete your profile to access personalized mental health resources and connect with other athletes.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <a href="#" id="go-to-profile" class="flex w-full justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all">
+                            Go to Profile <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                        <button type="button" id="close-modal" class="flex w-full justify-center rounded-md border border-secondary-300 bg-white px-4 py-2 text-sm font-medium text-secondary-700 shadow-sm hover:bg-secondary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all">
+                            I'll do it later
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Base Scripts -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -340,6 +419,70 @@
                     }
                 });
             });
+
+            // Profile completion verification
+            function verifyProfileCompletion() {
+                // For demonstration, we're simulating an incomplete profile
+                // In a real application, this would come from an API call or user data
+                const isProfileComplete = false;
+                const isAccountVerified = false;
+                
+                if (!isProfileComplete || !isAccountVerified) {
+                    // Show the profile incomplete banner
+                    document.getElementById('profile-incomplete-banner').classList.remove('hidden');
+                    
+                    // Add click event to complete profile icon
+                    document.getElementById('profile-completion-icon').addEventListener('click', function() {
+                        showProfileVerificationModal();
+                    });
+                    
+                    // Show modal when user clicks on restricted features
+                    const restrictedLinks = document.querySelectorAll('.nav-links li:not(:first-child) a');
+                    restrictedLinks.forEach(link => {
+                        link.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            showProfileVerificationModal();
+                        });
+                    });
+                    
+                    // Complete profile button in banner
+                    document.getElementById('complete-profile-btn').addEventListener('click', function() {
+                        showProfileVerificationModal();
+                    });
+                } else {
+                    // Hide the profile completion badge if profile is complete
+                    const badge = document.querySelector('.profileCompletionBadge');
+                    if (badge) {
+                        badge.classList.add('hidden');
+                    }
+                }
+            }
+            
+            // Show profile verification modal
+            function showProfileVerificationModal() {
+                const modal = document.getElementById('profile-verification-modal');
+                modal.classList.remove('hidden');
+                
+                // Close modal event
+                document.getElementById('close-modal').addEventListener('click', function() {
+                    modal.classList.add('hidden');
+                });
+                
+                // Go to profile event (in a real app, this would navigate to profile page)
+                document.getElementById('go-to-profile').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    alert('Navigating to profile page. This is a simulation.');
+                    modal.classList.add('hidden');
+                });
+                
+                // Close modal when clicking on backdrop
+                modal.querySelector('.modal-backdrop').addEventListener('click', function() {
+                    modal.classList.add('hidden');
+                });
+            }
+            
+            // Run profile verification on page load
+            verifyProfileCompletion();
         });
     </script>
     {% block extra_js %}{% endblock %}

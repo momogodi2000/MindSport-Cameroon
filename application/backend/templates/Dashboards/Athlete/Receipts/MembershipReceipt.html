@@ -1,0 +1,157 @@
+<!-- templates/Receipts/MembershipReceipt.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Membership Receipt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .receipt {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            padding: 30px;
+        }
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+        .receipt-header h1 {
+            color: #444;
+            margin-bottom: 5px;
+        }
+        .receipt-number {
+            font-size: 16px;
+            color: #777;
+        }
+        .receipt-body {
+            margin-bottom: 40px;
+        }
+        .receipt-body h3 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        .info-group {
+            margin-bottom: 25px;
+        }
+        .info-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .info-label {
+            font-weight: bold;
+            width: 200px;
+        }
+        .info-value {
+            flex: 1;
+        }
+        .payment-details {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: right;
+            margin-top: 20px;
+            border-top: 2px solid #eee;
+            padding-top: 10px;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="receipt-header">
+            <h1>MEMBERSHIP RECEIPT</h1>
+            <div class="receipt-number">Receipt #: {{ receipt_number }}</div>
+            <div>Date: {{ generated_date|date:"F j, Y" }}</div>
+        </div>
+        
+        <div class="receipt-body">
+            <h3>Member Information</h3>
+            <div class="info-group">
+                <div class="info-row">
+                    <div class="info-label">Name:</div>
+                    <div class="info-value">{{ user.get_full_name }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Email:</div>
+                    <div class="info-value">{{ user.email }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Mobile Number:</div>
+                    <div class="info-value">{{ user.mobile_number }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Membership Type:</div>
+                    <div class="info-value">{{ user.get_user_type_display }}</div>
+                </div>
+                {% if user.sport %}
+                <div class="info-row">
+                    <div class="info-label">Sport:</div>
+                    <div class="info-value">{{ user.get_sport_display }}</div>
+                </div>
+                {% endif %}
+                {% if user.level %}
+                <div class="info-row">
+                    <div class="info-label">Level:</div>
+                    <div class="info-value">{{ user.get_level_display }}</div>
+                </div>
+                {% endif %}
+                <div class="info-row">
+                    <div class="info-label">Town:</div>
+                    <div class="info-value">{{ user.town }}</div>
+                </div>
+            </div>
+            
+            <h3>Payment Details</h3>
+            <div class="payment-details">
+                <div class="info-row">
+                    <div class="info-label">Transaction Date:</div>
+                    <div class="info-value">{{ payment_date|date:"F j, Y H:i" }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Transaction ID:</div>
+                    <div class="info-value">{{ transaction_id }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Reference:</div>
+                    <div class="info-value">{{ reference }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Payment Method:</div>
+                    <div class="info-value">Mobile Money (Campay)</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Membership Period:</div>
+                    <div class="info-value">From {{ payment_date|date:"F j, Y" }} to {{ next_payment_date|date:"F j, Y" }}</div>
+                </div>
+                <div class="total">
+                    Total Paid: {{ amount }} XAF
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Thank you for your membership. This receipt serves as proof of payment for your membership subscription.</p>
+            <p>For any inquiries, please contact our support team.</p>
+        </div>
+    </div>
+</body>
+</html>

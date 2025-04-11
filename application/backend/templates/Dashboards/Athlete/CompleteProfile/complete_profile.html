@@ -1,0 +1,117 @@
+<!-- templates/Athletes/CompleteProfile.html -->
+{% extends 'Dashboards/Layout/admin_base.html' %}
+{% load static %}
+
+{% block title %}Complete Your Athlete Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Complete Your Athlete Profile</h3>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <div class="mb-4">
+                        <div class="alert alert-info">
+                            <p><strong>Welcome!</strong> Please complete your profile to access all platform features.</p>
+                            <p>Membership Fee: <strong>{{ membership_fee }} CFA</strong> monthly</p>
+                        </div>
+                    </div>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name*</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger">{{ form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name*</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger">{{ form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.profile_image.id_for_label }}" class="form-label">Profile Image*</label>
+                            {{ form.profile_image }}
+                            {% if form.profile_image.errors %}
+                                <div class="text-danger">{{ form.profile_image.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Upload a clear photo of yourself.</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.sport.id_for_label }}" class="form-label">Sport*</label>
+                                {{ form.sport }}
+                                {% if form.sport.errors %}
+                                    <div class="text-danger">{{ form.sport.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.level.id_for_label }}" class="form-label">Level*</label>
+                                {{ form.level }}
+                                {% if form.level.errors %}
+                                    <div class="text-danger">{{ form.level.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.town.id_for_label }}" class="form-label">Town/City*</label>
+                                {{ form.town }}
+                                {% if form.town.errors %}
+                                    <div class="text-danger">{{ form.town.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.quartier.id_for_label }}" class="form-label">Quartier/District*</label>
+                                {{ form.quartier }}
+                                {% if form.quartier.errors %}
+                                    <div class="text-danger">{{ form.quartier.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5 class="mb-3">Payment Information</h5>
+                            <div class="mb-3">
+                                <label for="mobile_number" class="form-label">Mobile Number for Payment*</label>
+                                <input type="text" name="mobile_number" id="mobile_number" class="form-control" placeholder="Enter your mobile number" required>
+                                <div class="form-text">We'll use this number to process your membership payment via Campay.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                            <label class="form-check-label" for="terms">I accept the terms and conditions*</label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Complete Profile & Process Payment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

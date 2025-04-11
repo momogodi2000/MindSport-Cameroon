@@ -137,6 +137,10 @@
                             <i class="fas fa-chart-bar mr-3 text-primary-300 group-hover:text-white"></i>
                             Reports
                         </a>
+                        <a href="{% url 'contact_management' %}" class="{% block contacts_active %}{% endblock %} group flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-600 transition-all duration-200">
+                            <i class="fas fa-address-book mr-3 text-primary-300 group-hover:text-white"></i>
+                            Contact Management
+                        </a>
                         <a href="#" class="{% block settings_active %}{% endblock %} group flex items-center px-2 py-2 text-sm font-medium rounded-md hover:bg-primary-600 transition-all duration-200">
                             <i class="fas fa-cog mr-3 text-primary-300 group-hover:text-white"></i>
                             Settings
@@ -204,7 +208,10 @@
                             <a href="#" class="{% block mobile_reports_active %}{% endblock %} group flex items-center px-2 py-2 text-base font-medium rounded-md text-white hover:bg-primary-600">
                                 <i class="fas fa-chart-bar mr-4 text-primary-300 group-hover:text-white"></i>
                                 Reports
-                            </a>  
+                            </a>
+                            <a href="{% url 'contact_management' %}" class="{% block mobile_contacts_active %}{% endblock %} group flex items-center px-2 py-2 text-base font-medium rounded-md text-white hover:bg-primary-600">
+                                <i class="fas fa-address-book mr-4 text-primary-300 group-hover:text-white"></i>
+                                Contact Management
                             <a href="{% url 'logout' %}" class="{% block mobile_logout_active %}{% endblock %} group flex items-center px-2 py-2 text-base font-medium rounded-md text-white hover:bg-primary-600">
                                 <i class="fas fa-chart-bar mr-4 text-primary-300 group-hover:text-white"></i>
                                 Logout

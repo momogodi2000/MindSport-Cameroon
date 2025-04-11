@@ -46,6 +46,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'backend.middleware.SessionTimeoutMiddleware',
+
 ]
 
 ROOT_URLCONF = 'application.urls'
@@ -64,6 +66,12 @@ TEMPLATES = [
         },
     },
 ]
+
+# Session settings for automatic logout after inactivity
+SESSION_COOKIE_AGE = 3600  # 1 hour in seconds
+SESSION_SAVE_EVERY_REQUEST = True  # Reset the session age on each request
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keep session alive when browser is closed (controlled by SESSION_COOKIE_AGE)
+
 
 WSGI_APPLICATION = 'application.wsgi.application'
 
@@ -187,6 +195,12 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
+
+
+# Campay API Configuration
+CAMPAY_USERNAME =  "JByBUneb4BceuEyoMu1nKlmyTgVomd-QfokOrs4t4B9tPJS7hhqUtpuxOx5EQ7zpT0xmYw3P6DU6LU0mH2DvaQ"
+CAMPAY_PASSWORD = "m-Xuj9EQIT_zeQ5hSn8hLjYlyJT7KnSTHABYVp7tKeHKgsVnF0x6PEcdtZCVaDM0BN5mX-eylX0fhrGGMZBrWg"
+CAMPAY_ENVIRONMENT = 'PROD'  # or 'TEST' for production
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'

@@ -1,14 +1,15 @@
+from functools import wraps
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from .forms import ContactForm, NewsletterForm, UserRegistrationForm
-from .models import NewsletterSubscriber, User
+from .models import ContactMessage, NewsletterSubscriber, User
 import uuid
 import yagmail
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -21,6 +22,22 @@ from django.contrib.auth import login as auth_login
 from django.contrib import messages
 from .forms import UserRegistrationForm, SocialSignupForm
 from .models import User
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib import messages
+from django.db.models import Count, Q
+from .models import User
+import json
+from datetime import datetime, timedelta
+from django.db.models.functions import TruncMonth
+from django.utils import timezone
+
+# Get your User model
+User = get_user_model()
+
+from django.db import models
 
 def home(request):
     newsletter_form = NewsletterForm()
@@ -56,7 +73,6 @@ def contact_submit(request):
 
 def user_login(request):
     if request.user.is_authenticated:
-        # If user is already logged in, redirect to appropriate dashboard
         return redirect_to_dashboard(request.user)
         
     if request.method == 'POST':
@@ -64,26 +80,23 @@ def user_login(request):
         password = request.POST.get('password')
         remember_me = request.POST.get('remember-me')
         
-        # Django's authenticate function uses the username field, which we've set to email
         user = authenticate(request, username=email, password=password)
         
         if user is not None:
-            # Login the user
             auth_login(request, user)
             
             # Set session expiry based on remember-me checkbox
             if not remember_me:
-                # Session expires when browser closes
-                request.session.set_expiry(0)
+                request.session.set_expiry(3600)  # 1 hour in seconds
+                request.session['last_activity'] = timezone.now().timestamp()
             
             messages.success(request, f'Welcome back, {user.first_name}!')
-            
-            # Redirect to appropriate dashboard based on user type
             return redirect_to_dashboard(user)
         else:
             messages.error(request, 'Invalid email or password. Please try again.')
     
     return render(request, 'Authentication/Login.html')
+
 
 def redirect_to_dashboard(user):
     """Helper function to redirect users to their appropriate dashboard"""
@@ -123,12 +136,6 @@ def register(request):
         form = UserRegistrationForm(initial={'user_type': 'athlete'})  # Default to athlete
     
     return render(request, 'Authentication/Register.html', {'form': form})
-
-# Get your User model
-User = get_user_model()
-
-from django.db import models
-
 class PasswordResetToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
@@ -377,7 +384,6 @@ def user_logout(request):
     # Redirect to login page
     return redirect('login')
 
-
 def social_signup_complete(request):
     if not request.user.is_authenticated or not request.user.social_provider:
         return redirect('register')
@@ -430,9 +436,6 @@ def redirect_to_dashboard(user):
 
 
 # Placeholder dashboard views - create actual views based on your needs
-@login_required
-def athlete_dashboard(request):
-    return render(request, 'Dashboards/Athlete/AthletePanel.html')
 
 @login_required
 def psychologist_dashboard(request):
@@ -450,18 +453,7 @@ def nutritionist_dashboard(request):
 def admin_dashboard(request):
     return render(request, 'Dashboards/Admin/AdminPanel.html')
 
-#admin management user
-from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib import messages
-from django.db.models import Count, Q
-from .models import User
-import json
-from datetime import datetime, timedelta
-from django.db.models.functions import TruncMonth
-
+# admin user management
 
 def is_admin(user):
     return user.is_staff or user.user_type == 'admin'
@@ -732,6 +724,543 @@ def admin_get_statistics(request):
     }
     
     return render(request, 'Dashboards/Admin/User Management/admin_statistics.html', context)
+
+#admin contact management and update this part for production
+@login_required
+def contact_management(request):
+    # Handle contact messages
+    if request.method == 'POST':
+        # Reply to a contact message
+        if 'reply_message' in request.POST:
+            message_id = request.POST.get('message_id')
+            reply_content = request.POST.get('reply_content')
+            
+            try:
+                message = ContactMessage.objects.get(id=message_id)
+                
+                # Send email reply using yagmail
+                import yagmail
+                
+                # Configure your email credentials - should be in settings.py in production
+                sender_email = "yvangodimomo@gmail.com"
+                sender_password = "pzls apph esje cgdl"  # Use environment variables in production
+                
+                # Initialize yagmail
+                yag = yagmail.SMTP(sender_email, sender_password)
+                
+                # Send the email
+                yag.send(
+                    to=message.email,
+                    subject=f"Re: {message.subject}",
+                    contents=reply_content
+                )
+                
+                messages.success(request, f"Reply sent to {message.email}")
+                
+            except ContactMessage.DoesNotExist:
+                messages.error(request, "Message not found")
+            except Exception as e:
+                messages.error(request, f"Failed to send email: {str(e)}")
+                
+            return redirect('contact_management')
+            
+        # Delete a contact message
+        elif 'delete_message' in request.POST:
+            message_id = request.POST.get('message_id')
+            
+            try:
+                message = ContactMessage.objects.get(id=message_id)
+                message.delete()
+                messages.success(request, "Message deleted successfully")
+            except ContactMessage.DoesNotExist:
+                messages.error(request, "Message not found")
+                
+            return redirect('contact_management')
+            
+        # Add a newsletter subscriber
+        elif 'add_subscriber' in request.POST:
+            email = request.POST.get('subscriber_email')
+            is_active = request.POST.get('subscriber_active') == 'on'
+            
+            try:
+                subscriber, created = NewsletterSubscriber.objects.get_or_create(
+                    email=email,
+                    defaults={'is_active': is_active}
+                )
+                
+                if not created:
+                    subscriber.is_active = is_active
+                    subscriber.save()
+                    messages.success(request, f"Subscriber {email} updated")
+                else:
+                    messages.success(request, f"Subscriber {email} added successfully")
+                    
+            except Exception as e:
+                messages.error(request, f"Failed to add subscriber: {str(e)}")
+                
+            return redirect('contact_management')
+            
+        # Delete a subscriber
+        elif 'delete_subscriber' in request.POST:
+            subscriber_id = request.POST.get('subscriber_id')
+            
+            try:
+                subscriber = NewsletterSubscriber.objects.get(id=subscriber_id)
+                subscriber.delete()
+                messages.success(request, "Subscriber removed successfully")
+            except NewsletterSubscriber.DoesNotExist:
+                messages.error(request, "Subscriber not found")
+                
+            return redirect('contact_management')
+            
+        # Toggle subscriber active status
+        elif 'toggle_subscriber' in request.POST:
+            subscriber_id = request.POST.get('subscriber_id')
+            
+            try:
+                subscriber = NewsletterSubscriber.objects.get(id=subscriber_id)
+                subscriber.is_active = not subscriber.is_active
+                subscriber.save()
+                status = "activated" if subscriber.is_active else "deactivated"
+                messages.success(request, f"Subscriber {subscriber.email} {status}")
+            except NewsletterSubscriber.DoesNotExist:
+                messages.error(request, "Subscriber not found")
+                
+            return redirect('contact_management')
+            
+        # Send mass email to subscribers
+        elif 'send_newsletter' in request.POST:
+            subject = request.POST.get('email_subject')
+            content = request.POST.get('email_content')
+            
+            # Get active subscribers
+            subscribers = NewsletterSubscriber.objects.filter(is_active=True)
+            
+            if not subscribers.exists():
+                messages.warning(request, "No active subscribers to send emails to")
+                return redirect('contact_management')
+                
+            try:
+                # Send email using yagmail
+                import yagmail
+                
+                # Configure email credentials - should be in settings.py in production
+                sender_email = "yvangodimomo@gmail.com"
+                sender_password = "pzls apph esje cgdl"  # Use environment variables in production
+                
+                # Initialize yagmail
+                yag = yagmail.SMTP(sender_email, sender_password)
+                
+                # Handle file attachments
+                attachments = []
+                if request.FILES.getlist('email_attachments'):
+                    for file in request.FILES.getlist('email_attachments'):
+                        # Save the file temporarily
+                        import tempfile
+                        import os
+                        
+                        temp = tempfile.NamedTemporaryFile(delete=False)
+                        temp.write(file.read())
+                        temp.close()
+                        
+                        attachments.append(temp.name)
+                
+                # Send to all active subscribers
+                for subscriber in subscribers:
+                    yag.send(
+                        to=subscriber.email,
+                        subject=subject,
+                        contents=content,
+                        attachments=attachments
+                    )
+                
+                # Clean up temporary files
+                for attachment in attachments:
+                    os.unlink(attachment)
+                    
+                messages.success(request, f"Newsletter sent to {subscribers.count()} subscribers")
+                
+            except Exception as e:
+                messages.error(request, f"Failed to send newsletter: {str(e)}")
+                
+            return redirect('contact_management')
+            
+    # Export contact emails
+    elif 'export_contacts' in request.GET:
+        import csv
+        from django.http import HttpResponse
+        
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="contact_emails.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['Name', 'Email', 'Subject', 'Date'])
+        
+        contacts = ContactMessage.objects.all().order_by('-created_at')
+        for contact in contacts:
+            writer.writerow([
+                contact.name, 
+                contact.email, 
+                contact.subject, 
+                contact.created_at.strftime('%Y-%m-%d %H:%M')
+            ])
+            
+        return response
+        
+    # Export subscriber emails
+    elif 'export_subscribers' in request.GET:
+        import csv
+        from django.http import HttpResponse
+        
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="newsletter_subscribers.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow(['Email', 'Status', 'Subscribed Date'])
+        
+        subscribers = NewsletterSubscriber.objects.all().order_by('-subscribed_at')
+        for subscriber in subscribers:
+            writer.writerow([
+                subscriber.email, 
+                'Active' if subscriber.is_active else 'Inactive', 
+                subscriber.subscribed_at.strftime('%Y-%m-%d %H:%M')
+            ])
+            
+        return response
+    
+  # Get all contact messages and subscribers for template
+    contact_messages = ContactMessage.objects.all().order_by('-created_at')
+    subscribers = NewsletterSubscriber.objects.all().order_by('-subscribed_at')
+    active_subscribers_count = NewsletterSubscriber.objects.filter(is_active=True).count()
+    
+    return render(request, 'Dashboards/Admin/management_contact/admin_management_contact.html', {
+        'contact_messages': contact_messages,
+        'subscribers': subscribers,
+        'active_subscribers_count': active_subscribers_count,  # Pass the count to the template
+    })
+
+    
+
+#athlete profile management
+
+import uuid
+import logging
+import os
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.conf import settings
+from django.utils import timezone
+from django.http import HttpResponse
+from django.db import transaction
+from django.template.loader import render_to_string
+from django.core.files.base import ContentFile
+
+from campay.sdk import Client as CamPayClient
+from io import BytesIO
+from xhtml2pdf import pisa
+
+from .forms import AthleteProfileForm
+from .models import User
+
+# Set up logger
+logger = logging.getLogger(__name__)
+
+# Initialize CamPay client
+campay_client = CamPayClient({
+    "app_username": settings.CAMPAY_USERNAME,
+    "app_password": settings.CAMPAY_PASSWORD,
+    "environment": settings.CAMPAY_ENVIRONMENT  # "TEST" or "PROD"
+})
+
+
+# Now, create a profile completion check decorator
+
+def profile_completion_required(view_func):
+    """
+    Decorator to check if an athlete's profile is complete.
+    If not, redirects to the profile completion page.
+    """
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        # Only apply to athletes
+        if request.user.is_authenticated and request.user.user_type == 'athlete':
+            if not request.user.is_profile_complete():
+                messages.warning(request, "Please complete your profile before accessing the dashboard.")
+                return redirect('complete_athlete_profile')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+# Fix the complete_athlete_profile view
+
+@login_required
+@transaction.atomic
+def complete_athlete_profile(request):
+    # Redirect if user is not an athlete
+    if request.user.user_type != 'athlete':
+        messages.error(request, "This page is only for athletes.")
+        return redirect_to_dashboard(request.user)
+    
+    # Redirect if profile is already complete
+    if request.user.is_profile_complete():
+        messages.info(request, "Your profile is already complete.")
+        return redirect('athlete_dashboard')
+    
+    if request.method == 'POST':
+        form = AthleteProfileForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            try:
+                # Save form data without committing
+                athlete = form.save(commit=False)
+                
+                # Save mobile number from form
+                mobile_number = form.cleaned_data.get('mobile_number')
+                if not mobile_number:
+                    messages.error(request, "Mobile number is required for payment.")
+                    return render(request, 'Dashboards/Athlete/CompleteProfile/complete_profile.html', {'form': form})
+                
+                # Format phone number (add country code if needed)
+                if not mobile_number.startswith('237'):
+                    mobile_number = '237' + mobile_number
+                
+                athlete.mobile_number = mobile_number
+                athlete.terms_accepted = request.POST.get('terms') == 'on'
+                
+                # Ensure profile image was uploaded
+                if 'profile_image' not in request.FILES:
+                    messages.error(request, "Profile image is required.")
+                    return render(request, 'Dashboards/Athlete/CompleteProfile/complete_profile.html', {'form': form})
+                
+                # Save the athlete to update fields
+                athlete.save()
+                
+                # Generate payment reference
+                payment_reference = str(uuid.uuid4())
+                
+                # Process payment with CamPay SDK
+                try:
+                    logger.info(f"Initiating payment for user {athlete.id} with amount {athlete.membership_fee}")
+                    
+                    payment_response = campay_client.collect({
+                        "amount": str(athlete.membership_fee),
+                        "currency": "XAF",
+                        "from": mobile_number,
+                        "description": f"Athlete membership fee for {athlete.get_full_name()}",
+                        "external_reference": payment_reference
+                    })
+                    
+                    logger.info(f"Payment response: {payment_response}")
+                    
+                    # Record payment information
+                    athlete.campay_reference = payment_response.get("reference")
+                    athlete.campay_transaction_id = payment_response.get("reference")
+                    athlete.campay_status = payment_response.get("status")
+                    athlete.campay_response = payment_response
+                    
+                    if payment_response.get('status') == 'SUCCESSFUL':
+                        # Update user status for successful payment
+                        athlete.payment_status = 'paid'
+                        athlete.last_payment_date = timezone.now()
+                        athlete.next_payment_due = timezone.now() + timezone.timedelta(days=30)
+                        athlete.account_status = 'active'
+                        
+                        # Generate receipt
+                        receipt_filename, receipt_file = generate_pdf_receipt(athlete)
+                        athlete.payment_receipt = ContentFile(receipt_file.getvalue(), name=receipt_filename)
+                        
+                        athlete.save()
+                        
+                        messages.success(request, "Profile completed successfully! Your payment has been processed.")
+                        return redirect('athlete_dashboard')
+                    else:
+                        # Payment is pending or needs further action
+                        athlete.payment_status = 'pending'
+                        athlete.save()
+                        
+                        messages.info(request, "Your profile has been saved. Please complete the payment process on your mobile device.")
+                        return redirect('payment_status', reference=payment_response.get("reference"))
+                
+                except Exception as e:
+                    logger.error(f"Payment processing error: {str(e)}")
+                    messages.error(request, f"Payment processing failed: {str(e)}")
+                    
+                    # Record failed payment
+                    athlete.payment_status = 'failed'
+                    athlete.campay_status = 'FAILED'
+                    athlete.campay_response = {'error': str(e)}
+                    athlete.save()
+            
+            except Exception as e:
+                logger.error(f"Profile completion error: {str(e)}")
+                messages.error(request, f"Error while completing profile: {str(e)}")
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = AthleteProfileForm(instance=request.user)
+        # Pre-fill mobile number if available
+        if request.user.mobile_number:
+            form.initial['mobile_number'] = request.user.mobile_number
+    
+    # Get membership fee for display
+    membership_fee = request.user.membership_fee
+    
+    return render(request, 'Dashboards/Athlete/CompleteProfile/complete_profile.html', {
+        'form': form,
+        'membership_fee': membership_fee
+    })
+
+# Apply decorator to athlete_dashboard
+@login_required
+@profile_completion_required
+def athlete_dashboard(request):
+    return render(request, 'Dashboards/Athlete/AthletePanel.html')
+
+# Add a new view to check profile completion status
+@login_required
+def check_profile_completion(request):
+    """API endpoint to check if user profile is complete"""
+    if request.user.is_authenticated:
+        is_complete = request.user.is_profile_complete()
+        return JsonResponse({
+            'is_complete': is_complete,
+            'redirect_url': reverse('complete_athlete_profile') if not is_complete else None
+        })
+    return JsonResponse({'error': 'Authentication required'}, status=401)
+
+# Update the User model's is_profile_complete method to be more robust
+def is_profile_complete(self):
+    """Check if the user has completed their profile based on their user type"""
+    if self.user_type == 'athlete':
+        required_fields = [
+            self.first_name, 
+            self.last_name, 
+            self.email,
+            self.sport,
+            self.level,
+            self.town,
+            self.quartier,
+            self.profile_image,
+            self.payment_status == 'paid'  # Added payment check
+        ]
+        return all(required_fields)
+    elif self.user_type in ['psychologist', 'coach', 'nutritionist']:
+        required_fields = [
+            self.first_name, 
+            self.last_name, 
+            self.email,
+            self.qualifications,
+            self.years_experience,
+            self.town,
+            self.profile_image,
+            self.certification_document,
+            self.cv_document,
+            self.payment_status == 'paid'  # Added payment check
+        ]
+        return all(required_fields)
+    return True  # Admins don't need complete profiles
+
+
+
+
+
+@login_required
+def payment_status(request, reference):
+    """View to check payment status"""
+    try:
+        # Get the latest payment status from CamPay
+        payment_info = campay_client.check_status(reference)
+        
+        user = request.user
+        
+        # Update user's payment information
+        if payment_info.get('status') == 'SUCCESSFUL':
+            user.payment_status = 'paid'
+            user.last_payment_date = timezone.now()
+            user.next_payment_due = timezone.now() + timezone.timedelta(days=30)
+            user.account_status = 'active'
+            user.campay_status = payment_info.get('status')
+            
+            # Generate receipt if not already generated
+            if not hasattr(user, 'payment_receipt') or not user.payment_receipt:
+                receipt_filename, receipt_file = generate_pdf_receipt(user)
+                user.payment_receipt = ContentFile(receipt_file.getvalue(), name=receipt_filename)
+            
+            user.save()
+            
+            messages.success(request, "Payment successful! Your membership is now active.")
+            return redirect('athlete_dashboard')
+        else:
+            # Payment is still pending or failed
+            return render(request, 'Dashboards/Athlete/Receipts/PaymentStatus.html', {
+                'payment_info': payment_info,
+                'reference': reference
+            })
+            
+    except Exception as e:
+        logger.error(f"Error checking payment status: {str(e)}")
+        messages.error(request, f"Error checking payment status: {str(e)}")
+        return redirect('athlete_dashboard')
+
+def generate_pdf_receipt(user):
+    """Generate a PDF receipt for the user's payment"""
+    try:
+        # Context data for the receipt template
+        context = {
+            'user': user,
+            'payment_date': user.last_payment_date or timezone.now(),
+            'amount': user.membership_fee,
+            'reference': user.campay_reference,
+            'transaction_id': user.campay_transaction_id,
+            'next_payment_date': user.next_payment_due,
+            'generated_date': timezone.now(),
+            'receipt_number': f"REC-{timezone.now().strftime('%Y%m%d')}-{user.id}"
+        }
+        
+        # Render the receipt template
+        html_string = render_to_string('Dashboards/Athlete/Receipts/MembershipReceipt.html', context)
+        
+        # Create a PDF file
+        result = BytesIO()
+        pdf = pisa.pisaDocument(BytesIO(html_string.encode("UTF-8")), result)
+        
+        if not pdf.err:
+            # Generate a unique filename
+            filename = f"membership_receipt_{user.id}_{timezone.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            return filename, result
+        else:
+            logger.error(f"Error generating PDF receipt: {pdf.err}")
+            raise Exception("Error generating PDF receipt")
+    except Exception as e:
+        logger.error(f"Error in generate_pdf_receipt: {str(e)}")
+        raise
+
+@login_required
+def download_receipt(request):
+    """View to download the user's payment receipt"""
+    user = request.user
+    
+    if not hasattr(user, 'payment_receipt') or not user.payment_receipt:
+        messages.error(request, "No receipt available. Please complete your payment first.")
+        return redirect('athlete_dashboard')
+    
+    try:
+        # Get the file path
+        file_path = user.payment_receipt.path
+        
+        if os.path.exists(file_path):
+            with open(file_path, 'rb') as f:
+                response = HttpResponse(f, content_type='application/pdf')
+                response['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_path)}"'
+                return response
+        else:
+            messages.error(request, "Receipt file not found.")
+            return redirect('athlete_dashboard')
+    except Exception as e:
+        logger.error(f"Error downloading receipt: {str(e)}")
+        messages.error(request, f"Error downloading receipt: {str(e)}")
+        return redirect('athlete_dashboard')
 
 
 
