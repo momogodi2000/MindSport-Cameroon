@@ -1,9 +1,8 @@
 venv
 env
 .env
-
-
-# .gitignore
+application/.env
+venv/
 *.env
 .env
 application/.env
