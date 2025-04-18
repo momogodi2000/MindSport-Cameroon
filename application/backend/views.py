@@ -33,6 +33,14 @@ import json
 from datetime import datetime, timedelta
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Q, Count
+from django.db.models.functions import TruncMonth
+from datetime import datetime, timedelta
+from django.utils import timezone
+import json
 
 # Get your User model
 User = get_user_model()
@@ -58,6 +66,10 @@ def home(request):
     return render(request, 'LandingPage/HomePage.html', {
         'newsletter_form': newsletter_form
     })
+
+def term(request):
+    return render(request, 'LandingPage/term.html')
+
 
 def contact_submit(request):
     if request.method == 'POST':
@@ -471,7 +483,9 @@ def admin_crud(request):
     user_type = request.GET.get('user_type')
     sport = request.GET.get('sport')
     level = request.GET.get('level')
-    status = request.GET.get('status')
+    account_status = request.GET.get('account_status')
+    payment_status = request.GET.get('payment_status')
+    is_verified = request.GET.get('is_verified')
     search_query = request.GET.get('search', '')
     
     if user_type:
@@ -483,15 +497,26 @@ def admin_crud(request):
     if level:
         users = users.filter(level=level)
     
-    if status:
-        is_active = status == 'active'
-        users = users.filter(is_active=is_active)
+    if account_status:
+        users = users.filter(account_status=account_status)
+    
+    if payment_status:
+        users = users.filter(payment_status=payment_status)
+    
+    if is_verified:
+        if is_verified == 'verified':
+            users = users.filter(is_verified_professional=True)
+        else:
+            users = users.filter(is_verified_professional=False)
     
     if search_query:
         users = users.filter(
             Q(first_name__icontains=search_query) | 
             Q(last_name__icontains=search_query) | 
-            Q(email__icontains=search_query)
+            Q(email__icontains=search_query) |
+            Q(mobile_number__icontains=search_query) |
+            Q(town__icontains=search_query) |
+            Q(license_number__icontains=search_query)
         )
     
     # Pagination
@@ -503,11 +528,37 @@ def admin_crud(request):
     # User growth data for chart
     user_growth = get_user_growth_data()
     
+    # Get distinct values for filter dropdowns
+    sport_choices = User.SPORT_CHOICES
+    level_choices = User.LEVEL_CHOICES
+    user_type_choices = User.USER_TYPE_CHOICES
+    account_status_choices = User.ACCOUNT_STATUS_CHOICES
+    payment_status_choices = (
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+        ('expired', 'Expired'),
+    )
+    
     context = {
         'users': users_page,
         'statistics': statistics,
+        'sport_choices': sport_choices,
+        'level_choices': level_choices,
+        'user_type_choices': user_type_choices,
+        'account_status_choices': account_status_choices,
+        'payment_status_choices': payment_status_choices,
         'user_growth_months': json.dumps(user_growth['months']),
-        'user_growth_data': json.dumps(user_growth['data'])
+        'user_growth_data': json.dumps(user_growth['data']),
+        'selected_filters': {
+            'user_type': user_type,
+            'sport': sport,
+            'level': level,
+            'account_status': account_status,
+            'payment_status': payment_status,
+            'is_verified': is_verified,
+            'search': search_query
+        }
     }
     
     return render(request, 'Dashboards/Admin/User Management/admin_user.html', context)
@@ -522,8 +573,25 @@ def get_user_statistics():
         'coach_count': User.objects.filter(user_type='coach').count(),
         'nutritionist_count': User.objects.filter(user_type='nutritionist').count(),
         'admin_count': User.objects.filter(user_type='admin').count(),
-        'active_users': User.objects.filter(is_active=True).count(),
-        'inactive_users': User.objects.filter(is_active=False).count(),
+        
+        # Account status counts
+        'pending_count': User.objects.filter(account_status='pending').count(),
+        'active_count': User.objects.filter(account_status='active').count(),
+        'blocked_count': User.objects.filter(account_status='blocked').count(),
+        'suspended_count': User.objects.filter(account_status='suspended').count(),
+        
+        # Payment status counts
+        'payment_pending_count': User.objects.filter(payment_status='pending').count(),
+        'payment_paid_count': User.objects.filter(payment_status='paid').count(),
+        'payment_failed_count': User.objects.filter(payment_status='failed').count(),
+        'payment_expired_count': User.objects.filter(payment_status='expired').count(),
+        
+        # Verification status
+        'verified_professionals': User.objects.filter(is_verified_professional=True).count(),
+        'unverified_professionals': User.objects.filter(
+            user_type__in=['psychologist', 'coach', 'nutritionist'],
+            is_verified_professional=False
+        ).count(),
         
         # Sport counts
         'boxing_count': User.objects.filter(sport='boxing').count(),
@@ -534,47 +602,40 @@ def get_user_statistics():
         'mma_count': User.objects.filter(sport='mma').count(),
         'other_sport_count': User.objects.filter(sport='other').count(),
         
-        # New users in last 30 days
+        # Level counts
+        'amateur_count': User.objects.filter(level='amateur').count(),
+        'semipro_count': User.objects.filter(level='semi-pro').count(),
+        'professional_count': User.objects.filter(level='professional').count(),
+        'elite_count': User.objects.filter(level='elite').count(),
+        
+        # New users statistics
         'new_users_30_days': User.objects.filter(date_joined__gte=datetime.now() - timedelta(days=30)).count(),
+        'new_users_7_days': User.objects.filter(date_joined__gte=datetime.now() - timedelta(days=7)).count(),
+        'new_users_today': User.objects.filter(date_joined__date=datetime.now().date()).count(),
     }
     
     return statistics
-
-def get_user_growth_data():
-    """Helper function to get user growth data for charts"""
-    # Last 6 months data
-    months = []
-    data = []
-    
-    for i in range(5, -1, -1):
-        date = datetime.now() - timedelta(days=30 * i)
-        month_start = date.replace(day=1)
-        
-        if i > 0:
-            next_month = datetime.now() - timedelta(days=30 * (i-1))
-            month_end = next_month.replace(day=1)
-        else:
-            month_end = datetime.now()
-        
-        count = User.objects.filter(date_joined__gte=month_start, date_joined__lt=month_end).count()
-        months.append(date.strftime("%b %Y"))
-        data.append(count)
-    
-    return {'months': months, 'data': data}
-
-@login_required
-@user_passes_test(is_admin)
-def admin_get_users(request):
-    """API endpoint to get all users"""
-    # Reuse the admin_crud view for this to maintain consistency
-    return admin_crud(request)
 
 @login_required
 @user_passes_test(is_admin)
 def admin_get_user(request, user_id):
     """View a single user's details"""
     user = get_object_or_404(User, id=user_id)
-    return render(request, 'Dashboards/Admin/User Management/admin_user_detail.html', {'user': user})
+    
+    # Calculate subscription status
+    subscription_active = user.is_subscription_active()
+    
+    # Get payment history if we had a Payment model
+    # payments = Payment.objects.filter(user=user).order_by('-payment_date')
+    
+    context = {
+        'user': user,
+        'subscription_active': subscription_active,
+        'account_status_choices': User.ACCOUNT_STATUS_CHOICES,
+        # 'payments': payments
+    }
+    
+    return render(request, 'Dashboards/Admin/User Management/admin_user_detail.html', context)
 
 @login_required
 @user_passes_test(is_admin)
@@ -594,7 +655,7 @@ def admin_create_user(request):
                 messages.error(request, 'Email already exists')
                 return redirect('admin_create_user')
             
-            # Create user
+            # Create user with basic fields
             new_user = User.objects.create_user(
                 username=email,
                 email=email,
@@ -602,13 +663,53 @@ def admin_create_user(request):
                 first_name=first_name,
                 last_name=last_name,
                 user_type=user_type,
-                sport=request.POST.get('sport'),
-                level=request.POST.get('level'),
-                qualifications=request.POST.get('qualifications'),
-                years_experience=request.POST.get('years_experience', 0),
-                is_active=request.POST.get('is_active') == 'on',
                 terms_accepted=True
             )
+            
+            # Update fields based on user type
+            new_user.sport = request.POST.get('sport')
+            new_user.level = request.POST.get('level')
+            new_user.town = request.POST.get('town')
+            new_user.quartier = request.POST.get('quartier')
+            new_user.mobile_number = request.POST.get('mobile_number')
+            new_user.account_status = request.POST.get('account_status', 'pending')
+            
+            # Professional-specific fields
+            if user_type in ['psychologist', 'coach', 'nutritionist']:
+                new_user.qualifications = request.POST.get('qualifications')
+                new_user.years_experience = request.POST.get('years_experience')
+                new_user.license_number = request.POST.get('license_number')
+                new_user.is_verified_professional = request.POST.get('is_verified_professional') == 'on'
+                
+                if new_user.is_verified_professional:
+                    new_user.date_verified = timezone.now()
+                    
+                # Handle file uploads if present
+                if 'certification_document' in request.FILES:
+                    new_user.certification_document = request.FILES['certification_document']
+                
+                if 'cv_document' in request.FILES:
+                    new_user.cv_document = request.FILES['cv_document']
+                
+                if 'additional_documents' in request.FILES:
+                    new_user.additional_documents = request.FILES['additional_documents']
+                
+                new_user.verification_notes = request.POST.get('verification_notes')
+            
+            # Handle profile image if present
+            if 'profile_image' in request.FILES:
+                new_user.profile_image = request.FILES['profile_image']
+            
+            # Payment related fields
+            payment_status = request.POST.get('payment_status')
+            if payment_status:
+                new_user.payment_status = payment_status
+                
+                if payment_status == 'paid':
+                    new_user.last_payment_date = timezone.now()
+                    new_user.next_payment_due = timezone.now() + timezone.timedelta(days=30)
+            
+            new_user.save()
             
             messages.success(request, f'User {first_name} {last_name} created successfully!')
             return redirect('admin_get_users')
@@ -617,8 +718,21 @@ def admin_create_user(request):
             messages.error(request, f'Error creating user: {str(e)}')
             return redirect('admin_create_user')
     
-    # GET request - show create form
-    return render(request, 'Dashboards/Admin/User Management/admin_create_user.html')
+    # GET request - show create form with all choices from model
+    context = {
+        'user_type_choices': User.USER_TYPE_CHOICES,
+        'sport_choices': User.SPORT_CHOICES,
+        'level_choices': User.LEVEL_CHOICES,
+        'account_status_choices': User.ACCOUNT_STATUS_CHOICES,
+        'payment_status_choices': (
+            ('pending', 'Pending'),
+            ('paid', 'Paid'),
+            ('failed', 'Failed'),
+            ('expired', 'Expired'),
+        )
+    }
+    
+    return render(request, 'Dashboards/Admin/User Management/admin_create_user.html', context)
 
 @login_required
 @user_passes_test(is_admin)
@@ -628,9 +742,10 @@ def admin_update_user(request, user_id):
     
     if request.method == 'POST':
         try:
-            # Process form data
+            # Process form data for basic fields
             user.first_name = request.POST.get('first_name', user.first_name)
             user.last_name = request.POST.get('last_name', user.last_name)
+            user.user_type = request.POST.get('user_type', user.user_type)
             
             # Check if email changed and is unique
             new_email = request.POST.get('email')
@@ -641,15 +756,57 @@ def admin_update_user(request, user_id):
             user.email = new_email
             user.username = new_email  # Keep username and email in sync
             
-            # Update other fields
-            user.user_type = request.POST.get('user_type', user.user_type)
+            # Update common fields
             user.sport = request.POST.get('sport', user.sport)
             user.level = request.POST.get('level', user.level)
-            user.qualifications = request.POST.get('qualifications', user.qualifications)
-            user.years_experience = request.POST.get('years_experience', user.years_experience)
-            user.is_active = request.POST.get('is_active') == 'on'
+            user.town = request.POST.get('town', user.town)
+            user.quartier = request.POST.get('quartier', user.quartier)
+            user.mobile_number = request.POST.get('mobile_number', user.mobile_number)
+            user.account_status = request.POST.get('account_status', user.account_status)
             
-            # Update password if provided
+            # Professional-specific fields
+            if user.user_type in ['psychologist', 'coach', 'nutritionist']:
+                user.qualifications = request.POST.get('qualifications', user.qualifications)
+                user.years_experience = request.POST.get('years_experience', user.years_experience)
+                user.license_number = request.POST.get('license_number', user.license_number)
+                
+                was_verified = user.is_verified_professional
+                user.is_verified_professional = request.POST.get('is_verified_professional') == 'on'
+                
+                # Set verification date if newly verified
+                if not was_verified and user.is_verified_professional:
+                    user.date_verified = timezone.now()
+                
+                # Handle file uploads if present
+                if 'certification_document' in request.FILES:
+                    user.certification_document = request.FILES['certification_document']
+                
+                if 'cv_document' in request.FILES:
+                    user.cv_document = request.FILES['cv_document']
+                
+                if 'additional_documents' in request.FILES:
+                    user.additional_documents = request.FILES['additional_documents']
+                
+                user.verification_notes = request.POST.get('verification_notes', user.verification_notes)
+            
+            # Handle profile image if present
+            if 'profile_image' in request.FILES:
+                user.profile_image = request.FILES['profile_image']
+            
+            # Payment related fields
+            payment_status = request.POST.get('payment_status')
+            if payment_status and payment_status != user.payment_status:
+                user.payment_status = payment_status
+                
+                if payment_status == 'paid' and (not user.last_payment_date or user.payment_status != 'paid'):
+                    user.last_payment_date = timezone.now()
+                    user.next_payment_due = timezone.now() + timezone.timedelta(days=30)
+            
+            # Manually set membership fee if provided
+            if request.POST.get('membership_fee'):
+                user.membership_fee = request.POST.get('membership_fee')
+            
+            # Handle password update if provided
             password = request.POST.get('password')
             if password:
                 user.set_password(password)
@@ -662,29 +819,60 @@ def admin_update_user(request, user_id):
             messages.error(request, f'Error updating user: {str(e)}')
             return redirect('admin_update_user', user_id=user_id)
     
-    # GET request - show update form
-    return render(request, 'Dashboards/Admin/User Management/admin_update_user.html', {'user': user})
+    # GET request - show update form with choices from model
+    context = {
+        'user': user,
+        'user_type_choices': User.USER_TYPE_CHOICES,
+        'sport_choices': User.SPORT_CHOICES,
+        'level_choices': User.LEVEL_CHOICES,
+        'account_status_choices': User.ACCOUNT_STATUS_CHOICES,
+        'payment_status_choices': (
+            ('pending', 'Pending'),
+            ('paid', 'Paid'),
+            ('failed', 'Failed'),
+            ('expired', 'Expired'),
+        )
+    }
+    
+    return render(request, 'Dashboards/Admin/User Management/admin_update_user.html', context)
 
 @login_required
 @user_passes_test(is_admin)
-@csrf_exempt
-def admin_delete_user(request, user_id):
-    """Delete a user"""
-    if request.method in ['DELETE', 'POST']:
-        try:
-            user = get_object_or_404(User, id=user_id)
-            
-            # Prevent deleting yourself
-            if user.id == request.user.id:
-                messages.error(request, 'You cannot delete your own account')
-                return redirect('admin_get_users')
-            
-            user_name = f"{user.first_name} {user.last_name}"
-            user.delete()
-            messages.success(request, f'User {user_name} deleted successfully!')
-            
-        except Exception as e:
-            messages.error(request, f'Error deleting user: {str(e)}')
+def admin_verify_professional(request, user_id):
+    """Verify a professional user"""
+    user = get_object_or_404(User, id=user_id)
+    
+    if user.user_type not in ['psychologist', 'coach', 'nutritionist']:
+        messages.error(request, f'User {user.get_full_name()} is not a professional account')
+        return redirect('admin_get_user', user_id=user_id)
+    
+    user.is_verified_professional = True
+    user.date_verified = timezone.now()
+    user.account_status = 'active'
+    user.save()
+    
+    # Send verification email to user
+    # send_verification_email(user)
+    
+    messages.success(request, f'Professional {user.get_full_name()} has been verified successfully')
+    return redirect('admin_get_user', user_id=user_id)
+
+@login_required
+@user_passes_test(is_admin)
+def admin_update_account_status(request, user_id):
+    """Update account status"""
+    if request.method == 'POST':
+        user = get_object_or_404(User, id=user_id)
+        new_status = request.POST.get('account_status')
+        
+        if new_status in dict(User.ACCOUNT_STATUS_CHOICES):
+            user.account_status = new_status
+            user.save()
+            messages.success(request, f'Account status for {user.get_full_name()} updated to {new_status}')
+        else:
+            messages.error(request, 'Invalid account status')
+        
+        return redirect('admin_get_user', user_id=user_id)
     
     return redirect('admin_get_users')
 
@@ -698,8 +886,6 @@ def admin_get_statistics(request):
     # Get new users by month for the last 6 months
     six_months_ago = datetime.now() - timedelta(days=180)
     
-    
-
     monthly_signups = (
         User.objects.filter(date_joined__gte=six_months_ago)
         .annotate(month=TruncMonth('date_joined'))
@@ -713,17 +899,133 @@ def admin_get_statistics(request):
         user_type='athlete'
     ).values('level').annotate(count=Count('id'))
     
+    # Get professionals by verification status
+    professionals_by_verification = User.objects.filter(
+        user_type__in=['psychologist', 'coach', 'nutritionist']
+    ).values('user_type', 'is_verified_professional').annotate(count=Count('id'))
+    
+    # Get users by payment status
+    users_by_payment = User.objects.values('payment_status').annotate(count=Count('id'))
+    
+    # Get users by account status
+    users_by_account_status = User.objects.values('account_status').annotate(count=Count('id'))
+    
+    # Get users by town
+    users_by_town = User.objects.exclude(town__isnull=True).exclude(town='').values('town').annotate(count=Count('id')).order_by('-count')[:10]
+    
     user_growth = get_user_growth_data()
     
     context = {
         'statistics': statistics,
         'monthly_signups': list(monthly_signups),
         'athletes_by_level': list(athletes_by_level),
+        'professionals_by_verification': list(professionals_by_verification),
+        'users_by_payment': list(users_by_payment),
+        'users_by_account_status': list(users_by_account_status),
+        'users_by_town': list(users_by_town),
         'user_growth_months': json.dumps(user_growth['months']),
         'user_growth_data': json.dumps(user_growth['data'])
     }
     
     return render(request, 'Dashboards/Admin/User Management/admin_statistics.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def admin_export_users(request):
+    """Export users to CSV/Excel"""
+    import csv
+    from django.http import HttpResponse
+    
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="users_export.csv"'
+    
+    writer = csv.writer(response)
+    # Header row
+    writer.writerow([
+        'ID', 'Email', 'First Name', 'Last Name', 'User Type', 
+        'Date Joined', 'Sport', 'Level', 'Town', 'Quartier',
+        'Mobile Number', 'Account Status', 'Payment Status',
+        'Is Verified Professional', 'Qualifications', 'Years Experience',
+        'License Number', 'Last Payment Date', 'Next Payment Due',
+        'Membership Fee'
+    ])
+    
+    # Apply filters from request if any
+    users = User.objects.all().order_by('-date_joined')
+    
+    # Get filter parameters
+    user_type = request.GET.get('user_type')
+    if user_type:
+        users = users.filter(user_type=user_type)
+    
+    # Add additional filters as needed
+    # [...]
+    
+    # Export data
+    for user in users:
+        writer.writerow([
+            user.id, user.email, user.first_name, user.last_name,
+            user.get_user_type_display(), user.date_joined, 
+            user.get_sport_display() if user.sport else '',
+            user.get_level_display() if user.level else '',
+            user.town or '', user.quartier or '',
+            user.mobile_number or '', user.get_account_status_display(),
+            user.payment_status,
+            'Yes' if user.is_verified_professional else 'No',
+            user.qualifications or '', user.years_experience or '',
+            user.license_number or '',
+            user.last_payment_date or '', user.next_payment_due or '',
+            user.membership_fee
+        ])
+    
+    return response
+
+@login_required
+@user_passes_test(is_admin)
+def admin_delete_user(request, user_id):
+    """Delete a user"""
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == 'POST':
+        user_name = user.get_full_name()
+        user.delete()
+        messages.success(request, f'User {user_name} has been deleted successfully')
+        return redirect('admin_get_users')
+    
+    # If GET request, show confirmation page
+    return render(request, 'Dashboards/Admin/User Management/admin_user.html', {'user': user})
+
+def get_user_growth_data():
+    """Helper function to get user growth data for charts"""
+    from django.db.models.functions import TruncMonth
+    from django.db.models import Count
+    from datetime import datetime, timedelta
+    
+    # Get data for the last 12 months
+    twelve_months_ago = datetime.now() - timedelta(days=365)
+    
+    # Get monthly signups
+    monthly_data = (
+        User.objects
+        .filter(date_joined__gte=twelve_months_ago)
+        .annotate(month=TruncMonth('date_joined'))
+        .values('month')
+        .annotate(count=Count('id'))
+        .order_by('month')
+    )
+    
+    # Prepare data for chart
+    months = []
+    counts = []
+    
+    for entry in monthly_data:
+        months.append(entry['month'].strftime('%b %Y'))
+        counts.append(entry['count'])
+    
+    return {
+        'months': months,
+        'data': counts
+    }
 
 #admin contact management and update this part for production
 @login_required
@@ -939,7 +1241,30 @@ def contact_management(request):
         'active_subscribers_count': active_subscribers_count,  # Pass the count to the template
     })
 
-    
+
+
+#Athlect panel
+@login_required
+def Appointments(request):
+    return render(request, 'Dashboards/Athlete/Appointments/Appointments.html')
+
+@login_required
+def Assessments(request):
+    return render(request, 'Dashboards/Athlete/ Mental Assessments/Assessments.html')
+
+@login_required
+def WellnessResources(request):
+    return render(request, 'Dashboards/Athlete/ Wellness Resources/ WellnessResources.html')
+
+@login_required
+def AthleteCommunity(request):
+    return render(request, 'Dashboards/Athlete/ Athlete Community/ AthleteCommunity.html')
+
+@login_required
+def ProgressTracker(request):
+    return render(request, 'Dashboards/Athlete/ Progress Tracker/ ProgressTracker.html')
+
+
 
 #athlete profile management
 

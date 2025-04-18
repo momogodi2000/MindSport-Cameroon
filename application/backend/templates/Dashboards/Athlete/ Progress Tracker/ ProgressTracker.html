@@ -1,0 +1,1274 @@
+{% extends 'Dashboards/Layout/athlete_base.html' %}
+{% load static %}
+
+{% block title %}Progress Tracker | Mental Health Platform{% endblock %}
+
+{% block extra_css %}
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+  }
+  
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out forwards;
+  }
+  
+  .progress-card {
+    transition: all 0.3s ease;
+  }
+  
+  .progress-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  .tab-content {
+    display: none;
+  }
+  
+  .tab-content.active {
+    display: block;
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+  }
+  
+  /* Pulse animation for attention */
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(49, 130, 206, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(49, 130, 206, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(49, 130, 206, 0); }
+  }
+  
+  .pulse {
+    animation: pulse 2s infinite;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+  <!-- Header Section -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 animate-fade-in" style="animation-delay: 0.1s;">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Progress Tracker</h1>
+      <p class="text-gray-600 mt-1">Monitor your mental health journey and track improvements over time</p>
+    </div>
+    <div class="mt-4 md:mt-0">
+      <button id="recordProgressBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+        <i class="fas fa-plus mr-2"></i> Record New Entry
+      </button>
+    </div>
+  </div>
+  
+  <!-- Overview Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Stress Level Card -->
+    <div class="progress-card bg-white rounded-xl shadow-md p-6 animate-scale-in" style="animation-delay: 0.2s;">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-gray-700 font-medium">Stress Level</h3>
+        <div class="text-sm bg-green-100 text-green-800 py-1 px-3 rounded-full font-medium">-15% ↓</div>
+      </div>
+      <div class="flex items-end">
+        <div class="text-3xl font-bold text-gray-800">4.2</div>
+        <div class="text-gray-500 ml-2 mb-1">/10</div>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+        <div class="bg-green-500 h-2.5 rounded-full" style="width: 42%"></div>
+      </div>
+      <p class="text-xs text-gray-500 mt-2">Lower than last month (5.8/10)</p>
+    </div>
+    
+    <!-- Mood Stability Card -->
+    <div class="progress-card bg-white rounded-xl shadow-md p-6 animate-scale-in" style="animation-delay: 0.3s;">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-gray-700 font-medium">Mood Stability</h3>
+        <div class="text-sm bg-blue-100 text-blue-800 py-1 px-3 rounded-full font-medium">+12% ↑</div>
+      </div>
+      <div class="flex items-end">
+        <div class="text-3xl font-bold text-gray-800">7.6</div>
+        <div class="text-gray-500 ml-2 mb-1">/10</div>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+        <div class="bg-blue-500 h-2.5 rounded-full" style="width: 76%"></div>
+      </div>
+      <p class="text-xs text-gray-500 mt-2">Better than last month (6.8/10)</p>
+    </div>
+    
+    <!-- Anxiety Index Card -->
+    <div class="progress-card bg-white rounded-xl shadow-md p-6 animate-scale-in" style="animation-delay: 0.4s;">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-gray-700 font-medium">Anxiety Index</h3>
+        <div class="text-sm bg-green-100 text-green-800 py-1 px-3 rounded-full font-medium">-22% ↓</div>
+      </div>
+      <div class="flex items-end">
+        <div class="text-3xl font-bold text-gray-800">3.5</div>
+        <div class="text-gray-500 ml-2 mb-1">/10</div>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+        <div class="bg-green-500 h-2.5 rounded-full" style="width: 35%"></div>
+      </div>
+      <p class="text-xs text-gray-500 mt-2">Lower than last month (5.7/10)</p>
+    </div>
+    
+    <!-- Focus & Concentration Card -->
+    <div class="progress-card bg-white rounded-xl shadow-md p-6 animate-scale-in" style="animation-delay: 0.5s;">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-gray-700 font-medium">Focus & Concentration</h3>
+        <div class="text-sm bg-blue-100 text-blue-800 py-1 px-3 rounded-full font-medium">+8% ↑</div>
+      </div>
+      <div class="flex items-end">
+        <div class="text-3xl font-bold text-gray-800">8.1</div>
+        <div class="text-gray-500 ml-2 mb-1">/10</div>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2.5 mt-4">
+        <div class="bg-blue-500 h-2.5 rounded-full" style="width: 81%"></div>
+      </div>
+      <p class="text-xs text-gray-500 mt-2">Better than last month (7.5/10)</p>
+    </div>
+  </div>
+  
+  <!-- Tabs for Different Progress Views -->
+  <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8 animate-fade-in" style="animation-delay: 0.6s;">
+    <div class="flex flex-wrap border-b">
+      <button class="tab-button px-6 py-4 font-medium text-sm text-blue-600 border-b-2 border-blue-600 focus:outline-none" data-tab="trends">Trends Over Time</button>
+      <button class="tab-button px-6 py-4 font-medium text-sm text-gray-500 hover:text-gray-700 focus:outline-none" data-tab="goals">Goals & Achievements</button>
+      <button class="tab-button px-6 py-4 font-medium text-sm text-gray-500 hover:text-gray-700 focus:outline-none" data-tab="journal">Emotional Journal</button>
+      <button class="tab-button px-6 py-4 font-medium text-sm text-gray-500 hover:text-gray-700 focus:outline-none" data-tab="assessments">Assessment History</button>
+    </div>
+    
+    <!-- Trends Tab Content -->
+    <div id="trends" class="tab-content active p-6">
+      <div class="mb-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
+          <h3 class="text-xl font-semibold text-gray-800 mb-2 md:mb-0">Progress Charts</h3>
+          <div class="flex space-x-2">
+            <button class="period-btn bg-blue-600 text-white px-3 py-1 rounded-md text-sm font-medium">Week</button>
+            <button class="period-btn bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm font-medium">Month</button>
+            <button class="period-btn bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm font-medium">3 Months</button>
+            <button class="period-btn bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm font-medium">Year</button>
+          </div>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <!-- Canvas for Chart.js -->
+          <canvas id="progressChart" height="300"></canvas>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h4 class="text-lg font-medium text-gray-800 mb-3">Key Improvements</h4>
+          <div class="space-y-4">
+            <div class="flex items-start">
+              <div class="flex-shrink-0 h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mt-1">
+                <i class="fas fa-arrow-up text-green-600"></i>
+              </div>
+              <div class="ml-4">
+                <h5 class="text-base font-medium text-gray-800">Pre-competition anxiety</h5>
+                <p class="text-sm text-gray-600">Decreased by 35% since starting breathing exercises</p>
+              </div>
+            </div>
+            <div class="flex items-start">
+              <div class="flex-shrink-0 h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mt-1">
+                <i class="fas fa-arrow-up text-green-600"></i>
+              </div>
+              <div class="ml-4">
+                <h5 class="text-base font-medium text-gray-800">Sleep quality</h5>
+                <p class="text-sm text-gray-600">Improved by 28% after implementing evening routine</p>
+              </div>
+            </div>
+            <div class="flex items-start">
+              <div class="flex-shrink-0 h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mt-1">
+                <i class="fas fa-arrow-up text-green-600"></i>
+              </div>
+              <div class="ml-4">
+                <h5 class="text-base font-medium text-gray-800">Focus during training</h5>
+                <p class="text-sm text-gray-600">Improved by 22% since starting mindfulness practices</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-medium text-gray-800 mb-3">Areas to Work On</h4>
+          <div class="space-y-4">
+            <div class="flex items-start">
+              <div class="flex-shrink-0 h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center mt-1">
+                <i class="fas fa-exclamation text-yellow-600"></i>
+              </div>
+              <div class="ml-4">
+                <h5 class="text-base font-medium text-gray-800">Post-defeat mindset</h5>
+                <p class="text-sm text-gray-600">Still showing signs of excessive negative thinking</p>
+              </div>
+            </div>
+            <div class="flex items-start">
+              <div class="flex-shrink-0 h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center mt-1">
+                <i class="fas fa-exclamation text-yellow-600"></i>
+              </div>
+              <div class="ml-4">
+                <h5 class="text-base font-medium text-gray-800">Nutrition consistency</h5>
+                <p class="text-sm text-gray-600">Dietary habits fluctuate during high-stress periods</p>
+              </div>
+            </div>
+            <div class="flex items-start">
+              <div class="flex-shrink-0 h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center mt-1">
+                <i class="fas fa-exclamation text-yellow-600"></i>
+              </div>
+              <div class="ml-4">
+                <h5 class="text-base font-medium text-gray-800">Team communication</h5>
+                <p class="text-sm text-gray-600">Still experiencing anxiety when voicing concerns</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Goals Tab Content -->
+    <div id="goals" class="tab-content p-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-2 md:mb-0">Your Mental Wellness Goals</h3>
+        <button id="addGoalBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-4 rounded-lg flex items-center text-sm">
+          <i class="fas fa-plus mr-2"></i> Add New Goal
+        </button>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Goal Card 1 -->
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-5 transition duration-300 hover:shadow-md">
+          <div class="flex justify-between items-start mb-4">
+            <div class="bg-blue-100 text-blue-700 rounded-full px-3 py-1 text-xs font-medium">In Progress</div>
+            <div class="text-gray-400">
+              <i class="fas fa-ellipsis-h cursor-pointer hover:text-gray-600"></i>
+            </div>
+          </div>
+          <h4 class="text-lg font-semibold text-gray-800 mb-2">Reduce Pre-Match Anxiety</h4>
+          <p class="text-sm text-gray-600 mb-4">Implement breathing techniques and visualization before competitions to lower anxiety levels.</p>
+          <div class="mb-3">
+            <div class="flex justify-between mb-1">
+              <span class="text-xs font-medium text-gray-700">Progress</span>
+              <span class="text-xs font-medium text-gray-700">65%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-blue-600 h-2 rounded-full" style="width: 65%"></div>
+            </div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-500">
+            <span>Start: Feb 10, 2025</span>
+            <span>Target: May 15, 2025</span>
+          </div>
+        </div>
+        
+        <!-- Goal Card 2 -->
+        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100 p-5 transition duration-300 hover:shadow-md">
+          <div class="flex justify-between items-start mb-4">
+            <div class="bg-green-100 text-green-700 rounded-full px-3 py-1 text-xs font-medium">Completed</div>
+            <div class="text-gray-400">
+              <i class="fas fa-ellipsis-h cursor-pointer hover:text-gray-600"></i>
+            </div>
+          </div>
+          <h4 class="text-lg font-semibold text-gray-800 mb-2">Improve Sleep Quality</h4>
+          <p class="text-sm text-gray-600 mb-4">Establish consistent sleep routine and pre-bed relaxation techniques to improve recovery.</p>
+          <div class="mb-3">
+            <div class="flex justify-between mb-1">
+              <span class="text-xs font-medium text-gray-700">Progress</span>
+              <span class="text-xs font-medium text-gray-700">100%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+            </div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-500">
+            <span>Start: Dec 5, 2024</span>
+            <span>Completed: Feb 28, 2025</span>
+          </div>
+        </div>
+        
+        <!-- Goal Card 3 -->
+        <div class="bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl border border-purple-100 p-5 transition duration-300 hover:shadow-md">
+          <div class="flex justify-between items-start mb-4">
+            <div class="bg-purple-100 text-purple-700 rounded-full px-3 py-1 text-xs font-medium">Just Started</div>
+            <div class="text-gray-400">
+              <i class="fas fa-ellipsis-h cursor-pointer hover:text-gray-600"></i>
+            </div>
+          </div>
+          <h4 class="text-lg font-semibold text-gray-800 mb-2">Develop Positive Self-Talk</h4>
+          <p class="text-sm text-gray-600 mb-4">Replace negative thoughts with constructive self-affirmations during training and competitions.</p>
+          <div class="mb-3">
+            <div class="flex justify-between mb-1">
+              <span class="text-xs font-medium text-gray-700">Progress</span>
+              <span class="text-xs font-medium text-gray-700">15%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-purple-600 h-2 rounded-full" style="width: 15%"></div>
+            </div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-500">
+            <span>Start: Mar 20, 2025</span>
+            <span>Target: Jul 30, 2025</span>
+          </div>
+        </div>
+        
+        <!-- Goal Card 4 -->
+        <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl border border-amber-100 p-5 transition duration-300 hover:shadow-md">
+          <div class="flex justify-between items-start mb-4">
+            <div class="bg-amber-100 text-amber-700 rounded-full px-3 py-1 text-xs font-medium">In Progress</div>
+            <div class="text-gray-400">
+              <i class="fas fa-ellipsis-h cursor-pointer hover:text-gray-600"></i>
+            </div>
+          </div>
+          <h4 class="text-lg font-semibold text-gray-800 mb-2">Nutrition Awareness</h4>
+          <p class="text-sm text-gray-600 mb-4">Develop better understanding of nutrition's impact on mental performance and mood stability.</p>
+          <div class="mb-3">
+            <div class="flex justify-between mb-1">
+              <span class="text-xs font-medium text-gray-700">Progress</span>
+              <span class="text-xs font-medium text-gray-700">40%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-amber-600 h-2 rounded-full" style="width: 40%"></div>
+            </div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-500">
+            <span>Start: Jan 15, 2025</span>
+            <span>Target: Jun 15, 2025</span>
+          </div>
+        </div>
+        
+        <!-- Goal Card 5 -->
+        <div class="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl border border-teal-100 p-5 transition duration-300 hover:shadow-md">
+          <div class="flex justify-between items-start mb-4">
+            <div class="bg-teal-100 text-teal-700 rounded-full px-3 py-1 text-xs font-medium">Planning</div>
+            <div class="text-gray-400">
+              <i class="fas fa-ellipsis-h cursor-pointer hover:text-gray-600"></i>
+            </div>
+          </div>
+          <h4 class="text-lg font-semibold text-gray-800 mb-2">Team Communication</h4>
+          <p class="text-sm text-gray-600 mb-4">Improve ability to express needs and concerns with teammates and coaching staff.</p>
+          <div class="mb-3">
+            <div class="flex justify-between mb-1">
+              <span class="text-xs font-medium text-gray-700">Progress</span>
+              <span class="text-xs font-medium text-gray-700">5%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-teal-600 h-2 rounded-full" style="width: 5%"></div>
+            </div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-500">
+            <span>Start: Apr 1, 2025</span>
+            <span>Target: Sep 30, 2025</span>
+          </div>
+        </div>
+        
+        <!-- Add Goal Card -->
+        <div id="addGoalCard" class="border-2 border-dashed border-gray-300 rounded-xl p-5 flex flex-col items-center justify-center text-center cursor-pointer transition duration-300 hover:border-blue-400 hover:bg-blue-50">
+          <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center mb-3">
+            <i class="fas fa-plus text-blue-600 text-lg"></i>
+          </div>
+          <h4 class="text-lg font-medium text-gray-800 mb-1">Add New Goal</h4>
+          <p class="text-sm text-gray-500">Set targets for your mental wellness journey</p>
+        </div>
+      </div>
+      
+      <!-- Achievements Section -->
+      <div class="mt-10">
+        <h3 class="text-xl font-semibold text-gray-800 mb-6">Recent Achievements</h3>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Achievement</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-trophy text-green-600"></i>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">Consistent Sleep Schedule</div>
+                      <div class="text-xs text-gray-500">Maintained for 30 consecutive days</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">Feb 28, 2025</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">Recovery</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-medal text-blue-600"></i>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">Meditation Milestone</div>
+                      <div class="text-xs text-gray-500">Completed 50 meditation sessions</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">Jan 15, 2025</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">Mindfulness</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-star text-purple-600"></i>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">Stress Management</div>
+                      <div class="text-xs text-gray-500">Reduced competition anxiety by 30%</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">Mar 10, 2025</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">Performance</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">In Progress</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+        <!-- Journal Tab Content -->
+        <div id="journal" class="tab-content p-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+              <h3 class="text-xl font-semibold text-gray-800 mb-2 md:mb-0">Emotional Journal</h3>
+              <button id="addJournalEntryBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-4 rounded-lg flex items-center text-sm">
+                <i class="fas fa-plus mr-2"></i> New Entry
+              </button>
+            </div>
+            
+            <!-- Journal Filters -->
+            <div class="bg-gray-50 p-4 rounded-lg mb-6">
+              <div class="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0">
+                <div class="flex-1">
+                  <label for="journalDateFilter" class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                  <select id="journalDateFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    <option value="all">All Entries</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="custom">Custom Range</option>
+                  </select>
+                </div>
+                <div class="flex-1">
+                  <label for="journalMoodFilter" class="block text-sm font-medium text-gray-700 mb-1">Mood</label>
+                  <select id="journalMoodFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    <option value="all">All Moods</option>
+                    <option value="happy">Happy</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="sad">Sad</option>
+                    <option value="anxious">Anxious</option>
+                    <option value="angry">Angry</option>
+                  </select>
+                </div>
+                <div class="flex-1">
+                  <label for="journalTagFilter" class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+                  <select id="journalTagFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    <option value="all">All Tags</option>
+                    <option value="training">Training</option>
+                    <option value="competition">Competition</option>
+                    <option value="recovery">Recovery</option>
+                    <option value="nutrition">Nutrition</option>
+                    <option value="relationships">Relationships</option>
+                  </select>
+                </div>
+                <div class="flex items-end">
+                  <button id="applyJournalFilters" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    Apply Filters
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Journal Entries -->
+            <div class="space-y-6">
+              <!-- Journal Entry 1 -->
+              <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-5">
+                  <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center">
+                      <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                        <i class="fas fa-smile text-green-600"></i>
+                      </div>
+                      <div>
+                        <h4 class="font-medium text-gray-800">Positive Training Session</h4>
+                        <p class="text-xs text-gray-500">March 15, 2025 • 4:30 PM</p>
+                      </div>
+                    </div>
+                    <div class="flex space-x-2">
+                      <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="pl-13">
+                    <p class="text-gray-700 mb-3">Had an amazing training session today. Felt really focused and in control of my techniques. Coach noticed improvement in my footwork and defensive strategies. The visualization exercises I've been doing seem to be paying off.</p>
+                    <div class="flex flex-wrap gap-2 mb-3">
+                      <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Training</span>
+                      <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Progress</span>
+                      <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">Confidence</span>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-500">
+                      <i class="fas fa-heart text-red-400 mr-1"></i>
+                      <span class="mr-3">Mood: Happy</span>
+                      <i class="fas fa-bolt text-yellow-400 mr-1"></i>
+                      <span>Energy Level: High</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Journal Entry 2 -->
+              <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-5">
+                  <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center">
+                      <div class="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                        <i class="fas fa-meh text-yellow-600"></i>
+                      </div>
+                      <div>
+                        <h4 class="font-medium text-gray-800">Mixed Feelings About Upcoming Match</h4>
+                        <p class="text-xs text-gray-500">March 12, 2025 • 9:15 PM</p>
+                      </div>
+                    </div>
+                    <div class="flex space-x-2">
+                      <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="pl-13">
+                    <p class="text-gray-700 mb-3">Big competition coming up this weekend. Feeling prepared physically but still some doubts creeping in. Did my visualization routine but had trouble focusing completely. Need to work on clearing my mind before bed.</p>
+                    <div class="flex flex-wrap gap-2 mb-3">
+                      <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">Competition</span>
+                      <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">Anxiety</span>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-500">
+                      <i class="fas fa-meh text-yellow-400 mr-1"></i>
+                      <span class="mr-3">Mood: Neutral</span>
+                      <i class="fas fa-bolt text-blue-400 mr-1"></i>
+                      <span>Energy Level: Medium</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Journal Entry 3 -->
+              <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-5">
+                  <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center">
+                      <div class="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                        <i class="fas fa-frown text-red-600"></i>
+                      </div>
+                      <div>
+                        <h4 class="font-medium text-gray-800">Post-Competition Reflection</h4>
+                        <p class="text-xs text-gray-500">March 8, 2025 • 7:45 PM</p>
+                      </div>
+                    </div>
+                    <div class="flex space-x-2">
+                      <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="pl-13">
+                    <p class="text-gray-700 mb-3">Lost my match today. Made some technical errors in the second round that cost me. Feeling frustrated with myself because I know I could have performed better. Need to analyze the footage with my coach and work on those weak points.</p>
+                    <div class="flex flex-wrap gap-2 mb-3">
+                      <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">Competition</span>
+                      <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">Reflection</span>
+                      <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Improvement</span>
+                    </div>
+                    <div class="flex items-center text-sm text-gray-500">
+                      <i class="fas fa-frown text-red-400 mr-1"></i>
+                      <span class="mr-3">Mood: Sad</span>
+                      <i class="fas fa-bolt text-gray-400 mr-1"></i>
+                      <span>Energy Level: Low</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Load More Button -->
+              <div class="text-center mt-6">
+                <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg inline-flex items-center">
+                  <i class="fas fa-redo mr-2"></i> Load More Entries
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Assessments Tab Content -->
+          <div id="assessments" class="tab-content p-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+              <h3 class="text-xl font-semibold text-gray-800 mb-2 md:mb-0">Assessment History</h3>
+              <button id="takeAssessmentBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-4 rounded-lg flex items-center text-sm">
+                <i class="fas fa-plus mr-2"></i> Take New Assessment
+              </button>
+            </div>
+            
+            <!-- Assessment Filters -->
+            <div class="bg-gray-50 p-4 rounded-lg mb-6">
+              <div class="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0">
+                <div class="flex-1">
+                  <label for="assessmentTypeFilter" class="block text-sm font-medium text-gray-700 mb-1">Assessment Type</label>
+                  <select id="assessmentTypeFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    <option value="all">All Assessments</option>
+                    <option value="stress">Stress Level</option>
+                    <option value="anxiety">Anxiety Index</option>
+                    <option value="depression">Depression Screening</option>
+                    <option value="wellbeing">General Wellbeing</option>
+                    <option value="performance">Performance Anxiety</option>
+                  </select>
+                </div>
+                <div class="flex-1">
+                  <label for="assessmentDateFilter" class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+                  <select id="assessmentDateFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    <option value="all">All Time</option>
+                    <option value="month">Last Month</option>
+                    <option value="3months">Last 3 Months</option>
+                    <option value="year">Last Year</option>
+                    <option value="custom">Custom Range</option>
+                  </select>
+                </div>
+                <div class="flex items-end">
+                  <button id="applyAssessmentFilters" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    Apply Filters
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Assessment Results -->
+            <div class="space-y-6">
+              <!-- Assessment Result 1 -->
+              <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-5">
+                  <div class="flex justify-between items-start mb-3">
+                    <div>
+                      <h4 class="font-medium text-gray-800">Stress Level Assessment</h4>
+                      <p class="text-xs text-gray-500">Completed on March 10, 2025</p>
+                    </div>
+                    <div class="flex space-x-2">
+                      <button class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                        View Details
+                      </button>
+                      <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-download"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <div class="flex justify-between mb-1">
+                      <span class="text-sm font-medium text-gray-700">Your Score: 4.2/10</span>
+                      <span class="text-sm font-medium text-gray-700">Moderate Stress</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                      <div class="bg-green-500 h-2.5 rounded-full" style="width: 42%"></div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2">Your stress levels have decreased by 15% compared to your last assessment. Keep practicing the breathing exercises recommended by your mental coach.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Assessment Result 2 -->
+              <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-5">
+                  <div class="flex justify-between items-start mb-3">
+                    <div>
+                      <h4 class="font-medium text-gray-800">Performance Anxiety Assessment</h4>
+                      <p class="text-xs text-gray-500">Completed on February 28, 2025</p>
+                    </div>
+                    <div class="flex space-x-2">
+                      <button class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                        View Details
+                      </button>
+                      <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-download"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <div class="flex justify-between mb-1">
+                      <span class="text-sm font-medium text-gray-700">Your Score: 5.8/10</span>
+                      <span class="text-sm font-medium text-gray-700">Mild Anxiety</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                      <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 58%"></div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2">Your performance anxiety has improved by 8% since implementing the visualization techniques. Continue with your pre-competition routine.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Assessment Result 3 -->
+              <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                <div class="p-5">
+                  <div class="flex justify-between items-start mb-3">
+                    <div>
+                      <h4 class="font-medium text-gray-800">General Wellbeing Assessment</h4>
+                      <p class="text-xs text-gray-500">Completed on February 15, 2025</p>
+                    </div>
+                    <div class="flex space-x-2">
+                      <button class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                        View Details
+                      </button>
+                      <button class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-download"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <div class="flex justify-between mb-1">
+                      <span class="text-sm font-medium text-gray-700">Your Score: 7.3/10</span>
+                      <span class="text-sm font-medium text-gray-700">Good Wellbeing</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                      <div class="bg-blue-500 h-2.5 rounded-full" style="width: 73%"></div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2">Your overall wellbeing has improved significantly since starting the program. Your sleep quality and mood stability show the most progress.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- View All Button -->
+              <div class="text-center mt-6">
+                <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg inline-flex items-center">
+                  <i class="fas fa-list mr-2"></i> View All Assessments
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Record Progress Modal -->
+      <div id="recordProgressModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-2xl font-bold text-gray-800">Record New Progress Entry</h3>
+              <button id="closeRecordModalBtn" class="text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <form>
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Entry Type</label>
+                <div class="grid grid-cols-2 gap-3">
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="entryType" value="journal" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" checked>
+                    <span class="ml-2 text-gray-700">Journal Entry</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="entryType" value="metric" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                    <span class="ml-2 text-gray-700">Metric Update</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="entryType" value="assessment" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                    <span class="ml-2 text-gray-700">Quick Assessment</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="entryType" value="goal" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                    <span class="ml-2 text-gray-700">Goal Update</span>
+                  </label>
+                </div>
+              </div>
+              
+              <!-- Journal Entry Fields -->
+              <div id="journalFields" class="space-y-4">
+                <div>
+                  <label for="entryTitle" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                  <input type="text" id="entryTitle" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Brief title for your entry">
+                </div>
+                
+                <div>
+                  <label for="entryContent" class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                  <textarea id="entryContent" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Describe your thoughts, feelings, and experiences..."></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label for="entryMood" class="block text-sm font-medium text-gray-700 mb-1">Mood</label>
+                    <select id="entryMood" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                      <option value="">Select your mood</option>
+                      <option value="happy">Happy</option>
+                      <option value="neutral">Neutral</option>
+                      <option value="sad">Sad</option>
+                      <option value="anxious">Anxious</option>
+                      <option value="angry">Angry</option>
+                      <option value="excited">Excited</option>
+                      <option value="tired">Tired</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label for="entryEnergy" class="block text-sm font-medium text-gray-700 mb-1">Energy Level</label>
+                    <select id="entryEnergy" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                      <option value="">Select energy level</option>
+                      <option value="high">High</option>
+                      <option value="medium">Medium</option>
+                      <option value="low">Low</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+                  <div class="flex flex-wrap gap-2">
+                    <input type="text" class="text-xs px-3 py-1 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Add tag...">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Metric Update Fields (hidden by default) -->
+              <div id="metricFields" class="space-y-4 hidden">
+                <div>
+                  <label for="metricType" class="block text-sm font-medium text-gray-700 mb-1">Metric</label>
+                  <select id="metricType" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Select metric</option>
+                    <option value="stress">Stress Level</option>
+                    <option value="anxiety">Anxiety Index</option>
+                    <option value="mood">Mood Stability</option>
+                    <option value="focus">Focus & Concentration</option>
+                    <option value="sleep">Sleep Quality</option>
+                    <option value="recovery">Recovery Rate</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label for="metricValue" class="block text-sm font-medium text-gray-700 mb-1">Value (1-10)</label>
+                  <input type="range" id="metricValue" min="1" max="10" step="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                  <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>1 (Low)</span>
+                    <span id="metricValueDisplay">5.5</span>
+                    <span>10 (High)</span>
+                  </div>
+                </div>
+                
+                <div>
+                  <label for="metricNotes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                  <textarea id="metricNotes" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Any additional context about this metric..."></textarea>
+                </div>
+              </div>
+              
+              <!-- Quick Assessment Fields (hidden by default) -->
+              <div id="assessmentFields" class="space-y-4 hidden">
+                <div>
+                  <label for="assessmentType" class="block text-sm font-medium text-gray-700 mb-1">Assessment Type</label>
+                  <select id="assessmentType" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Select assessment</option>
+                    <option value="stress">Stress Level</option>
+                    <option value="anxiety">Anxiety Index</option>
+                    <option value="depression">Depression Screening</option>
+                    <option value="wellbeing">General Wellbeing</option>
+                    <option value="performance">Performance Anxiety</option>
+                  </select>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <p class="text-sm text-gray-600 mb-3">This quick assessment will take about 2 minutes to complete. Your results will be saved to your progress history.</p>
+                  <button type="button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md">
+                    Start Assessment
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Goal Update Fields (hidden by default) -->
+              <div id="goalFields" class="space-y-4 hidden">
+                <div>
+                  <label for="goalSelect" class="block text-sm font-medium text-gray-700 mb-1">Select Goal</label>
+                  <select id="goalSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Select goal to update</option>
+                    <option value="1">Reduce Pre-Match Anxiety</option>
+                    <option value="2">Develop Positive Self-Talk</option>
+                    <option value="3">Nutrition Awareness</option>
+                    <option value="4">Team Communication</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label for="goalProgress" class="block text-sm font-medium text-gray-700 mb-1">Progress Update (0-100%)</label>
+                  <input type="range" id="goalProgress" min="0" max="100" step="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                  <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>0%</span>
+                    <span id="goalProgressDisplay">50%</span>
+                    <span>100%</span>
+                  </div>
+                </div>
+                
+                <div>
+                  <label for="goalUpdateNotes" class="block text-sm font-medium text-gray-700 mb-1">Update Notes</label>
+                  <textarea id="goalUpdateNotes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="What progress have you made? What challenges are you facing?"></textarea>
+                </div>
+              </div>
+              
+              <div class="flex justify-end space-x-3 mt-6">
+                <button type="button" id="cancelRecordBtn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Save Entry</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Add Goal Modal -->
+      <div id="addGoalModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-2xl font-bold text-gray-800">Add New Goal</h3>
+              <button id="closeGoalModalBtn" class="text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <form>
+              <div class="mb-4">
+                <label for="goalTitle" class="block text-sm font-medium text-gray-700 mb-1">Goal Title</label>
+                <input type="text" id="goalTitle" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="What do you want to achieve?">
+              </div>
+              
+              <div class="mb-4">
+                <label for="goalDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea id="goalDescription" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Describe your goal in detail..."></textarea>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label for="goalStartDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                  <input type="date" id="goalStartDate" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div>
+                  <label for="goalTargetDate" class="block text-sm font-medium text-gray-700 mb-1">Target Date</label>
+                  <input type="date" id="goalTargetDate" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+              </div>
+              
+              <div class="mb-4">
+                <label for="goalCategory" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <select id="goalCategory" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                  <option value="">Select category</option>
+                  <option value="performance">Performance</option>
+                  <option value="recovery">Recovery</option>
+                  <option value="mindfulness">Mindfulness</option>
+                  <option value="nutrition">Nutrition</option>
+                  <option value="relationships">Relationships</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                <div class="flex space-x-4">
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="goalPriority" value="low" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                    <span class="ml-2 text-gray-700">Low</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="goalPriority" value="medium" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" checked>
+                    <span class="ml-2 text-gray-700">Medium</span>
+                  </label>
+                  <label class="inline-flex items-center">
+                    <input type="radio" name="goalPriority" value="high" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                    <span class="ml-2 text-gray-700">High</span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="flex justify-end space-x-3">
+                <button type="button" id="cancelGoalBtn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Save Goal</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endblock %}
+      
+      {% block extra_js %}
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <script>
+        // Tab functionality
+        document.querySelectorAll('.tab-button').forEach(button => {
+          button.addEventListener('click', () => {
+            // Remove active class from all buttons and content
+            document.querySelectorAll('.tab-button').forEach(btn => {
+              btn.classList.remove('text-blue-600', 'border-blue-600');
+              btn.classList.add('text-gray-500', 'hover:text-gray-700');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+              content.classList.remove('active');
+            });
+            
+            // Add active class to clicked button and corresponding content
+            button.classList.remove('text-gray-500', 'hover:text-gray-700');
+            button.classList.add('text-blue-600', 'border-blue-600');
+            const tabId = button.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+          });
+        });
+        
+        // Period buttons functionality
+        document.querySelectorAll('.period-btn').forEach(button => {
+          button.addEventListener('click', () => {
+            document.querySelectorAll('.period-btn').forEach(btn => {
+              btn.classList.remove('bg-blue-600', 'text-white');
+              btn.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-gray-700');
+            });
+            button.classList.remove('bg-gray-200', 'hover:bg-gray-300', 'text-gray-700');
+            button.classList.add('bg-blue-600', 'text-white');
+            // Here you would update the chart data based on the selected period
+          });
+        });
+        
+        // Record Progress Modal
+        const recordProgressBtn = document.getElementById('recordProgressBtn');
+        const closeRecordModalBtn = document.getElementById('closeRecordModalBtn');
+        const cancelRecordBtn = document.getElementById('cancelRecordBtn');
+        const recordProgressModal = document.getElementById('recordProgressModal');
+        
+        recordProgressBtn.addEventListener('click', () => {
+          recordProgressModal.classList.remove('hidden');
+        });
+        
+        closeRecordModalBtn.addEventListener('click', () => {
+          recordProgressModal.classList.add('hidden');
+        });
+        
+        cancelRecordBtn.addEventListener('click', () => {
+          recordProgressModal.classList.add('hidden');
+        });
+        
+        recordProgressModal.addEventListener('click', (e) => {
+          if (e.target === recordProgressModal) {
+            recordProgressModal.classList.add('hidden');
+          }
+        });
+        
+        // Add Goal Modal
+        const addGoalBtn = document.getElementById('addGoalBtn');
+        const addGoalCard = document.getElementById('addGoalCard');
+        const closeGoalModalBtn = document.getElementById('closeGoalModalBtn');
+        const cancelGoalBtn = document.getElementById('cancelGoalBtn');
+        const addGoalModal = document.getElementById('addGoalModal');
+        
+        addGoalBtn.addEventListener('click', () => {
+          addGoalModal.classList.remove('hidden');
+        });
+        
+        addGoalCard.addEventListener('click', () => {
+          addGoalModal.classList.remove('hidden');
+        });
+        
+        closeGoalModalBtn.addEventListener('click', () => {
+          addGoalModal.classList.add('hidden');
+        });
+        
+        cancelGoalBtn.addEventListener('click', () => {
+          addGoalModal.classList.add('hidden');
+        });
+        
+        addGoalModal.addEventListener('click', (e) => {
+          if (e.target === addGoalModal) {
+            addGoalModal.classList.add('hidden');
+          }
+        });
+        
+        // Entry Type Toggle
+        const entryTypeRadios = document.querySelectorAll('input[name="entryType"]');
+        const journalFields = document.getElementById('journalFields');
+        const metricFields = document.getElementById('metricFields');
+        const assessmentFields = document.getElementById('assessmentFields');
+        const goalFields = document.getElementById('goalFields');
+        
+        entryTypeRadios.forEach(radio => {
+          radio.addEventListener('change', () => {
+            journalFields.classList.add('hidden');
+            metricFields.classList.add('hidden');
+            assessmentFields.classList.add('hidden');
+            goalFields.classList.add('hidden');
+            
+            switch(radio.value) {
+              case 'journal':
+                journalFields.classList.remove('hidden');
+                break;
+              case 'metric':
+                metricFields.classList.remove('hidden');
+                break;
+              case 'assessment':
+                assessmentFields.classList.remove('hidden');
+                break;
+              case 'goal':
+                goalFields.classList.remove('hidden');
+                break;
+            }
+          });
+        });
+        
+        // Metric Value Slider
+        const metricValue = document.getElementById('metricValue');
+        const metricValueDisplay = document.getElementById('metricValueDisplay');
+        
+        metricValue.addEventListener('input', () => {
+          metricValueDisplay.textContent = metricValue.value;
+        });
+        
+        // Goal Progress Slider
+        const goalProgress = document.getElementById('goalProgress');
+        const goalProgressDisplay = document.getElementById('goalProgressDisplay');
+        
+        goalProgress.addEventListener('input', () => {
+          goalProgressDisplay.textContent = goalProgress.value + '%';
+        });
+        
+        // Initialize Chart
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        const progressChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            datasets: [
+              {
+                label: 'Stress Level',
+                data: [6.2, 5.8, 5.1, 4.7, 4.5, 4.3, 4.2],
+                borderColor: '#10B981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.3,
+                fill: true
+              },
+              {
+                label: 'Mood Stability',
+                data: [5.4, 6.1, 6.5, 6.9, 7.2, 7.4, 7.6],
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.3,
+                fill: true
+              },
+              {
+                label: 'Anxiety Index',
+                data: [5.7, 5.2, 4.8, 4.3, 4.0, 3.7, 3.5],
+                borderColor: '#10B981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.3,
+                fill: true,
+                borderDash: [5, 5]
+              },
+              {
+                label: 'Focus & Concentration',
+                data: [6.8, 7.1, 7.3, 7.6, 7.8, 8.0, 8.1],
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.3,
+                fill: true,
+                borderDash: [5, 5]
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              tooltip: {
+                mode: 'index',
+                intersect: false,
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 10,
+                ticks: {
+                  stepSize: 1
+                }
+              }
+            },
+            interaction: {
+              mode: 'nearest',
+              axis: 'x',
+              intersect: false
+            }
+          }
+        });
+      </script>
+      {% endblock %}

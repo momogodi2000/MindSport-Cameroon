@@ -1,0 +1,769 @@
+{% extends 'Dashboards/Layout/athlete_base.html' %}
+{% load static %}
+
+{% block title %}Mental Health Assessments{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 animate-fade-in">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-indigo-800 mb-2">Mental Health Assessments</h1>
+        <p class="text-gray-600">Track your mental well-being and get personalized insights to improve your performance</p>
+    </div>
+
+    <!-- Assessment Status Summary -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8 transform transition-all duration-300 hover:shadow-xl">
+        <div class="flex flex-col lg:flex-row justify-between">
+            <div class="mb-4 lg:mb-0">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">Your Assessment Status</h2>
+                <p class="text-gray-600 mb-2">Last completed: <span class="font-medium">April 10, 2025</span></p>
+                <div class="flex items-center">
+                    <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                    <p class="text-sm text-green-700">Your mental wellness score: <span class="font-bold">Good</span></p>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <button id="takeNewAssessmentBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-300 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Take New Assessment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assessment Types -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+        <!-- Stress Assessment -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+            <div class="h-2 bg-blue-500"></div>
+            <div class="p-6">
+                <div class="flex items-start mb-4">
+                    <div class="bg-blue-100 p-3 rounded-full mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">Stress Assessment</h3>
+                        <p class="text-sm text-gray-600">Evaluate your current stress levels and coping mechanisms</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-500">Time: ~10 minutes</span>
+                    <button class="assessment-btn text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors duration-300" data-assessment="stress">
+                        Start Assessment
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Anxiety Assessment -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+            <div class="h-2 bg-purple-500"></div>
+            <div class="p-6">
+                <div class="flex items-start mb-4">
+                    <div class="bg-purple-100 p-3 rounded-full mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">Anxiety Assessment</h3>
+                        <p class="text-sm text-gray-600">Measure anxiety levels before or after competitions</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-500">Time: ~8 minutes</span>
+                    <button class="assessment-btn text-purple-600 hover:text-purple-800 font-medium text-sm transition-colors duration-300" data-assessment="anxiety">
+                        Start Assessment
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Mindset Assessment -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+            <div class="h-2 bg-green-500"></div>
+            <div class="p-6">
+                <div class="flex items-start mb-4">
+                    <div class="bg-green-100 p-3 rounded-full mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">Performance Mindset</h3>
+                        <p class="text-sm text-gray-600">Evaluate your mental preparation and focus</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-500">Time: ~12 minutes</span>
+                    <button class="assessment-btn text-green-600 hover:text-green-800 font-medium text-sm transition-colors duration-300" data-assessment="performance">
+                        Start Assessment
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recovery Assessment -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+            <div class="h-2 bg-amber-500"></div>
+            <div class="p-6">
+                <div class="flex items-start mb-4">
+                    <div class="bg-amber-100 p-3 rounded-full mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">Recovery Assessment</h3>
+                        <p class="text-sm text-gray-600">Measure your sleep quality and recovery patterns</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-500">Time: ~7 minutes</span>
+                    <button class="assessment-btn text-amber-600 hover:text-amber-800 font-medium text-sm transition-colors duration-300" data-assessment="recovery">
+                        Start Assessment
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Motivation Assessment -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+            <div class="h-2 bg-red-500"></div>
+            <div class="p-6">
+                <div class="flex items-start mb-4">
+                    <div class="bg-red-100 p-3 rounded-full mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">Motivation Assessment</h3>
+                        <p class="text-sm text-gray-600">Understand your sources of motivation and drive</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-500">Time: ~9 minutes</span>
+                    <button class="assessment-btn text-red-600 hover:text-red-800 font-medium text-sm transition-colors duration-300" data-assessment="motivation">
+                        Start Assessment
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Assessment -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1">
+            <div class="h-2 bg-gray-500"></div>
+            <div class="p-6">
+                <div class="flex items-start mb-4">
+                    <div class="bg-gray-100 p-3 rounded-full mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">Customized Assessment</h3>
+                        <p class="text-sm text-gray-600">Specific assessment from your mental health professional</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-500">Time: Varies</span>
+                    <button class="assessment-btn text-gray-600 hover:text-gray-800 font-medium text-sm transition-colors duration-300" data-assessment="custom">
+                        View Assigned
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assessment History -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-6">Your Assessment History</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white">
+                <thead>
+                    <tr>
+                        <th class="py-3 px-4 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="py-3 px-4 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assessment Type</th>
+                        <th class="py-3 px-4 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                        <th class="py-3 px-4 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="py-3 px-4 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                        <td class="py-4 px-4 text-sm text-gray-900">April 10, 2025</td>
+                        <td class="py-4 px-4 text-sm text-gray-900">Stress Assessment</td>
+                        <td class="py-4 px-4">
+                            <div class="flex items-center">
+                                <div class="w-16 bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-green-500 h-2.5 rounded-full" style="width: 85%"></div>
+                                </div>
+                                <span class="ml-3 text-sm font-medium text-gray-900">Good</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-4 text-sm"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span></td>
+                        <td class="py-4 px-4 text-sm">
+                            <button class="text-indigo-600 hover:text-indigo-900 mr-3 view-results-btn" data-assessment-id="1">View Results</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                        <td class="py-4 px-4 text-sm text-gray-900">March 25, 2025</td>
+                        <td class="py-4 px-4 text-sm text-gray-900">Anxiety Assessment</td>
+                        <td class="py-4 px-4">
+                            <div class="flex items-center">
+                                <div class="w-16 bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 60%"></div>
+                                </div>
+                                <span class="ml-3 text-sm font-medium text-gray-900">Moderate</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-4 text-sm"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span></td>
+                        <td class="py-4 px-4 text-sm">
+                            <button class="text-indigo-600 hover:text-indigo-900 mr-3 view-results-btn" data-assessment-id="2">View Results</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                        <td class="py-4 px-4 text-sm text-gray-900">March 10, 2025</td>
+                        <td class="py-4 px-4 text-sm text-gray-900">Performance Mindset</td>
+                        <td class="py-4 px-4">
+                            <div class="flex items-center">
+                                <div class="w-16 bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-green-500 h-2.5 rounded-full" style="width: 75%"></div>
+                                </div>
+                                <span class="ml-3 text-sm font-medium text-gray-900">Good</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-4 text-sm"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span></td>
+                        <td class="py-4 px-4 text-sm">
+                            <button class="text-indigo-600 hover:text-indigo-900 mr-3 view-results-btn" data-assessment-id="3">View Results</button>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                        <td class="py-4 px-4 text-sm text-gray-900">February 20, 2025</td>
+                        <td class="py-4 px-4 text-sm text-gray-900">Recovery Assessment</td>
+                        <td class="py-4 px-4">
+                            <div class="flex items-center">
+                                <div class="w-16 bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-red-500 h-2.5 rounded-full" style="width: 35%"></div>
+                                </div>
+                                <span class="ml-3 text-sm font-medium text-gray-900">Needs Attention</span>
+                            </div>
+                        </td>
+                        <td class="py-4 px-4 text-sm"><span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span></td>
+                        <td class="py-4 px-4 text-sm">
+                            <button class="text-indigo-600 hover:text-indigo-900 mr-3 view-results-btn" data-assessment-id="4">View Results</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-4 flex justify-center">
+            <button class="text-indigo-600 hover:text-indigo-800 font-medium flex items-center" id="viewAllHistoryBtn">
+                View Full History
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mental Health Progress -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-6">Your Mental Wellness Progress</h2>
+        <div class="h-64 mb-6">
+            <canvas id="mentalHealthChart"></canvas>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+            <div class="p-4 bg-blue-50 rounded-lg">
+                <h3 class="text-lg font-medium text-gray-800 mb-2">Stress Management</h3>
+                <p class="text-4xl font-bold text-blue-600 mb-1">74%</p>
+                <p class="text-sm text-gray-600">15% improvement</p>
+            </div>
+            <div class="p-4 bg-green-50 rounded-lg">
+                <h3 class="text-lg font-medium text-gray-800 mb-2">Mental Focus</h3>
+                <p class="text-4xl font-bold text-green-600 mb-1">82%</p>
+                <p class="text-sm text-gray-600">8% improvement</p>
+            </div>
+            <div class="p-4 bg-purple-50 rounded-lg">
+                <h3 class="text-lg font-medium text-gray-800 mb-2">Emotional Control</h3>
+                <p class="text-4xl font-bold text-purple-600 mb-1">68%</p>
+                <p class="text-sm text-gray-600">12% improvement</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations Based on Assessments -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-6">Personalized Recommendations</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-300">
+                <div class="flex items-center mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-800">Pre-Competition Routine</h3>
+                </div>
+                <p class="text-gray-600 mb-3">Based on your anxiety assessment, we recommend establishing a consistent pre-competition routine to reduce stress levels.</p>
+                <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium text-sm inline-flex items-center">
+                    View detailed guide
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-300">
+                <div class="flex items-center mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-800">Sleep Improvement</h3>
+                </div>
+                <p class="text-gray-600 mb-3">Your recovery assessment indicates a need for better sleep quality. Try our guided sleep meditation exercises.</p>
+                <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium text-sm inline-flex items-center">
+                    Access sleep resources
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-300">
+                <div class="flex items-center mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-800">Stress Reduction</h3>
+                </div>
+                <p class="text-gray-600 mb-3">Consider scheduling a session with one of our sports psychologists to discuss specific stress management techniques for your competitions.</p>
+                <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium text-sm inline-flex items-center">
+                    Book a session
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-300">
+                <div class="flex items-center mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-800">Visualization Techniques</h3>
+                </div>
+                <p class="text-gray-600 mb-3">Your performance mindset assessment suggests you would benefit from daily visualization practice to enhance focus during competitions.</p>
+                <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium text-sm inline-flex items-center">
+                    Learn visualization techniques
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assessment Type Selection Modal -->
+    <div id="assessmentModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+            <div class="flex justify-between items-center border-b p-4">
+                <h3 class="text-xl font-semibold text-gray-800" id="assessmentModalTitle">Start New Assessment</h3>
+                <button id="closeAssessmentModal" class="text-gray-400 hover:text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-600 mb-4" id="assessmentModalDescription">This assessment will help evaluate your current stress levels and identify areas for improvement.</p>
+                
+                <div class="mb-4">
+                    <div class="flex items-center mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-sm text-gray-600" id="assessmentTime">Approx. 10 minutes</span>
+                    </div>
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-sm text-gray-600">Confidential and secure</span>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <button id="confirmStartAssessment" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300">
+                        Start Assessment
+                    </button>
+                    <button id="cancelAssessment" class="w-full mt-3 bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 border border-gray-300 rounded-lg transition-colors duration-300">
+                        Maybe Later
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="resultsModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-100">
+            <div class="flex justify-between items-center border-b p-4 sticky top-0 bg-white z-10">
+                <h3 class="text-xl font-semibold text-gray-800">Assessment Results</h3>
+                <button id="closeResultsModal" class="text-gray-400 hover:text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium text-gray-800 mb-2" id="resultsAssessmentTitle">Stress Assessment - April 10, 2025</h4>
+                    <div class="flex items-center">
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-green-500 h-2.5 rounded-full" style="width: 85%" id="resultsScoreBar"></div>
+                        </div>
+                        <span class="ml-3 text-sm font-medium text-gray-900" id="resultsScoreText">Good</span>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <h5 class="font-medium text-gray-800 mb-2">Key Insights</h5>
+                        <ul class="list-disc list-inside text-gray-600 space-y-1">
+                            <li>Your stress levels are well managed overall</li>
+                            <li>Pre-competition stress is slightly elevated</li>
+                            <li>Recovery periods show excellent stress reduction</li>
+                            <li>Sleep quality impacts your stress management</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 class="font-medium text-gray-800 mb-2">Comparison to Peers</h5>
+                        <div class="h-40">
+                            <canvas id="comparisonChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h5 class="font-medium text-gray-800 mb-2">Detailed Breakdown</h5>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">Competition Stress</span>
+                                <span class="text-sm text-gray-500">72/100</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 72%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">Training Stress</span>
+                                <span class="text-sm text-gray-500">65/100</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 65%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">Life Stress</span>
+                                <span class="text-sm text-gray-500">58/100</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 58%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">Recovery Quality</span>
+                                <span class="text-sm text-gray-500">88/100</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 88%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                    <h5 class="font-medium text-blue-800 mb-2">Professional Notes</h5>
+                    <p class="text-blue-700">"Your stress management has improved significantly since your last assessment. Continue with the breathing exercises before competitions and maintain your current recovery routine. Let's discuss sleep strategies in our next session."</p>
+                    <p class="text-blue-900 text-sm mt-2">- Dr. Sarah Johnson, April 11, 2025</p>
+                </div>
+                
+                <div>
+                    <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300">
+                        Download Full Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize charts
+        const mentalHealthCtx = document.getElementById('mentalHealthChart').getContext('2d');
+        const mentalHealthChart = new Chart(mentalHealthCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [
+                    {
+                        label: 'Stress',
+                        data: [65, 59, 70, 72, 68, 65],
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'Anxiety',
+                        data: [55, 50, 62, 58, 53, 50],
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'Focus',
+                        data: [70, 68, 72, 75, 78, 80],
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 30,
+                        max: 100,
+                        grid: {
+                            color: 'rgba(226, 232, 240, 0.5)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Assessment modal functionality
+        const assessmentModal = document.getElementById('assessmentModal');
+        const closeAssessmentModal = document.getElementById('closeAssessmentModal');
+        const cancelAssessment = document.getElementById('cancelAssessment');
+        const assessmentBtns = document.querySelectorAll('.assessment-btn');
+        const takeNewAssessmentBtn = document.getElementById('takeNewAssessmentBtn');
+        
+        let currentAssessmentType = '';
+        
+        function openAssessmentModal(type) {
+            currentAssessmentType = type;
+            const modalTitle = document.getElementById('assessmentModalTitle');
+            const modalDescription = document.getElementById('assessmentModalDescription');
+            const assessmentTime = document.getElementById('assessmentTime');
+            
+            // Set modal content based on assessment type
+            switch(type) {
+                case 'stress':
+                    modalTitle.textContent = 'Stress Assessment';
+                    modalDescription.textContent = 'This assessment will evaluate your current stress levels and identify potential sources of stress in your athletic performance.';
+                    assessmentTime.textContent = 'Approx. 10 minutes';
+                    break;
+                case 'anxiety':
+                    modalTitle.textContent = 'Anxiety Assessment';
+                    modalDescription.textContent = 'Measure your anxiety levels before, during, and after competitions to better understand your mental state.';
+                    assessmentTime.textContent = 'Approx. 8 minutes';
+                    break;
+                case 'performance':
+                    modalTitle.textContent = 'Performance Mindset Assessment';
+                    modalDescription.textContent = 'Evaluate your mental preparation, focus, and resilience during competitions.';
+                    assessmentTime.textContent = 'Approx. 12 minutes';
+                    break;
+                case 'recovery':
+                    modalTitle.textContent = 'Recovery Assessment';
+                    modalDescription.textContent = 'Assess your sleep quality, relaxation techniques, and overall recovery patterns.';
+                    assessmentTime.textContent = 'Approx. 7 minutes';
+                    break;
+                case 'motivation':
+                    modalTitle.textContent = 'Motivation Assessment';
+                    modalDescription.textContent = 'Understand your sources of motivation and how they impact your athletic performance.';
+                    assessmentTime.textContent = 'Approx. 9 minutes';
+                    break;
+                case 'custom':
+                    modalTitle.textContent = 'Custom Assessment';
+                    modalDescription.textContent = 'This assessment was specifically designed by your mental health professional to address your unique needs.';
+                    assessmentTime.textContent = 'Time varies';
+                    break;
+            }
+            
+            assessmentModal.classList.remove('hidden');
+        }
+        
+        function closeAssessmentModalFunc() {
+            assessmentModal.classList.add('hidden');
+        }
+        
+        // Event listeners for assessment buttons
+        assessmentBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const assessmentType = this.getAttribute('data-assessment');
+                openAssessmentModal(assessmentType);
+            });
+        });
+        
+        takeNewAssessmentBtn.addEventListener('click', function() {
+            openAssessmentModal('stress'); // Default to stress assessment
+        });
+        
+        closeAssessmentModal.addEventListener('click', closeAssessmentModalFunc);
+        cancelAssessment.addEventListener('click', closeAssessmentModalFunc);
+        
+        // Confirm start assessment
+        document.getElementById('confirmStartAssessment').addEventListener('click', function() {
+            closeAssessmentModalFunc();
+            // Redirect to the appropriate assessment page
+            window.location.href = `/assessments/${currentAssessmentType}/`;
+        });
+        
+        // Results modal functionality
+        const resultsModal = document.getElementById('resultsModal');
+        const closeResultsModal = document.getElementById('closeResultsModal');
+        const viewResultsBtns = document.querySelectorAll('.view-results-btn');
+        
+        function openResultsModal(assessmentId) {
+            // In a real app, you would fetch the assessment data based on the ID
+            // For this example, we'll use mock data
+            const resultsAssessmentTitle = document.getElementById('resultsAssessmentTitle');
+            const resultsScoreBar = document.getElementById('resultsScoreBar');
+            const resultsScoreText = document.getElementById('resultsScoreText');
+            
+            // Mock data based on assessment ID
+            switch(assessmentId) {
+                case '1':
+                    resultsAssessmentTitle.textContent = 'Stress Assessment - April 10, 2025';
+                    resultsScoreBar.style.width = '85%';
+                    resultsScoreBar.className = 'bg-green-500 h-2.5 rounded-full';
+                    resultsScoreText.textContent = 'Good';
+                    break;
+                case '2':
+                    resultsAssessmentTitle.textContent = 'Anxiety Assessment - March 25, 2025';
+                    resultsScoreBar.style.width = '60%';
+                    resultsScoreBar.className = 'bg-yellow-500 h-2.5 rounded-full';
+                    resultsScoreText.textContent = 'Moderate';
+                    break;
+                case '3':
+                    resultsAssessmentTitle.textContent = 'Performance Mindset - March 10, 2025';
+                    resultsScoreBar.style.width = '75%';
+                    resultsScoreBar.className = 'bg-green-500 h-2.5 rounded-full';
+                    resultsScoreText.textContent = 'Good';
+                    break;
+                case '4':
+                    resultsAssessmentTitle.textContent = 'Recovery Assessment - February 20, 2025';
+                    resultsScoreBar.style.width = '35%';
+                    resultsScoreBar.className = 'bg-red-500 h-2.5 rounded-full';
+                    resultsScoreText.textContent = 'Needs Attention';
+                    break;
+            }
+            
+            // Initialize comparison chart
+            const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
+            new Chart(comparisonCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['You', 'Team Avg', 'Sport Avg'],
+                    datasets: [{
+                        label: 'Score',
+                        data: [
+                            assessmentId === '1' ? 85 : 
+                            assessmentId === '2' ? 60 : 
+                            assessmentId === '3' ? 75 : 35,
+                            72, 68
+                        ],
+                        backgroundColor: [
+                            '#6366F1',
+                            '#A5B4FC',
+                            '#A5B4FC'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                color: 'rgba(226, 232, 240, 0.5)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            resultsModal.classList.remove('hidden');
+        }
+        
+        function closeResultsModalFunc() {
+            resultsModal.classList.add('hidden');
+        }
+        
+        // Event listeners for view results buttons
+        viewResultsBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const assessmentId = this.getAttribute('data-assessment-id');
+                openResultsModal(assessmentId);
+            });
+        });
+        
+        closeResultsModal.addEventListener('click', closeResultsModalFunc);
+        
+        // View all history button
+        document.getElementById('viewAllHistoryBtn').addEventListener('click', function() {
+            window.location.href = '/assessments/history/';
+        });
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === assessmentModal) {
+                closeAssessmentModalFunc();
+            }
+            if (event.target === resultsModal) {
+                closeResultsModalFunc();
+            }
+        });
+    });
+</script>
+{% endblock %}

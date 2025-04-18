@@ -12,16 +12,16 @@
                 extend: {
                     colors: {
                         primary: {
-                            50: '#e6f2ff',
-                            100: '#cce5ff',
-                            200: '#99cbff',
-                            300: '#66b0ff',
-                            400: '#3396ff',
-                            500: '#007bff',
-                            600: '#0062cc',
-                            700: '#004999',
-                            800: '#003166',
-                            900: '#001833',
+                            50: '#eef5ff',
+                            100: '#d9eaff',
+                            200: '#bbd8ff',
+                            300: '#8ac0ff',
+                            400: '#569eff',
+                            500: '#2978ff',
+                            600: '#105ef7',
+                            700: '#0c4ae3',
+                            800: '#123db8',
+                            900: '#153891',
                         },
                         secondary: {
                             50: '#f8fafc',
@@ -34,16 +34,33 @@
                             700: '#334155',
                             800: '#1e293b',
                             900: '#0f172a',
+                        },
+                        accent: {
+                            50: '#fff2e8',
+                            100: '#ffe0cb',
+                            200: '#ffc199',
+                            300: '#ff9857',
+                            400: '#ff7a2e',
+                            500: '#ff5a00',
+                            600: '#e64600',
+                            700: '#c33300',
+                            800: '#a02c0a',
+                            900: '#832a10',
                         }
                     },
                     fontFamily: {
-                        poppins: ['Poppins', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif'],
                     },
                     animation: {
                         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'float': 'float 6s ease-in-out infinite',
                         'fade-in': 'fadeIn 0.5s ease-in-out',
                         'slide-up': 'slideUp 0.4s ease-out',
+                        'bounce-slow': 'bounce 3s infinite',
+                        'ripple': 'ripple 1.5s cubic-bezier(0, 0.2, 0.8, 1) infinite',
+                        'gradient': 'gradient 15s ease infinite',
+                        'shimmer': 'shimmer 2s linear infinite',
                     },
                     keyframes: {
                         float: {
@@ -57,93 +74,213 @@
                         slideUp: {
                             '0%': { opacity: '0', transform: 'translateY(20px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        ripple: {
+                            '0%': { transform: 'scale(0.8)', opacity: '1' },
+                            '100%': { transform: 'scale(2.4)', opacity: '0' },
+                        },
+                        gradient: {
+                            '0%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                            '100%': { backgroundPosition: '0% 50%' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-1000px 0' },
+                            '100%': { backgroundPosition: '1000px 0' },
                         }
-                    }
+                    },
+                    boxShadow: {
+                        'neumorph': '20px 20px 60px #d1d9e6, -20px -20px 60px #ffffff',
+                        'neumorph-sm': '10px 10px 20px #d1d9e6, -10px -10px 20px #ffffff',
+                        'inner-glow': 'inset 0 0 15px rgba(55, 65, 81, 0.1)',
+                    },
+                    borderRadius: {
+                        'xl': '1rem',
+                        '2xl': '1.5rem',
+                        '3xl': '2rem',
+                    },
                 }
             }
         }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
         
-        body {
-            font-family: 'Poppins', sans-serif;
+        :root {
+            --scrollbar-track: #f1f5f9;
+            --scrollbar-thumb: #94a3b8;
         }
         
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        
+        /* Neuomorphic Effect */
+        .neumorph {
+            border-radius: 30px;
+            background: #f0f4fa;
+            box-shadow: 20px 20px 60px #d1d9e6, -20px -20px 60px #ffffff;
+        }
+        
+        .neumorph-inset {
+            border-radius: 30px;
+            background: #f0f4fa;
+            box-shadow: inset 20px 20px 60px #d1d9e6, inset -20px -20px 60px #ffffff;
+        }
+        
+        /* Glassmorphism Effect */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        /* Animated Gradient Background */
+        .gradient-bg {
+            background: linear-gradient(-45deg, #2978ff, #105ef7, #0c4ae3, #2978ff);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        /* Shimmer Effect */
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s linear infinite;
+        }
+        
+        /* Sidebar Animation */
         .sidebar-icon {
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
         .sidebar-icon:hover {
-            transform: translateY(-3px);
+            transform: translateY(-4px) scale(1.1);
         }
         
+        /* Card Hover Effect */
         .card-hover-effect {
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            backface-visibility: hidden;
         }
         
         .card-hover-effect:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px) scale(1.02);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         
+        /* Loading Spinner */
         .loading-spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            border-left-color: #3b82f6;
+            border-left-color: #2978ff;
             animation: spin 1s linear infinite;
         }
         
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
+        /* Progress Ring Animation */
         .progress-ring {
             transform: rotate(-90deg);
+            transition: all 0.3s ease;
         }
         
         .progress-ring__circle {
             transition: stroke-dashoffset 0.5s ease;
+            stroke-linecap: round;
         }
         
+        /* Notification Badge Animation */
         .notification-badge {
             animation: pulse 2s infinite;
+            position: relative;
+        }
+        
+        .notification-badge::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            animation: ripple 1.5s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+            opacity: 0.8;
         }
         
         @keyframes pulse {
             0% {
                 transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+                box-shadow: 0 0 0 0 rgba(41, 120, 255, 0.7);
             }
             
             70% {
                 transform: scale(1);
-                box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+                box-shadow: 0 0 0 10px rgba(41, 120, 255, 0);
             }
             
             100% {
                 transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+                box-shadow: 0 0 0 0 rgba(41, 120, 255, 0);
             }
         }
         
+        @keyframes ripple {
+            0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2.4);
+                opacity: 0;
+            }
+        }
+        
+        /* Page Content Animation */
         .page-content {
-            animation: fadeIn 0.6s ease-out;
+            animation: fadeIn 0.8s ease-out;
         }
         
         @keyframes fadeIn {
             0% {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(15px);
             }
             100% {
                 opacity: 1;
@@ -151,6 +288,7 @@
             }
         }
         
+        /* Wave Shapes */
         .wave-shape {
             position: absolute;
             bottom: 0;
@@ -158,6 +296,7 @@
             width: 100%;
             overflow: hidden;
             line-height: 0;
+            z-index: 1;
         }
         
         .wave-shape svg {
@@ -165,57 +304,194 @@
             display: block;
             width: calc(100% + 1.3px);
             height: 100px;
+            filter: drop-shadow(0px -2px 4px rgba(0, 0, 0, 0.1));
         }
         
         .wave-shape .shape-fill {
             fill: #FFFFFF;
         }
-
-        /* Profile verification modal styles */
+        
+        /* Header Navigation Animation */
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #ffffff;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Profile Modal Animation */
         .modal {
-            transition: opacity 0.3s ease-in-out;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
         
         .modal-backdrop {
-            backdrop-filter: blur(3px);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+        
+        /* Tooltip Styles */
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: auto;
+            min-width: 120px;
+            background-color: #1e293b;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1e293b transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+        
+        /* Button Animation */
+        .btn-animated {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-animated:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-animated:hover:after {
+            width: 300%;
+            height: 300%;
+        }
+        
+        /* Hero Section Particles */
+        .hero-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            animation: float 20s linear infinite;
+        }
+        
+        /* Responsive Sidebar */
+        @media (max-width: 768px) {
+            .mobile-sidebar-open {
+                transform: translateX(0) !important;
+            }
+            
+            .sidebar-overlay {
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-gradient-to-br from-primary-50 to-primary-100 font-poppins flex flex-col min-h-screen">
-    <header class="bg-gradient-to-r from-primary-600 to-primary-800 text-white shadow-xl relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-r from-primary-700/10 to-primary-900/10"></div>
+<body class="bg-gradient-to-br from-primary-50 via-white to-primary-100 font-sans flex flex-col min-h-screen">
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-secondary-900/50 z-20 transition-all duration-300 opacity-0 invisible"></div>
+    
+    <!-- Header with Animated Gradient -->
+    <header class="gradient-bg text-white shadow-xl relative overflow-hidden">
+        <div class="hero-particles" id="hero-particles"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-primary-700/20 to-primary-900/30"></div>
+        
         <div class="container mx-auto px-4 py-4 flex justify-between items-center relative z-10">
             <div class="flex items-center space-x-3">
+                <!-- Mobile Menu Toggle -->
+                <button id="mobile-menu-toggle" class="block md:hidden p-2 rounded-full hover:bg-primary-700/30 transition-all">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                
                 <div class="relative animate-float">
-                    <img src="{% static 'images/logo.png' %}" alt="Logo" class="h-12 w-12 rounded-full bg-white p-1 shadow-lg">
+                    <img src="{% static 'images/logo.png' %}" alt="Logo" class="h-14 w-14 rounded-full bg-white p-1 shadow-lg">
                     <div class="absolute -inset-2 rounded-full bg-primary-400/30 animate-pulse-slow"></div>
                 </div>
-                <h1 class="text-2xl font-bold hidden md:block bg-clip-text text-transparent bg-gradient-to-r from-white to-primary-100">
-                    Athlete<span class="font-light">Mind</span>
+                <h1 class="text-2xl font-bold hidden md:block font-display tracking-wide">
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-primary-100">Athlete</span><span class="font-light bg-clip-text text-transparent bg-gradient-to-r from-white to-primary-100">Mind</span>
                 </h1>
             </div>
+            
             <div class="flex items-center space-x-5">
-                <div class="relative" id="profile-completion-icon">
-                    <button class="p-2 rounded-full hover:bg-primary-500/30 transition-all duration-300 group" title="Complete your profile">
+                <div class="relative tooltip" id="profile-completion-icon">
+                    <button class="p-2.5 rounded-full hover:bg-primary-500/30 transition-all duration-300 group" title="Complete your profile">
                         <i class="fas fa-user-check text-xl text-white group-hover:text-primary-100"></i>
                         <span id="profile-completion-badge" class="absolute top-0 right-0 h-5 w-5 bg-yellow-500 rounded-full notification-badge flex items-center justify-center text-xs font-bold profileCompletionBadge">!</span>
                     </button>
+                    <span class="tooltip-text">Complete Your Profile</span>
                 </div>
-                <div class="relative">
-                    <button class="p-2 rounded-full hover:bg-primary-500/30 transition-all duration-300 group">
+                
+                <div class="relative tooltip">
+                    <button class="p-2.5 rounded-full hover:bg-primary-500/30 transition-all duration-300 group">
                         <i class="fas fa-bell text-xl text-white group-hover:text-primary-100"></i>
-                        <span class="absolute top-0 right-0 h-5 w-5 bg-red-500 rounded-full notification-badge flex items-center justify-center text-xs font-bold">3</span>
+                        <span class="absolute top-0 right-0 h-5 w-5 bg-accent-500 rounded-full notification-badge flex items-center justify-center text-xs font-bold">3</span>
                     </button>
+                    <span class="tooltip-text">Notifications</span>
                 </div>
+                
                 <div class="flex items-center space-x-3 group cursor-pointer">
                     <div class="relative">
                         {% if user.profile_image %}
-                            <img src="{{ user.profile_image.url }}" alt="Profile" class="h-10 w-10 rounded-full border-2 border-white shadow-md group-hover:border-primary-200 transition-all duration-300">
+                            <img src="{{ user.profile_image.url }}" alt="Profile" class="h-11 w-11 rounded-full border-2 border-white shadow-md group-hover:border-primary-200 transition-all duration-300 object-cover">
                         {% else %}
-                            <img src="{% static 'images/profile.jpg' %}" alt="Profile" class="h-10 w-10 rounded-full border-2 border-white shadow-md group-hover:border-primary-200 transition-all duration-300">
+                            <img src="{% static 'images/profile.jpg' %}" alt="Profile" class="h-11 w-11 rounded-full border-2 border-white shadow-md group-hover:border-primary-200 transition-all duration-300 object-cover">
                         {% endif %}
-                        <span class="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-400 ring-2 ring-white"></span>
+                        <span class="absolute bottom-0 right-0 block h-3.5 w-3.5 rounded-full bg-green-400 ring-2 ring-white"></span>
                     </div>
                     <div class="hidden md:block">
                         <p class="font-medium text-white group-hover:text-primary-100 transition-colors">{{ user.get_full_name }}</p>
@@ -224,6 +500,7 @@
                 </div>
             </div>
         </div>
+        
         <div class="wave-shape">
             <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
                 <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" class="shape-fill"></path>
@@ -234,273 +511,434 @@
     </header>
 
     <div class="flex flex-1">
-        <!-- Sidebar -->
-        <aside class="w-16 md:w-64 bg-white shadow-xl transition-all duration-300 flex flex-col z-10">
+        <!-- Modern Sidebar with Glassmorphism -->
+        <aside id="sidebar" class="fixed md:static left-0 top-0 h-full md:h-auto w-64 -translate-x-full md:translate-x-0 bg-white/90 backdrop-blur-md shadow-xl transition-transform duration-300 md:transition-none flex flex-col z-30">
             <nav class="flex-1 py-6">
-                <ul class="space-y-1 nav-links">
+                <ul class="space-y-2 nav-links">
                     <li class="px-3">
-                        <a href="{% url 'athlete_dashboard' %}" class="flex items-center space-x-3 {% if active_page == 'dashboard' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
-                            <i class="fas fa-home text-lg sidebar-icon group-hover:text-primary-600"></i>
-                            <span class="hidden md:block text-sm">Dashboard</span>
-                            <span class="hidden md:block ml-auto h-2 w-2 rounded-full bg-primary-600 {% if active_page != 'dashboard' %}opacity-0{% endif %}"></span>
+                        <a href="{% url 'athlete_dashboard' %}" class="flex items-center space-x-3 {% if active_page == 'dashboard' %}bg-primary-500 text-white font-medium{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-lg {% if active_page == 'dashboard' %}bg-primary-600{% else %}bg-primary-100/50 group-hover:bg-primary-100{% endif %} transition-all">
+                                <i class="fas fa-home text-lg sidebar-icon {% if active_page == 'dashboard' %}text-white{% else %}text-primary-500 group-hover:text-primary-600{% endif %}"></i>
+                            </div>
+                            <span class="text-sm">Dashboard</span>
+                            {% if active_page == 'dashboard' %}
+                                <span class="ml-auto h-2 w-2 rounded-full bg-white"></span>
+                            {% endif %}
                         </a>
                     </li>
                     <li class="px-3">
-                        <a href="#" class="nav-item flex items-center space-x-3 {% if active_page == 'appointments' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
-                            <i class="fas fa-calendar-alt text-lg sidebar-icon group-hover:text-primary-600"></i>
-                            <span class="hidden md:block text-sm">Appointments</span>
-                            <span class="hidden md:block ml-auto h-2 w-2 rounded-full bg-primary-600 {% if active_page != 'appointments' %}opacity-0{% endif %}"></span>
+                        <a href="{% url 'Appointments' %}" class="nav-item flex items-center space-x-3 {% if active_page == 'appointments' %}bg-primary-500 text-white font-medium{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-lg {% if active_page == 'appointments' %}bg-primary-600{% else %}bg-primary-100/50 group-hover:bg-primary-100{% endif %} transition-all">
+                                <i class="fas fa-calendar-alt text-lg sidebar-icon {% if active_page == 'appointments' %}text-white{% else %}text-primary-500 group-hover:text-primary-600{% endif %}"></i>
+                            </div>
+                            <span class="text-sm">Appointments</span>
+                            {% if active_page == 'appointments' %}
+                                <span class="ml-auto h-2 w-2 rounded-full bg-white"></span>
+                            {% endif %}
                         </a>
                     </li>
                     <li class="px-3">
-                        <a href="#" class="nav-item flex items-center space-x-3 {% if active_page == 'assessments' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
-                            <i class="fas fa-clipboard-check text-lg sidebar-icon group-hover:text-primary-600"></i>
-                            <span class="hidden md:block text-sm">Mental Assessments</span>
-                            <span class="hidden md:block ml-auto h-2 w-2 rounded-full bg-primary-600 {% if active_page != 'assessments' %}opacity-0{% endif %}"></span>
+                        <a href="{% url 'Assessments' %}" class="nav-item flex items-center space-x-3 {% if active_page == 'assessments' %}bg-primary-500 text-white font-medium{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-lg {% if active_page == 'assessments' %}bg-primary-600{% else %}bg-primary-100/50 group-hover:bg-primary-100{% endif %} transition-all">
+                                <i class="fas fa-clipboard-check text-lg sidebar-icon {% if active_page == 'assessments' %}text-white{% else %}text-primary-500 group-hover:text-primary-600{% endif %}"></i>
+                            </div>
+                            <span class="text-sm">Mental Assessments</span>
+                            {% if active_page == 'assessments' %}
+                                <span class="ml-auto h-2 w-2 rounded-full bg-white"></span>
+                            {% endif %}
                         </a>
                     </li>
                     <li class="px-3">
-                        <a href="#" class="nav-item flex items-center space-x-3 {% if active_page == 'resources' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
-                            <i class="fas fa-book-open text-lg sidebar-icon group-hover:text-primary-600"></i>
-                            <span class="hidden md:block text-sm">Wellness Resources</span>
-                            <span class="hidden md:block ml-auto h-2 w-2 rounded-full bg-primary-600 {% if active_page != 'resources' %}opacity-0{% endif %}"></span>
+                        <a href="{% url 'WellnessResources' %}" class="nav-item flex items-center space-x-3 {% if active_page == 'resources' %}bg-primary-500 text-white font-medium{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-lg {% if active_page == 'resources' %}bg-primary-600{% else %}bg-primary-100/50 group-hover:bg-primary-100{% endif %} transition-all">
+                                <i class="fas fa-book-open text-lg sidebar-icon {% if active_page == 'resources' %}text-white{% else %}text-primary-500 group-hover:text-primary-600{% endif %}"></i>
+                            </div>
+                            <span class="text-sm">Wellness Resources</span>
+                            {% if active_page == 'resources' %}
+                                <span class="ml-auto h-2 w-2 rounded-full bg-white"></span>
+                            {% endif %}
                         </a>
                     </li>
                     <li class="px-3">
-                        <a href="#" class="nav-item flex items-center space-x-3 {% if active_page == 'community' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
-                            <i class="fas fa-users text-lg sidebar-icon group-hover:text-primary-600"></i>
-                            <span class="hidden md:block text-sm">Athlete Community</span>
-                            <span class="hidden md:block ml-auto h-2 w-2 rounded-full bg-primary-600 {% if active_page != 'community' %}opacity-0{% endif %}"></span>
+                        <a href="{% url 'AthleteCommunity' %}" class="nav-item flex items-center space-x-3 {% if active_page == 'community' %}bg-primary-500 text-white font-medium{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-lg {% if active_page == 'community' %}bg-primary-600{% else %}bg-primary-100/50 group-hover:bg-primary-100{% endif %} transition-all">
+                                <i class="fas fa-users text-lg sidebar-icon {% if active_page == 'community' %}text-white{% else %}text-primary-500 group-hover:text-primary-600{% endif %}"></i>
+                            </div>
+                            <span class="text-sm">Athlete Community</span>
+                            {% if active_page == 'community' %}
+                                <span class="ml-auto h-2 w-2 rounded-full bg-white"></span>
+                            {% endif %}
                         </a>
                     </li>
                     <li class="px-3">
-                        <a href="#" class="nav-item flex items-center space-x-3 {% if active_page == 'progress' %}text-primary-700 bg-primary-50 font-semibold{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
-                            <i class="fas fa-chart-line text-lg sidebar-icon group-hover:text-primary-600"></i>
-                            <span class="hidden md:block text-sm">Progress Tracker</span>
-                            <span class="hidden md:block ml-auto h-2 w-2 rounded-full bg-primary-600 {% if active_page != 'progress' %}opacity-0{% endif %}"></span>
+                        <a href="{% url 'ProgressTracker' %}" class="nav-item flex items-center space-x-3 {% if active_page == 'progress' %}bg-primary-500 text-white font-medium{% else %}text-secondary-600 hover:text-primary-700 hover:bg-primary-50{% endif %} p-3 rounded-xl transition-all duration-300 group">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-lg {% if active_page == 'progress' %}bg-primary-600{% else %}bg-primary-100/50 group-hover:bg-primary-100{% endif %} transition-all">
+                                <i class="fas fa-chart-line text-lg sidebar-icon {% if active_page == 'progress' %}text-white{% else %}text-primary-500 group-hover:text-primary-600{% endif %}"></i>
+                            </div>
+                            <span class="text-sm">Progress Tracker</span>
+                            {% if active_page == 'progress' %}
+                                <span class="ml-auto h-2 w-2 rounded-full bg-white"></span>
+                            {% endif %}
                         </a>
                     </li>
                 </ul>
             </nav>
+            
             <div class="p-4 border-t border-secondary-100">
                 <a href="#" class="flex items-center space-x-3 text-secondary-600 hover:text-primary-700 p-2 rounded-lg transition-all duration-300 group">
-                    <i class="fas fa-cog text-lg sidebar-icon group-hover:text-primary-600"></i>
-                    <span class="hidden md:block text-sm">Settings</span>
-                </a>
-                <a href="{% url 'logout' %}" class="flex items-center space-x-3 text-secondary-600 hover:text-red-600 p-2 rounded-lg transition-all duration-300 group mt-2">
-                    <i class="fas fa-sign-out-alt text-lg sidebar-icon group-hover:text-red-500"></i>
-                    <span class="hidden md:block text-sm">Logout</span>
-                </a>
-            </div>
-        </aside>
+                  <div class="w-10 h-10 flex items-center justify-center rounded-lg bg-secondary-100/50 group-hover:bg-secondary-100 transition-all">
+                    <i class="fas fa-cog text-lg sidebar-icon text-secondary-500 group-hover:text-secondary-600"></i>
+                </div>
+                <span class="text-sm">Settings</span>
+            </a>
+            
+            <a href="{% url 'logout' %}" class="flex items-center space-x-3 text-secondary-600 hover:text-red-600 p-2 rounded-lg transition-all duration-300 group mt-2">
+                <div class="w-10 h-10 flex items-center justify-center rounded-lg bg-red-100/50 group-hover:bg-red-100 transition-all">
+                    <i class="fas fa-sign-out-alt text-lg sidebar-icon text-red-500 group-hover:text-red-600"></i>
+                </div>
+                <span class="text-sm">Logout</span>
+            </a>
+        </div>
+    </aside>
 
-        <!-- Main Content Area -->
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto" id="main-content">
-            <!-- Profile Incomplete Warning Banner -->
-            <div id="profile-incomplete-banner" class="hidden mb-6 bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded shadow-md animate-fade-in">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+    <!-- Main Content Area -->
+    <main class="flex-1 md:ml-64 transition-all duration-300">
+        <div class="container mx-auto px-4 py-6 page-content">
+            <!-- Page Header -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                <div>
+                    <p class="text-secondary-500 mt-1">{% block page_subtitle %}Welcome back, {{ user.first_name }}!{% endblock %}</p>
+                </div>
+                
+             
+            </div>
+
+            <!-- Flash Messages -->
+            {% if messages %}
+            <div class="mb-6">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} p-4 rounded-lg mb-2 {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %} flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        {% if message.tags == 'success' %}
+                        <i class="fas fa-check-circle"></i>
+                        {% elif message.tags == 'error' %}
+                        <i class="fas fa-exclamation-circle"></i>
+                        {% else %}
+                        <i class="fas fa-info-circle"></i>
+                        {% endif %}
+                        <span>{{ message }}</span>
                     </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-medium text-yellow-800">Profile Incomplete</h3>
-                        <div class="mt-2 text-sm text-yellow-700">
-                            <p>
-                                Your profile is incomplete. Please complete your profile to access all features of AthleteMind.
-                            </p>
+                    <button class="close-btn ml-4 text-lg opacity-70 hover:opacity-100">&times;</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Main Content Block -->
+            {% block content %}
+            <!-- Default content goes here -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Wellness Score Card -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover-effect">
+                    <div class="p-5">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-secondary-500 text-sm font-medium">Wellness Score</h3>
+                                <p class="text-3xl font-bold text-secondary-800 mt-1">84<span class="text-lg text-secondary-500">/100</span></p>
+                            </div>
+                            <div class="bg-primary-100 text-primary-600 rounded-full px-3 py-1 text-xs font-semibold flex items-center">
+                                <i class="fas fa-arrow-up mr-1"></i> 12%
+                            </div>
                         </div>
-                        <div class="mt-4">
-                            <div class="-mx-2 -my-1.5 flex">
-                                <button id="complete-profile-btn" class="bg-yellow-100 px-3 py-1.5 rounded-md text-sm font-medium text-yellow-800 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-all">
-                                    Complete Profile <i class="fas fa-arrow-right ml-1"></i>
+                        <div class="mt-6 relative">
+                            <div class="h-2 bg-secondary-100 rounded-full w-full">
+                                <div class="h-2 bg-gradient-to-r from-primary-400 to-primary-600 rounded-full" style="width: 84%"></div>
+                            </div>
+                        </div>
+                        <p class="text-secondary-500 text-xs mt-2">Last assessment: 3 days ago</p>
+                    </div>
+                </div>
+
+                <!-- Upcoming Appointments -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover-effect">
+                    <div class="p-5">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-secondary-500 text-sm font-medium">Upcoming Appointments</h3>
+                            <a href="#" class="text-primary-500 text-xs hover:text-primary-600">View All</a>
+                        </div>
+                        <div class="mt-4 space-y-4">
+                            <div class="flex items-center">
+                                <div class="bg-primary-100 text-primary-600 rounded-lg p-2 mr-3">
+                                    <i class="fas fa-calendar-day text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-secondary-800">Dr. Sarah Johnson</p>
+                                    <p class="text-xs text-secondary-500">Today, 2:30 PM</p>
+                                </div>
+                                <button class="text-primary-500 hover:text-primary-600">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="bg-green-100 text-green-600 rounded-lg p-2 mr-3">
+                                    <i class="fas fa-calendar-week text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-secondary-800">Group Therapy</p>
+                                    <p class="text-xs text-secondary-500">Wed, 10:00 AM</p>
+                                </div>
+                                <button class="text-primary-500 hover:text-primary-600">
+                                    <i class="fas fa-ellipsis-v"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {% block content %}
-            <!-- Content will be injected here -->
-            {% endblock %}
-        </main>
-    </div>
-
-    <footer class="bg-white shadow-inner py-4 text-center relative">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="mb-4 md:mb-0">
-                    <p class="text-secondary-600 text-sm">
-                        © {% now "Y" %} AthleteMind - Mental Wellness Platform for Cameroonian Combat Athletes
-                    </p>
-                </div>
-                <div class="flex space-x-4">
-                    <a href="#" class="text-secondary-500 hover:text-primary-600 transition-colors">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="#" class="text-secondary-500 hover:text-primary-600 transition-colors">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="text-secondary-500 hover:text-primary-600 transition-colors">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="#" class="text-secondary-500 hover:text-primary-600 transition-colors">
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="mt-3 text-xs text-secondary-400">
-                <p>Support: support@athletemind.cm | Hotline: +237 6XX XXX XXX</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Profile Verification Modal -->
-    <div id="profile-verification-modal" class="fixed inset-0 z-50 hidden">
-        <div class="modal-backdrop absolute inset-0 bg-secondary-900/50"></div>
-        <div class="flex min-h-screen items-center justify-center p-4">
-            <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl modal animate-slide-up">
-                <div class="mb-4 text-center">
-                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100">
-                        <i class="fas fa-user-shield text-3xl text-yellow-600"></i>
+                <!-- Recommended Resources -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover-effect">
+                    <div class="p-5">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-secondary-500 text-sm font-medium">Recommended Resources</h3>
+                            <a href="#" class="text-primary-500 text-xs hover:text-primary-600">View All</a>
+                        </div>
+                        <div class="mt-4 space-y-3">
+                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-secondary-50 transition-colors">
+                                <div class="bg-purple-100 text-purple-600 rounded-lg p-2 mr-3">
+                                    <i class="fas fa-book text-lg"></i>
+                                </div>
+                                <p class="text-sm font-medium text-secondary-800">Managing Performance Anxiety</p>
+                            </a>
+                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-secondary-50 transition-colors">
+                                <div class="bg-blue-100 text-blue-600 rounded-lg p-2 mr-3">
+                                    <i class="fas fa-headphones text-lg"></i>
+                                </div>
+                                <p class="text-sm font-medium text-secondary-800">Guided Meditation</p>
+                            </a>
+                            <a href="#" class="flex items-center p-2 rounded-lg hover:bg-secondary-50 transition-colors">
+                                <div class="bg-orange-100 text-orange-600 rounded-lg p-2 mr-3">
+                                    <i class="fas fa-video text-lg"></i>
+                                </div>
+                                <p class="text-sm font-medium text-secondary-800">Sleep Hygiene Tips</p>
+                            </a>
+                        </div>
                     </div>
-                    <h3 class="mt-4 text-xl font-semibold text-secondary-900">Complete Your Profile</h3>
-                    <p class="mt-2 text-sm text-secondary-600">
-                        Your profile is incomplete. You need to complete your profile to access all features of AthleteMind.
-                    </p>
                 </div>
-                <div class="space-y-4">
-                    <div class="rounded-md bg-primary-50 p-3">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-info-circle text-primary-600"></i>
+            </div>
+
+            <!-- Second Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                <!-- Mood Tracker -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover-effect">
+                    <div class="p-5">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-secondary-500 text-sm font-medium">Mood Tracker</h3>
+                            <a href="#" class="text-primary-500 text-xs hover:text-primary-600">View History</a>
+                        </div>
+                        <div class="mt-4">
+                            <canvas id="moodChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Community Activity -->
+                <div class="bg-white rounded-2xl shadow-md overflow-hidden card-hover-effect">
+                    <div class="p-5">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-secondary-500 text-sm font-medium">Community Activity</h3>
+                            <a href="#" class="text-primary-500 text-xs hover:text-primary-600">Join Discussion</a>
+                        </div>
+                        <div class="mt-4 space-y-4">
+                            <div class="flex items-start">
+                                <img src="{% static 'images/avatar1.jpg' %}" alt="User" class="h-10 w-10 rounded-full mr-3">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-secondary-800">Michael Jordan</p>
+                                    <p class="text-xs text-secondary-500">Shared a resource on coping with injuries</p>
+                                    <div class="mt-1 text-xs text-secondary-400">2 hours ago</div>
+                                </div>
                             </div>
-                            <div class="ml-3">
-                                <p class="text-sm text-primary-700">
-                                    Complete your profile to access personalized mental health resources and connect with other athletes.
-                                </p>
+                            <div class="flex items-start">
+                                <img src="{% static 'images/avatar2.jpg' %}" alt="User" class="h-10 w-10 rounded-full mr-3">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-secondary-800">Serena Williams</p>
+                                    <p class="text-xs text-secondary-500">Started a discussion: "Dealing with pressure"</p>
+                                    <div class="mt-1 text-xs text-secondary-400">5 hours ago</div>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <img src="{% static 'images/avatar3.jpg' %}" alt="User" class="h-10 w-10 rounded-full mr-3">
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-secondary-800">Usain Bolt</p>
+                                    <p class="text-xs text-secondary-500">Posted about his mental preparation routine</p>
+                                    <div class="mt-1 text-xs text-secondary-400">1 day ago</div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="space-y-2">
-                        <a href="{% url 'complete_athlete_profile' %}" id="go-to-profile" class="flex w-full justify-center rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all">
-                            Go to Profile <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
-                        <button type="button" id="close-modal" class="flex w-full justify-center rounded-md border border-secondary-300 bg-white px-4 py-2 text-sm font-medium text-secondary-700 shadow-sm hover:bg-secondary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all">
-                            I'll do it later
-                        </button>
-                    </div>
                 </div>
             </div>
+            {% endblock %}
         </div>
-    </div>
+    </main>
+</div>
 
-    <!-- Base Scripts -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Base functionality initialization
-            console.log("AthleteMind platform initialized");
-            
-            // Add animation class to main content
-            const mainContent = document.getElementById('main-content');
-            if (mainContent) {
-                mainContent.classList.add('animate-fade-in');
-            }
-            
-            // Tooltip initialization for sidebar icons
-            const sidebarIcons = document.querySelectorAll('.sidebar-icon');
-            sidebarIcons.forEach(icon => {
-                icon.addEventListener('mouseenter', function() {
-                    const parentLink = this.closest('a');
-                    if (parentLink) {
-                        parentLink.classList.add('shadow-md');
-                    }
-                });
-                icon.addEventListener('mouseleave', function() {
-                    const parentLink = this.closest('a');
-                    if (parentLink) {
-                        parentLink.classList.remove('shadow-md');
-                    }
-                });
-            });
 
-            // Profile completion verification via API call
-            function checkProfileCompletion() {
-                fetch('{% url "check_profile_completion" %}')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.is_complete) {
-                            // Show the profile incomplete banner
-                            document.getElementById('profile-incomplete-banner').classList.remove('hidden');
-                            
-                            // Show profile completion badge
-                            const badge = document.getElementById('profile-completion-badge');
-                            if (badge) {
-                                badge.classList.remove('hidden');
-                            }
-                            
-                            // Add click event to complete profile icon
-                            document.getElementById('profile-completion-icon').addEventListener('click', function() {
-                                showProfileVerificationModal();
-                            });
-                            
-                            // Show modal when user clicks on restricted features
-                            const restrictedLinks = document.querySelectorAll('.nav-item');
-                            restrictedLinks.forEach(link => {
-                                link.addEventListener('click', function(e) {
-                                    e.preventDefault();
-                                    showProfileVerificationModal();
-                                });
-                            });
-                            
-                            // Complete profile button in banner
-                            document.getElementById('complete-profile-btn').addEventListener('click', function() {
-                                window.location.href = '{% url "complete_athlete_profile" %}';
-                            });
-                        } else {
-                            // Hide the profile completion badge if profile is complete
-                            const badge = document.getElementById('profile-completion-badge');
-                            if (badge) {
-                                badge.classList.add('hidden');
-                            }
-                            
-                            // Enable all navigation links
-                            const navLinks = document.querySelectorAll('.nav-item');
-                            navLinks.forEach(link => {
-                                // Remove any event listeners by cloning and replacing
-                                const newLink = link.cloneNode(true);
-                                link.parentNode.replaceChild(newLink, link);
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error checking profile completion:', error);
-                    });
-            }
-            
-            // Show profile verification modal
-            function showProfileVerificationModal() {
-                const modal = document.getElementById('profile-verification-modal');
-                modal.classList.remove('hidden');
-                
-                // Close modal event
-                document.getElementById('close-modal').addEventListener('click', function() {
-                    modal.classList.add('hidden');
-                });
-                
-                // Close modal when clicking on backdrop
-                modal.querySelector('.modal-backdrop').addEventListener('click', function() {
-                    modal.classList.add('hidden');
-                });
-            }
-            
-            // Run profile verification on page load
-            checkProfileCompletion();
-            
-            // Check profile completion status periodically (every 5 minutes)
-            setInterval(checkProfileCompletion, 300000);
+<!-- Scripts -->
+<script>
+    // Mobile Menu Toggle
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    
+    mobileMenuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('-translate-x-full');
+        sidebarOverlay.classList.toggle('opacity-0');
+        sidebarOverlay.classList.toggle('invisible');
+    });
+    
+    sidebarOverlay.addEventListener('click', () => {
+        sidebar.classList.add('-translate-x-full');
+        sidebarOverlay.classList.add('opacity-0');
+        sidebarOverlay.classList.add('invisible');
+    });
+    
+    // Close flash messages
+    document.querySelectorAll('.close-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.target.closest('.alert').remove();
         });
-    </script>
-    {% block extra_js %}{% endblock %}
+    });
+    
+    // Create particles for hero section
+    function createParticles() {
+        const container = document.getElementById('hero-particles');
+        const particleCount = Math.floor(window.innerWidth / 10);
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            // Random size between 1px and 3px
+            const size = Math.random() * 2 + 1;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            // Random position
+            particle.style.left = `${Math.random() * 100}%`;
+            particle.style.top = `${Math.random() * 100}%`;
+            
+            // Random animation duration and delay
+            const duration = Math.random() * 30 + 20;
+            const delay = Math.random() * 5;
+            particle.style.animationDuration = `${duration}s`;
+            particle.style.animationDelay = `${delay}s`;
+            
+            // Random opacity
+            particle.style.opacity = Math.random() * 0.5 + 0.1;
+            
+            container.appendChild(particle);
+        }
+    }
+    
+    // Initialize Mood Chart
+    function initMoodChart() {
+        const ctx = document.getElementById('moodChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Mood Level',
+                    data: [6, 7, 5, 8, 7, 9, 8],
+                    backgroundColor: 'rgba(41, 120, 255, 0.1)',
+                    borderColor: '#2978ff',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#2978ff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 1,
+                        max: 10,
+                        ticks: {
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: 'rgba(226, 232, 240, 0.5)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleFont: {
+                            family: 'Inter'
+                        },
+                        bodyFont: {
+                            family: 'Inter'
+                        },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false
+                    }
+                }
+            }
+        });
+    }
+    
+    // Check profile completion
+    function checkProfileCompletion() {
+        // This would be replaced with actual profile completion check
+        const profileComplete = false;
+        const badge = document.getElementById('profile-completion-badge');
+        
+        if (!profileComplete) {
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+    
+    // Initialize everything when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        createParticles();
+        initMoodChart();
+        checkProfileCompletion();
+        
+        // Animate elements on scroll
+        gsap.utils.toArray('.animate-on-scroll').forEach(element => {
+            gsap.from(element, {
+                opacity: 0,
+                y: 20,
+                duration: 0.8,
+                scrollTrigger: {
+                    trigger: element,
+                    start: "top 80%",
+                    toggleActions: "play none none none"
+                }
+            });
+        });
+    });
+</script>
+
+{% block extra_js %}{% endblock %}
 </body>
 </html>

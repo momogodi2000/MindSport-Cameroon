@@ -10,65 +10,141 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Animation library -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Animation libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
     <style>
         :root {
-            --primary-color: #3b82f6;
+            --primary-color: #2563eb;
             --primary-light: #93c5fd;
-            --primary-dark: #1d4ed8;
+            --primary-dark: #1e40af;
             --secondary-color: #0ea5e9;
             --accent-color: #0284c7;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
             --text-primary: #1e293b;
             --text-secondary: #475569;
             --bg-light: #f8fafc;
+            --transition-speed: 0.3s;
         }
         
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Montserrat', 'Poppins', sans-serif;
             background-color: var(--bg-light);
+            scroll-behavior: smooth;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
         }
         
         .sidebar {
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform;
         }
         
         .sidebar-icon {
             transition: all 0.2s ease-in-out;
         }
         
-        .sidebar-icon:hover {
-            transform: translateY(-3px);
+        .sidebar-link:hover .sidebar-icon {
+            transform: translateX(4px);
         }
         
         .btn-primary {
             background-color: var(--primary-color);
-            transition: all 0.3s ease;
+            transition: all var(--transition-speed);
         }
         
         .btn-primary:hover {
             background-color: var(--primary-dark);
+            transform: translateY(-1px);
         }
         
         .card {
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all var(--transition-speed);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
         }
         
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            z-index: 9999;
+            animation: loadingAnimation 1.5s ease-in-out infinite;
+            width: 0%;
+        }
+        
+        @keyframes loadingAnimation {
+            0% { width: 0%; left: 0; }
+            50% { width: 70%; }
+            100% { width: 100%; left: 100%; }
         }
         
         .animate-fade-in {
             animation: fadeIn 0.5s ease-in;
         }
         
+        .animate-slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        .animate-slide-down {
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
         
         .notification-dot {
@@ -77,133 +153,320 @@
             right: -2px;
             width: 10px;
             height: 10px;
-            background-color: #ef4444;
+            background-color: var(--danger-color);
             border-radius: 50%;
+            box-shadow: 0 0 0 2px white;
+            animation: pulse 2s infinite;
         }
         
         .dropdown-menu {
-            display: none;
-            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .show-dropdown {
-            display: block;
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
         
         .active-nav-item {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.15);
             border-left: 4px solid white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: bold;
+            background-color: var(--danger-color);
+            color: white;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.5);
+        }
+        
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip:hover::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(30, 41, 59, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 10;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* Glass morphism effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Header animation */
+        .header-animated {
+            animation: slideInDown 0.5s ease;
+        }
+        
+        @keyframes slideInDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        /* Page transition overlay */
+        .page-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--primary-color);
+            z-index: 9999;
+            transform: translateY(100%);
+        }
+        
+        .page-transition.active {
+            animation: pageTransition 0.8s ease-in-out;
+        }
+        
+        @keyframes pageTransition {
+            0% { transform: translateY(100%); }
+            100% { transform: translateY(-100%); }
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 640px) {
+            .sidebar {
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .card {
+                margin-bottom: 1rem;
+            }
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body class="h-screen flex flex-col">
+    <!-- Page loading indicator -->
+    <div id="loading-bar" class="loading-bar"></div>
+    
+    <!-- Page transition overlay -->
+    <div id="page-transition" class="page-transition"></div>
+    
     <!-- Top Navigation -->
-    <header class="bg-white shadow-md py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+    <header class="bg-white shadow-md py-3 px-4 sm:px-6 lg:px-8 flex justify-between items-center sticky top-0 z-40 header-animated">
         <div class="flex items-center">
-            <button id="sidebar-toggle" class="lg:hidden text-gray-600 mr-3">
+            <button id="sidebar-toggle" class="lg:hidden text-gray-600 mr-3 hover:text-primary-dark focus:outline-none transition-colors p-1 rounded-md hover:bg-gray-100">
                 <i class="fas fa-bars text-xl"></i>
             </button>
-            <a href="{% url 'psychologist_dashboard' %}" class="flex items-center">
-                <img src="{% static 'images/logo.png' %}" alt="Logo" class="h-8 w-auto">
-                <span class="ml-2 text-lg font-semibold text-blue-600 hidden sm:inline-block">Mental Health Platform</span>
+            <a href="{% url 'psychologist_dashboard' %}" class="flex items-center group">
+                <div class="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-md transition-all duration-300 group-hover:shadow-lg group-hover:from-blue-600 group-hover:to-blue-800">
+                    <img src="{% static 'images/logo.png' %}" alt="Logo" class="h-6 w-auto">
+                </div>
+                <div class="ml-3">
+                    <span class="text-lg font-semibold text-blue-600 hidden sm:inline-block transition-all duration-300 group-hover:text-blue-800">Mental Health</span>
+                    <span class="block text-xs text-gray-500 hidden sm:inline-block">Athletes Platform</span>
+                </div>
             </a>
         </div>
         
         <div class="flex items-center space-x-4">
             <!-- Search -->
             <div class="hidden md:block relative">
-                <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-300">
+                <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-300 w-64">
                 <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+            
+            <!-- Quick Action Buttons -->
+            <div class="hidden sm:flex space-x-2">
+                <button class="tooltip p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors" data-tooltip="Add Appointment">
+                    <i class="fas fa-calendar-plus"></i>
+                </button>
+                <button class="tooltip p-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors" data-tooltip="New Assessment">
+                    <i class="fas fa-clipboard-check"></i>
+                </button>
             </div>
             
             <!-- Notifications -->
             <div class="relative">
-                <button id="notifications-dropdown" class="text-gray-600 hover:text-blue-600 transition-colors">
-                    <i class="fas fa-bell text-xl"></i>
-                    <span class="notification-dot"></span>
+                <button id="notifications-dropdown" class="relative p-2 text-gray-600 hover:text-blue-600 transition-colors hover:bg-blue-50 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    <i class="fas fa-bell text-lg"></i>
+                    <span class="badge">3</span>
                 </button>
-                <div id="notifications-menu" class="dropdown-menu absolute right-0 mt-2 w-72 bg-white rounded-md shadow-lg z-10">
-                    <div class="p-3 border-b border-gray-200">
+                <div id="notifications-menu" class="dropdown-menu absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-10 border border-gray-100">
+                    <div class="p-3 border-b border-gray-200 flex justify-between items-center">
                         <h3 class="text-lg font-semibold text-gray-800">Notifications</h3>
+                        <span class="text-xs font-medium text-white bg-blue-600 px-2 py-1 rounded-full">3 new</span>
                     </div>
-                    <div class="max-h-72 overflow-y-auto">
-                        <a href="#" class="block p-3 border-b border-gray-200 hover:bg-blue-50">
-                            <p class="text-sm font-medium text-gray-700">New appointment with Athlete: Jean Claude</p>
-                            <p class="text-xs text-gray-500">10 minutes ago</p>
+                    <div class="max-h-80 overflow-y-auto">
+                        <a href="#" class="block p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors flex items-start animate-fade-in">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500 mr-3">
+                                <i class="fas fa-user-clock"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="text-sm font-medium text-gray-700">New appointment with Athlete: Jean Claude</p>
+                                <p class="text-xs text-gray-500 mt-1">10 minutes ago</p>
+                            </div>
+                            <div class="flex-shrink-0 ml-2">
+                                <span class="w-2 h-2 rounded-full bg-blue-600 block"></span>
+                            </div>
                         </a>
-                        <a href="#" class="block p-3 border-b border-gray-200 hover:bg-blue-50">
-                            <p class="text-sm font-medium text-gray-700">Assessment completed by Marie Nguemo</p>
-                            <p class="text-xs text-gray-500">1 hour ago</p>
+                        <a href="#" class="block p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors flex items-start animate-fade-in" style="animation-delay: 0.1s;">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-500 mr-3">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="text-sm font-medium text-gray-700">Assessment completed by Marie Nguemo</p>
+                                <p class="text-xs text-gray-500 mt-1">1 hour ago</p>
+                            </div>
+                            <div class="flex-shrink-0 ml-2">
+                                <span class="w-2 h-2 rounded-full bg-blue-600 block"></span>
+                            </div>
                         </a>
-                        <a href="#" class="block p-3 border-b border-gray-200 hover:bg-blue-50">
-                            <p class="text-sm font-medium text-gray-700">Message from Administration</p>
-                            <p class="text-xs text-gray-500">Yesterday</p>
+                        <a href="#" class="block p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors flex items-start animate-fade-in" style="animation-delay: 0.2s;">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 mr-3">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="text-sm font-medium text-gray-700">Message from Administration</p>
+                                <p class="text-xs text-gray-500 mt-1">Yesterday</p>
+                            </div>
+                            <div class="flex-shrink-0 ml-2">
+                                <span class="w-2 h-2 rounded-full bg-blue-600 block"></span>
+                            </div>
                         </a>
                     </div>
-                    <div class="p-2 text-center border-t border-gray-200">
-                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800">View all notifications</a>
+                    <div class="p-3 text-center border-t border-gray-200 bg-gray-50 rounded-b-lg">
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800 font-medium">View all notifications</a>
                     </div>
                 </div>
             </div>
             
             <!-- Messages -->
             <div class="relative">
-                <button id="messages-dropdown" class="text-gray-600 hover:text-blue-600 transition-colors">
-                    <i class="fas fa-envelope text-xl"></i>
-                    <span class="notification-dot"></span>
+                <button id="messages-dropdown" class="relative p-2 text-gray-600 hover:text-blue-600 transition-colors hover:bg-blue-50 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    <i class="fas fa-envelope text-lg"></i>
+                    <span class="badge">2</span>
                 </button>
-                <div id="messages-menu" class="dropdown-menu absolute right-0 mt-2 w-72 bg-white rounded-md shadow-lg z-10">
-                    <div class="p-3 border-b border-gray-200">
+                <div id="messages-menu" class="dropdown-menu absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-10 border border-gray-100">
+                    <div class="p-3 border-b border-gray-200 flex justify-between items-center">
                         <h3 class="text-lg font-semibold text-gray-800">Messages</h3>
+                        <span class="text-xs font-medium text-white bg-blue-600 px-2 py-1 rounded-full">2 new</span>
                     </div>
-                    <div class="max-h-72 overflow-y-auto">
-                        <a href="#" class="block p-3 border-b border-gray-200 hover:bg-blue-50">
+                    <div class="max-h-80 overflow-y-auto">
+                        <a href="#" class="block p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors animate-fade-in">
                             <div class="flex items-center">
-                                <img src="{% static 'images/avatar1.jpg' %}" alt="Avatar" class="h-8 w-8 rounded-full">
-                                <div class="ml-3">
-                                    <p class="text-sm font-medium text-gray-700">Edith Mbofa</p>
-                                    <p class="text-xs text-gray-500 truncate">I'd like to discuss my training plan...</p>
+                                <div class="relative">
+                                    <img src="{% static 'images/avatar1.jpg' %}" alt="Avatar" class="h-12 w-12 rounded-full border-2 border-white shadow">
+                                    <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                                </div>
+                                <div class="ml-4 flex-grow">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <p class="text-sm font-medium text-gray-900">Edith Mbofa</p>
+                                        <p class="text-xs text-gray-500">12:42 PM</p>
+                                    </div>
+                                    <p class="text-xs text-gray-600 truncate">I'd like to discuss my training plan and how I can manage pre-competition anxiety...</p>
+                                </div>
+                                <div class="flex-shrink-0 ml-2">
+                                    <span class="w-2 h-2 rounded-full bg-blue-600 block"></span>
                                 </div>
                             </div>
                         </a>
-                        <a href="#" class="block p-3 border-b border-gray-200 hover:bg-blue-50">
+                        <a href="#" class="block p-4 border-b border-gray-200 hover:bg-blue-50 transition-colors animate-fade-in" style="animation-delay: 0.1s;">
                             <div class="flex items-center">
-                                <img src="{% static 'images/avatar2.jpg' %}" alt="Avatar" class="h-8 w-8 rounded-full">
-                                <div class="ml-3">
-                                    <p class="text-sm font-medium text-gray-700">Francis Ngannou</p>
-                                    <p class="text-xs text-gray-500 truncate">Thank you for yesterday's session...</p>
+                                <div class="relative">
+                                    <img src="{% static 'images/avatar2.jpg' %}" alt="Avatar" class="h-12 w-12 rounded-full border-2 border-white shadow">
+                                    <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                                </div>
+                                <div class="ml-4 flex-grow">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <p class="text-sm font-medium text-gray-900">Francis Ngannou</p>
+                                        <p class="text-xs text-gray-500">Yesterday</p>
+                                    </div>
+                                    <p class="text-xs text-gray-600 truncate">Thank you for yesterday's session, I feel much better now and the techniques...</p>
+                                </div>
+                                <div class="flex-shrink-0 ml-2">
+                                    <span class="w-2 h-2 rounded-full bg-blue-600 block"></span>
                                 </div>
                             </div>
                         </a>
                     </div>
-                    <div class="p-2 text-center border-t border-gray-200">
-                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800">View all messages</a>
+                    <div class="p-3 text-center border-t border-gray-200 bg-gray-50 rounded-b-lg">
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-800 font-medium">View all messages</a>
                     </div>
                 </div>
             </div>
             
             <!-- User Profile -->
             <div class="relative">
-                <button id="profile-dropdown" class="flex items-center space-x-2">
-                    <img src="{% static 'images/psychologist_avatar.jpg' %}" alt="Profile" class="h-8 w-8 rounded-full border-2 border-blue-500">
-                    <span class="text-sm font-medium text-gray-700 hidden md:inline-block">Dr. Kameni Julie</span>
-                    <i class="fas fa-chevron-down text-xs text-gray-500 hidden md:inline-block"></i>
+                <button id="profile-dropdown" class="flex items-center space-x-2 p-1 rounded-lg hover:bg-blue-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    <div class="relative">
+                        <img src="{% static 'images/psychologist_avatar.jpg' %}" alt="Profile" class="h-10 w-10 rounded-full object-cover border-2 border-blue-500 shadow-md">
+                        <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                    </div>
+                    <div class="hidden md:block text-left">
+                        <span class="block text-sm font-medium text-gray-700">Dr. Kameni Julie</span>
+                        <span class="block text-xs text-gray-500">Sports Psychologist</span>
+                    </div>
+                    <i class="fas fa-chevron-down text-xs text-gray-500 hidden md:block"></i>
                 </button>
-                <div id="profile-menu" class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">
-                        <i class="fas fa-user mr-2"></i> My Profile
-                    </a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">
-                        <i class="fas fa-cog mr-2"></i> Settings
-                    </a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50">
-                        <i class="fas fa-calendar-alt mr-2"></i> My Schedule
-                    </a>
-                    <div class="border-t border-gray-200"></div>
-                    <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                    </a>
+                <div id="profile-menu" class="dropdown-menu absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl z-10 border border-gray-100">
+                    <div class="p-4 border-b border-gray-200 text-center">
+                        <img src="{% static 'images/psychologist_avatar.jpg' %}" alt="Profile" class="h-20 w-20 rounded-full mx-auto border-4 border-blue-100">
+                        <h3 class="mt-2 text-lg font-semibold text-gray-800">Dr. Kameni Julie</h3>
+                        <p class="text-sm text-gray-600">Sports Psychologist</p>
+                        <div class="mt-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs inline-flex items-center">
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                            <span>Available</span>
+                        </div>
+                    </div>
+                    <div class="py-2">
+                        <a href="#" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
+                            <i class="fas fa-user w-5 text-blue-500"></i>
+                            <span>My Profile</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
+                            <i class="fas fa-cog w-5 text-blue-500"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
+                            <i class="fas fa-calendar-alt w-5 text-blue-500"></i>
+                            <span>My Schedule</span>
+                        </a>
+                        <a href="#" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
+                            <i class="fas fa-shield-alt w-5 text-blue-500"></i>
+                            <span>Privacy & Security</span>
+                        </a>
+                    </div>
+                    <div class="p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+                        <a href="{% url 'logout' %}" class="flex items-center justify-center px-4 py-2 text-sm text-white bg-red-500 hover:bg-red-600 transition-colors rounded-lg">
+                            <i class="fas fa-sign-out-alt mr-2"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -211,135 +474,238 @@
 
     <div class="flex flex-1 overflow-hidden">
         <!-- Sidebar Navigation -->
-        <aside id="sidebar" class="sidebar w-64 fixed lg:relative inset-y-0 left-0 z-30 transform lg:translate-x-0 -translate-x-full transition duration-300 ease-in-out flex flex-col h-screen overflow-y-auto text-white">
+        <aside id="sidebar" class="sidebar w-72 fixed lg:relative inset-y-0 left-0 z-30 transform lg:translate-x-0 -translate-x-full flex flex-col h-screen overflow-y-auto text-white">
             <div class="flex-1 py-6 px-4 space-y-6">
-                <div class="flex flex-col items-center space-y-2 pb-6 mb-6 border-b border-blue-400 border-opacity-40">
-                    <img src="{% static 'images/psychologist_avatar.jpg' %}" alt="Profile" class="h-24 w-24 rounded-full border-4 border-white">
-                    <h3 class="text-lg font-semibold">Dr. Kameni Julie</h3>
-                    <p class="text-sm text-blue-100">Sports Psychologist</p>
-                    <div class="flex items-center bg-blue-600 rounded-full px-3 py-1 text-xs">
-                        <span class="h-2 w-2 bg-green-400 rounded-full mr-1"></span>
-                        <span>Available</span>
+                <div class="flex flex-col items-center space-y-3 pb-6 mb-6 border-b border-blue-400 border-opacity-40">
+                    <div class="relative group">
+                        <img src="{% static 'images/psychologist_avatar.jpg' %}" alt="Profile" class="h-28 w-28 rounded-full border-4 border-white shadow-lg object-cover group-hover:scale-105 transition-all duration-300">
+                        <div class="absolute -bottom-2 -right-2 bg-green-500 text-white rounded-full p-2 shadow-lg">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <h3 class="text-xl font-semibold">Dr. Kameni Julie</h3>
+                        <p class="text-sm text-blue-100">Sports Psychologist</p>
+                    </div>
+                    <div class="flex items-center bg-blue-600 bg-opacity-30 rounded-full px-4 py-1.5 text-sm">
+                        <span class="h-2.5 w-2.5 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                        <span>Available for Consultation</span>
                     </div>
                 </div>
                 
                 <nav class="space-y-1">
-                    <a href="{% url 'psychologist_dashboard' %}" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm {% if request.resolver_match.url_name == 'psychologist_dashboard' %}active-nav-item{% endif %}">
-                        <i class="fas fa-tachometer-alt w-6 sidebar-icon"></i>
-                        <span>Dashboard</span>
+                    <a href="{% url 'psychologist_dashboard' %}" class="flex items-center px-4 py-3 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all text-sm sidebar-link {% if request.resolver_match.url_name == 'psychologist_dashboard' %}active-nav-item{% endif %}">
+                        <i class="fas fa-tachometer-alt w-6 sidebar-icon text-lg"></i>
+                        <span class="ml-3">Dashboard</span>
                     </a>
-                    <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm {% if request.resolver_match.url_name == 'appointments' %}active-nav-item{% endif %}">
-                        <i class="fas fa-calendar-check w-6 sidebar-icon"></i>
-                        <span>Appointments</span>
+                    <a href="#" class="flex items-center px-4 py-3 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all text-sm sidebar-link {% if request.resolver_match.url_name == 'appointments' %}active-nav-item{% endif %}">
+                        <i class="fas fa-calendar-check w-6 sidebar-icon text-lg"></i>
+                        <span class="ml-3">Appointments</span>
+                        <span class="ml-auto bg-white bg-opacity-20 text-xs rounded-full px-2 py-1">5</span>
                     </a>
-                    <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm {% if request.resolver_match.url_name == 'patients' %}active-nav-item{% endif %}">
-                        <i class="fas fa-users w-6 sidebar-icon"></i>
-                        <span>My Athletes</span>
+                    <a href="#" class="flex items-center px-4 py-3 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all text-sm sidebar-link {% if request.resolver_match.url_name == 'patients' %}active-nav-item{% endif %}">
+                        <i class="fas fa-users w-6 sidebar-icon text-lg"></i>
+                        <span class="ml-3">My Athletes</span>
                     </a>
-                    <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm {% if request.resolver_match.url_name == 'assessments' %}active-nav-item{% endif %}">
-                        <i class="fas fa-clipboard-list w-6 sidebar-icon"></i>
-                        <span>Assessments</span>
+                    <a href="#" class="flex items-center px-4 py-3 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all text-sm sidebar-link {% if request.resolver_match.url_name == 'assessments' %}active-nav-item{% endif %}">
+                        <i class="fas fa-clipboard-list w-6 sidebar-icon text-lg"></i>
+                        <span class="ml-3">Assessments</span>
+                        <span class="ml-auto bg-yellow-400 text-xs rounded-full px-2 py-1 text-yellow-800">New</span>
                     </a>
-                    <a href="#}" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm {% if request.resolver_match.url_name == 'resources' %}active-nav-item{% endif %}">
-                        <i class="fas fa-book w-6 sidebar-icon"></i>
-                        <span>Resources</span>
+                    <div class="relative">
+                        <a href="#" class="flex items-center px-4 py-3 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all text-sm sidebar-link {% if request.resolver_match.url_name == 'resources' %}active-nav-item{% endif %}">
+                            <i class="fas fa-book w-6 sidebar-icon text-lg"></i>
+                            <span class="ml-3">Resources</span>
+                            <i class="fas fa-chevron-down ml-auto text-xs"></i>
+                        </a>
+                        <div class="ml-8 mt-1 space-y-1 hidden">
+                            <a href="#" class="flex items-center px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm">
+                                <i class="fas fa-file-alt w-5 text-sm"></i>
+                                <span class="ml-2">Articles</span>
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm">
+                                <i class="fas fa-video w-5 text-sm"></i>
+                                <span class="ml-2">Videos</span>
+                            </a>
+                        </div>
+                    </div>
+                    <a href="#" class="flex items-center px-4 py-3 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all text-sm sidebar-link {% if request.resolver_match.url_name == 'forum' %}active-nav-item{% endif %}">
+                        <i class="fas fa-comments w-6 sidebar-icon text-lg"></i>
+                        <span class="ml-3">Discussion Forum</span>
                     </a>
-                    <a href="#}" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm {% if request.resolver_match.url_name == 'forum' %}active-nav-item{% endif %}">
-                        <i class="fas fa-comments w-6 sidebar-icon"></i>
-                        <span>Community Forum</span>
+                    <a href="#" class="flex items-center px-4 py-3 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all text-sm sidebar-link {% if request.resolver_match.url_name == 'reports' %}active-nav-item{% endif %}">
+                        <i class="fas fa-chart-bar w-6 sidebar-icon text-lg"></i>
+                        <span class="ml-3">Reports & Analytics</span>
                     </a>
-                    <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm {% if request.resolver_match.url_name == 'reports' %}active-nav-item{% endif %}">
-                        <i class="fas fa-chart-bar w-6 sidebar-icon"></i>
-                        <span>Reports</span>
+                    <a href="#" class="flex items-center px-4 py-3 rounded-xl hover:bg-white hover:bg-opacity-10 transition-all text-sm sidebar-link {% if request.resolver_match.url_name == 'settings' %}active-nav-item{% endif %}">
+                        <i class="fas fa-cog w-6 sidebar-icon text-lg"></i>
+                        <span class="ml-3">Settings</span>
                     </a>
                 </nav>
             </div>
             
-            <!-- Bottom Sidebar -->
-            <div class="p-4 border-t border-blue-400 border-opacity-40">
-                <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm">
-                    <i class="fas fa-question-circle w-6 sidebar-icon"></i>
-                    <span>Help & Support</span>
-                </a>
-                <a href="#" class="flex items-center px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all text-sm">
-                    <i class="fas fa-cog w-6 sidebar-icon"></i>
-                    <span>Settings</span>
-                </a>
+            <div class="px-4 pb-6">
+                <div class="bg-blue-600 bg-opacity-30 rounded-xl p-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 bg-blue-500 rounded-lg p-2">
+                            <i class="fas fa-headset text-xl"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium">Need Help?</h4>
+                            <p class="text-xs text-blue-100 mt-1">Our support team is available 24/7</p>
+                            <button class="mt-2 text-xs bg-white text-blue-600 px-3 py-1 rounded-lg hover:bg-opacity-90 transition-all">
+                                Contact Support
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-            {% block content %}{% endblock %}
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto bg-gray-50">
+            {% block content %}
+            <!-- Content will be injected here from child templates -->
+            {% endblock %}
         </main>
     </div>
 
-    <!-- JavaScript -->
+ 
+
+    <!-- JavaScript Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    
     <script>
-        // Toggle sidebar on mobile
-        document.getElementById('sidebar-toggle').addEventListener('click', function() {
-            const sidebar = document.getElementById('sidebar');
+        // Initialize AOS animation library
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
+        });
+
+        // Sidebar toggle functionality
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('translate-x-0');
             sidebar.classList.toggle('-translate-x-full');
         });
-        
-        // Toggle dropdowns
-        function setupDropdown(buttonId, menuId) {
-            const button = document.getElementById(buttonId);
-            const menu = document.getElementById(menuId);
-            
-            if (button && menu) {
-                button.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    menu.classList.toggle('show-dropdown');
-                    
-                    // Close other dropdowns
-                    document.querySelectorAll('.dropdown-menu').forEach(function(dropdown) {
-                        if (dropdown.id !== menuId && dropdown.classList.contains('show-dropdown')) {
-                            dropdown.classList.remove('show-dropdown');
-                        }
-                    });
+
+        // Dropdown menus functionality
+        const dropdownButtons = {
+            notifications: document.getElementById('notifications-dropdown'),
+            messages: document.getElementById('messages-dropdown'),
+            profile: document.getElementById('profile-dropdown')
+        };
+
+        const dropdownMenus = {
+            notifications: document.getElementById('notifications-menu'),
+            messages: document.getElementById('messages-menu'),
+            profile: document.getElementById('profile-menu')
+        };
+
+        // Toggle dropdown menus
+        Object.keys(dropdownButtons).forEach(key => {
+            dropdownButtons[key].addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Close all other dropdowns first
+                Object.keys(dropdownMenus).forEach(menuKey => {
+                    if (menuKey !== key) {
+                        dropdownMenus[menuKey].classList.remove('show-dropdown');
+                    }
                 });
-            }
-        }
-        
-        setupDropdown('notifications-dropdown', 'notifications-menu');
-        setupDropdown('messages-dropdown', 'messages-menu');
-        setupDropdown('profile-dropdown', 'profile-menu');
-        
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function() {
-            document.querySelectorAll('.dropdown-menu').forEach(function(dropdown) {
-                dropdown.classList.remove('show-dropdown');
+                // Toggle current dropdown
+                dropdownMenus[key].classList.toggle('show-dropdown');
             });
         });
-        
-        // Prevent dropdown closing when clicking inside
-        document.querySelectorAll('.dropdown-menu').forEach(function(dropdown) {
-            dropdown.addEventListener('click', function(e) {
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+            Object.keys(dropdownMenus).forEach(key => {
+                dropdownMenus[key].classList.remove('show-dropdown');
+            });
+        });
+
+        // Prevent dropdown from closing when clicking inside
+        Object.keys(dropdownMenus).forEach(key => {
+            dropdownMenus[key].addEventListener('click', (e) => {
                 e.stopPropagation();
             });
         });
-        
-        // Add animation class to elements when they come into view
-        function animateOnScroll() {
-            const elements = document.querySelectorAll('.animate-on-scroll');
-            
-            elements.forEach(function(element) {
-                const position = element.getBoundingClientRect();
+
+        // Page loading animation
+        window.addEventListener('load', () => {
+            const loadingBar = document.getElementById('loading-bar');
+            loadingBar.style.width = '100%';
+            loadingBar.style.left = '100%';
+            setTimeout(() => {
+                loadingBar.style.opacity = '0';
+                setTimeout(() => {
+                    loadingBar.style.display = 'none';
+                }, 300);
+            }, 300);
+        });
+
+        // Page transition animation
+        document.querySelectorAll('a[href^="/"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                if (link.target === '_blank' || link.href.includes('#') || link.classList.contains('no-transition')) {
+                    return;
+                }
                 
-                // If element is in viewport
-                if(position.top < window.innerHeight && position.bottom >= 0) {
-                    element.classList.add('animate-fade-in');
+                e.preventDefault();
+                const pageTransition = document.getElementById('page-transition');
+                const href = link.getAttribute('href');
+                
+                pageTransition.classList.add('active');
+                
+                setTimeout(() => {
+                    window.location.href = href;
+                }, 800);
+            });
+        });
+
+        // Collapsible sidebar submenus
+        document.querySelectorAll('.sidebar-link i.fa-chevron-down').forEach(icon => {
+            icon.parentElement.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A' || e.target.tagName === 'I') {
+                    const submenu = icon.parentElement.nextElementSibling;
+                    submenu.classList.toggle('hidden');
+                    icon.classList.toggle('transform');
+                    icon.classList.toggle('rotate-180');
                 }
             });
-        }
-        
-        // Call on load and scroll
-        window.addEventListener('load', animateOnScroll);
-        window.addEventListener('scroll', animateOnScroll);
+        });
+
+        // Tooltip initialization
+        document.querySelectorAll('.tooltip').forEach(tooltip => {
+            tooltip.addEventListener('mouseenter', () => {
+                const tooltipText = tooltip.getAttribute('data-tooltip');
+                const tooltipElement = document.createElement('div');
+                tooltipElement.className = 'absolute z-50 bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap';
+                tooltipElement.textContent = tooltipText;
+                tooltip.appendChild(tooltipElement);
+                
+                setTimeout(() => {
+                    tooltipElement.remove();
+                }, 2000);
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
     </script>
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

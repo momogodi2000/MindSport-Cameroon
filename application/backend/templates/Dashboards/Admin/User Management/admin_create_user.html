@@ -33,11 +33,11 @@
         </div>
         {% endif %}
 
-        <form method="POST" action="{% url 'admin_create_user' %}" class="space-y-6">
+        <form method="POST" action="{% url 'admin_create_user' %}" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Basic Information -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Column 1: Basic Information -->
                 <div class="space-y-6">
                     <h2 class="text-xl font-semibold text-gray-800 border-b pb-2">Personal Information</h2>
                     
@@ -70,10 +70,37 @@
                                 class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                             <p class="text-xs text-gray-500 mt-1">If left empty, a random password will be generated.</p>
                         </div>
+
+                        <!-- Mobile Number -->
+                        <div>
+                            <label for="mobile_number" class="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+                            <input type="text" id="mobile_number" name="mobile_number"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <!-- Location -->
+                        <div>
+                            <label for="town" class="block text-sm font-medium text-gray-700 mb-1">Town</label>
+                            <input type="text" id="town" name="town"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div>
+                            <label for="quartier" class="block text-sm font-medium text-gray-700 mb-1">Quartier</label>
+                            <input type="text" id="quartier" name="quartier"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <!-- Profile Image -->
+                        <div>
+                            <label for="profile_image" class="block text-sm font-medium text-gray-700 mb-1">Profile Image</label>
+                            <input type="file" id="profile_image" name="profile_image" accept="image/*"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Account Settings -->
+                <!-- Column 2: Account Settings -->
                 <div class="space-y-6">
                     <h2 class="text-xl font-semibold text-gray-800 border-b pb-2">Account Settings</h2>
                     
@@ -84,11 +111,9 @@
                             <select id="user_type" name="user_type" required
                                 class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">Select User Type</option>
-                                <option value="athlete">Athlete</option>
-                                <option value="psychologist">Psychologist</option>
-                                <option value="coach">Mental Coach</option>
-                                <option value="nutritionist">Nutritionist</option>
-                                <option value="admin">Administrator</option>
+                                {% for value, label in user_type_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         
@@ -98,13 +123,9 @@
                             <select id="sport" name="sport"
                                 class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">Select Sport</option>
-                                <option value="boxing">Boxing</option>
-                                <option value="wrestling">Wrestling</option>
-                                <option value="judo">Judo</option>
-                                <option value="karate">Karate</option>
-                                <option value="taekwondo">Taekwondo</option>
-                                <option value="mma">Mixed Martial Arts</option>
-                                <option value="other">Other</option>
+                                {% for value, label in sport_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         
@@ -114,18 +135,40 @@
                             <select id="level" name="level"
                                 class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">Select Level</option>
-                                <option value="amateur">Amateur</option>
-                                <option value="semi-pro">Semi-Professional</option>
-                                <option value="professional">Professional</option>
-                                <option value="elite">Elite</option>
+                                {% for value, label in level_choices %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         
-                        <!-- Qualifications (for Professionals) -->
-                        <div id="qualificationsField" class="hidden">
-                            <label for="qualifications" class="block text-sm font-medium text-gray-700 mb-1">Qualifications</label>
-                            <textarea id="qualifications" name="qualifications" rows="3"
-                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        <!-- Account Status -->
+                        <div>
+                            <label for="account_status" class="block text-sm font-medium text-gray-700 mb-1">Account Status</label>
+                            <select id="account_status" name="account_status"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                {% for value, label in account_status_choices %}
+                                <option value="{{ value }}" {% if value == 'pending' %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Payment Status -->
+                        <div>
+                            <label for="payment_status" class="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
+                            <select id="payment_status" name="payment_status"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                {% for value, label in payment_status_choices %}
+                                <option value="{{ value }}" {% if value == 'pending' %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Membership Fee -->
+                        <div>
+                            <label for="membership_fee" class="block text-sm font-medium text-gray-700 mb-1">Membership Fee (CFA)</label>
+                            <input type="number" id="membership_fee" name="membership_fee" step="0.01" min="0"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">Leave empty to use default fee for user type.</p>
                         </div>
                         
                         <!-- Years of Experience -->
@@ -134,12 +177,63 @@
                             <input type="number" id="years_experience" name="years_experience" min="0" value="0"
                                 class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                         </div>
+                    </div>
+                </div>
+
+                <!-- Column 3: Professional Details -->
+                <div class="space-y-6">
+                    <h2 class="text-xl font-semibold text-gray-800 border-b pb-2">Professional Details</h2>
+                    
+                    <div id="professionalFields" class="space-y-4 hidden">
+                        <!-- Professional fields that appear only for professional user types -->
                         
-                        <!-- Active Status -->
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="is_active" name="is_active" checked
+                        <!-- Qualifications (for Professionals) -->
+                        <div>
+                            <label for="qualifications" class="block text-sm font-medium text-gray-700 mb-1">Qualifications</label>
+                            <textarea id="qualifications" name="qualifications" rows="2"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+
+                        <!-- License Number -->
+                        <div>
+                            <label for="license_number" class="block text-sm font-medium text-gray-700 mb-1">License Number</label>
+                            <input type="text" id="license_number" name="license_number"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <!-- Verification -->
+                        <div class="flex items-center space-x-2 mt-4">
+                            <input type="checkbox" id="is_verified_professional" name="is_verified_professional"
                                 class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4">
-                            <label for="is_active" class="text-sm font-medium text-gray-700">Active Account</label>
+                            <label for="is_verified_professional" class="text-sm font-medium text-gray-700">Verified Professional</label>
+                        </div>
+
+                        <!-- Certification Document -->
+                        <div>
+                            <label for="certification_document" class="block text-sm font-medium text-gray-700 mb-1">Certification Document</label>
+                            <input type="file" id="certification_document" name="certification_document"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <!-- CV Document -->
+                        <div>
+                            <label for="cv_document" class="block text-sm font-medium text-gray-700 mb-1">CV Document</label>
+                            <input type="file" id="cv_document" name="cv_document"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <!-- Additional Documents -->
+                        <div>
+                            <label for="additional_documents" class="block text-sm font-medium text-gray-700 mb-1">Additional Documents</label>
+                            <input type="file" id="additional_documents" name="additional_documents"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <!-- Verification Notes -->
+                        <div>
+                            <label for="verification_notes" class="block text-sm font-medium text-gray-700 mb-1">Verification Notes</label>
+                            <textarea id="verification_notes" name="verification_notes" rows="3"
+                                class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
                         </div>
                     </div>
                 </div>
@@ -164,19 +258,55 @@
         const userType = this.value;
         const sportField = document.getElementById('sportField');
         const levelField = document.getElementById('levelField');
-        const qualificationsField = document.getElementById('qualificationsField');
+        const professionalFields = document.getElementById('professionalFields');
         
         // Hide all conditional fields first
         sportField.classList.add('hidden');
         levelField.classList.add('hidden');
-        qualificationsField.classList.add('hidden');
+        professionalFields.classList.add('hidden');
         
         // Show relevant fields based on user type
         if (userType === 'athlete') {
             sportField.classList.remove('hidden');
             levelField.classList.remove('hidden');
         } else if (['psychologist', 'coach', 'nutritionist'].includes(userType)) {
-            qualificationsField.classList.remove('hidden');
+            professionalFields.classList.remove('hidden');
+            // Set default membership fee based on user type
+            updateDefaultMembershipFee(userType);
+        } else if (userType === 'admin') {
+            // Set membership fee to 0 for admin
+            document.getElementById('membership_fee').value = '0.00';
+        }
+    });
+
+    // Function to update default membership fee based on user type
+    function updateDefaultMembershipFee(userType) {
+        let fee = '';
+        switch (userType) {
+            case 'athlete':
+                fee = '5.00';
+                break;
+            case 'psychologist':
+                fee = '7.00';
+                break;
+            case 'coach':
+                fee = '8.00';
+                break;
+            case 'nutritionist':
+                fee = '10.00';
+                break;
+            case 'admin':
+                fee = '0.00';
+                break;
+        }
+        document.getElementById('membership_fee').value = fee;
+    }
+
+    // Payment status change handling
+    document.getElementById('payment_status').addEventListener('change', function() {
+        // If status is set to 'paid', indicate that payment dates will be automatically set
+        if (this.value === 'paid') {
+            // Could add visual feedback or additional information here
         }
     });
 </script>

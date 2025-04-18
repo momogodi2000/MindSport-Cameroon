@@ -1,0 +1,952 @@
+{% extends 'Dashboards/Layout/athlete_base.html' %}
+{% load static %}
+
+{% block title %}My Appointments{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<style>
+  .appointment-card {
+    transition: all 0.3s ease;
+  }
+  .appointment-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  .modal {
+    transition: opacity 0.3s ease;
+  }
+  .tab-active {
+    border-bottom-width: 2px;
+    border-color: #4F46E5;
+    color: #4F46E5;
+    font-weight: 600;
+  }
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+  .pulse-animation {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+  <!-- Header Section -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+    <div class="animate__animated animate__fadeInLeft">
+      <h1 class="text-2xl md:text-3xl font-bold text-gray-800">My Appointments</h1>
+      <p class="text-gray-600 mt-1">Manage your sessions with mental health professionals</p>
+    </div>
+    <div class="mt-4 md:mt-0 animate__animated animate__fadeInRight">
+      <button id="new-appointment-btn" class="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Book New Appointment
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs Section -->
+  <div class="border-b border-gray-200 mb-6 animate__animated animate__fadeInUp">
+    <div class="flex space-x-8">
+      <button class="tab-btn tab-active py-4 px-1 focus:outline-none" data-tab="upcoming">
+        Upcoming
+      </button>
+      <button class="tab-btn py-4 px-1 text-gray-500 hover:text-gray-700 focus:outline-none" data-tab="past">
+        Past
+      </button>
+      <button class="tab-btn py-4 px-1 text-gray-500 hover:text-gray-700 focus:outline-none" data-tab="cancelled">
+        Cancelled
+      </button>
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 animate__animated animate__fadeInUp">
+    <div class="relative w-full md:w-64 mb-4 md:mb-0">
+      <input type="text" id="search-appointments" placeholder="Search appointments..." class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+    </div>
+    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 w-full md:w-auto">
+      <select id="filter-professional" class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        <option value="">All Professionals</option>
+        <option value="psychologist">Psychologists</option>
+        <option value="mental-coach">Mental Coaches</option>
+        <option value="nutritionist">Nutritionists</option>
+      </select>
+      <select id="filter-date" class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        <option value="">All Dates</option>
+        <option value="today">Today</option>
+        <option value="tomorrow">Tomorrow</option>
+        <option value="this-week">This Week</option>
+        <option value="next-week">Next Week</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Appointments List -->
+  <div id="appointments-container" class="animate__animated animate__fadeIn">
+    <!-- Upcoming Tab Content -->
+    <div id="upcoming-tab" class="tab-content">
+      <!-- Empty State -->
+      <div id="upcoming-empty" class="hidden text-center py-16">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <h3 class="mt-4 text-lg font-medium text-gray-900">No upcoming appointments</h3>
+        <p class="mt-2 text-gray-500">Book your first session with a mental health professional.</p>
+        <button class="mt-6 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+          Find a Professional
+        </button>
+      </div>
+
+      <!-- Appointments Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Appointment Card 1 -->
+        <div class="appointment-card bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Confirmed
+                </span>
+                <h3 class="mt-2 text-lg font-medium text-gray-900">Dr. John Mbarga</h3>
+                <p class="text-sm text-gray-600">Sports Psychologist</p>
+              </div>
+              <img src="{% static 'images/placeholder-avatar.jpg' %}" alt="Dr. John Mbarga" class="h-12 w-12 rounded-full">
+            </div>
+          </div>
+          <div class="px-6 py-4 flex justify-between items-center">
+            <div>
+              <div class="flex items-center text-sm text-gray-600 mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                April 18, 2025
+              </div>
+              <div class="flex items-center text-sm text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                2:00 PM - 3:00 PM
+              </div>
+            </div>
+            <div class="flex space-x-2">
+              <button class="text-gray-500 hover:text-indigo-600 focus:outline-none view-details-btn" data-id="1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+              <button class="text-gray-500 hover:text-amber-600 focus:outline-none reschedule-btn" data-id="1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </button>
+              <button class="text-gray-500 hover:text-red-600 focus:outline-none cancel-btn" data-id="1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appointment Card 2 -->
+        <div class="appointment-card bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  Upcoming
+                </span>
+                <h3 class="mt-2 text-lg font-medium text-gray-900">Marie Ndom</h3>
+                <p class="text-sm text-gray-600">Mental Coach</p>
+              </div>
+              <img src="{% static 'images/placeholder-avatar-2.jpg' %}" alt="Marie Ndom" class="h-12 w-12 rounded-full">
+            </div>
+          </div>
+          <div class="px-6 py-4 flex justify-between items-center">
+            <div>
+              <div class="flex items-center text-sm text-gray-600 mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                April 20, 2025
+              </div>
+              <div class="flex items-center text-sm text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                10:00 AM - 11:30 AM
+              </div>
+            </div>
+            <div class="flex space-x-2">
+              <button class="text-gray-500 hover:text-indigo-600 focus:outline-none view-details-btn" data-id="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+              <button class="text-gray-500 hover:text-amber-600 focus:outline-none reschedule-btn" data-id="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </button>
+              <button class="text-gray-500 hover:text-red-600 focus:outline-none cancel-btn" data-id="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Appointment Card 3 -->
+        <div class="appointment-card bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                  Pending
+                </span>
+                <h3 class="mt-2 text-lg font-medium text-gray-900">Dr. Emmanuel Tamba</h3>
+                <p class="text-sm text-gray-600">Nutritionist</p>
+              </div>
+              <img src="{% static 'images/placeholder-avatar-3.jpg' %}" alt="Dr. Emmanuel Tamba" class="h-12 w-12 rounded-full">
+            </div>
+          </div>
+          <div class="px-6 py-4 flex justify-between items-center">
+            <div>
+              <div class="flex items-center text-sm text-gray-600 mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                April 25, 2025
+              </div>
+              <div class="flex items-center text-sm text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                4:30 PM - 5:30 PM
+              </div>
+            </div>
+            <div class="flex space-x-2">
+              <button class="text-gray-500 hover:text-indigo-600 focus:outline-none view-details-btn" data-id="3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+              <button class="text-gray-500 hover:text-amber-600 focus:outline-none reschedule-btn" data-id="3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </button>
+              <button class="text-gray-500 hover:text-red-600 focus:outline-none cancel-btn" data-id="3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Past Tab Content -->
+    <div id="past-tab" class="tab-content hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Past Appointment Card 1 -->
+        <div class="appointment-card bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm opacity-80">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  Completed
+                </span>
+                <h3 class="mt-2 text-lg font-medium text-gray-900">Dr. John Mbarga</h3>
+                <p class="text-sm text-gray-600">Sports Psychologist</p>
+              </div>
+              <img src="{% static 'images/placeholder-avatar.jpg' %}" alt="Dr. John Mbarga" class="h-12 w-12 rounded-full">
+            </div>
+          </div>
+          <div class="px-6 py-4 flex justify-between items-center">
+            <div>
+              <div class="flex items-center text-sm text-gray-600 mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                April 10, 2025
+              </div>
+              <div class="flex items-center text-sm text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                2:00 PM - 3:00 PM
+              </div>
+            </div>
+            <div class="flex space-x-2">
+              <button class="text-gray-500 hover:text-indigo-600 focus:outline-none view-details-btn" data-id="4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+              <button class="text-gray-500 hover:text-yellow-600 focus:outline-none feedback-btn" data-id="4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+              </button>
+              <button class="text-gray-500 hover:text-green-600 focus:outline-none book-again-btn" data-id="4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cancelled Tab Content -->
+    <div id="cancelled-tab" class="tab-content hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Cancelled Appointment Card 1 -->
+        <div class="appointment-card bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm opacity-75">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                  Cancelled
+                </span>
+                <h3 class="mt-2 text-lg font-medium text-gray-900">Marie Ndom</h3>
+                <p class="text-sm text-gray-600">Mental Coach</p>
+              </div>
+              <img src="{% static 'images/placeholder-avatar-2.jpg' %}" alt="Marie Ndom" class="h-12 w-12 rounded-full">
+            </div>
+          </div>
+          <div class="px-6 py-4 flex justify-between items-center">
+            <div>
+              <div class="flex items-center text-sm text-gray-600 mb-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                April 5, 2025
+              </div>
+              <div class="flex items-center text-sm text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                10:00 AM - 11:30 AM
+              </div>
+            </div>
+            <button class="text-gray-500 hover:text-indigo-600 focus:outline-none view-details-btn" data-id="5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+              <button class="text-gray-500 hover:text-amber-600 focus:outline-none reschedule-btn" data-id="5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Appointment Details Modal -->
+<div id="appointment-details-modal" class="fixed inset-0 z-50 hidden">
+  <div class="modal-backdrop absolute inset-0 bg-gray-900/50 backdrop-blur-sm"></div>
+  <div class="flex min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-2xl rounded-xl bg-white shadow-xl modal-animate-in border border-gray-200">
+      <div class="absolute top-4 right-4">
+        <button id="close-details-modal" class="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      
+      <div class="px-6 py-4">
+        <div class="flex items-center space-x-4">
+          <img id="modal-professional-avatar" src="{% static 'images/placeholder-avatar.jpg' %}" alt="Professional" class="h-16 w-16 rounded-full border-2 border-indigo-100">
+          <div>
+            <h3 id="modal-professional-name" class="text-xl font-bold text-gray-900">Dr. John Mbarga</h3>
+            <p id="modal-professional-title" class="text-indigo-600">Sports Psychologist</p>
+            <div class="mt-1 flex items-center">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg>
+                <span id="modal-professional-rating" class="ml-1 text-sm font-medium text-gray-700">4.8</span>
+                <span class="mx-1 text-gray-400">•</span>
+                <span id="modal-professional-experience" class="text-sm text-gray-500">8 years experience</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 class="text-sm font-medium text-gray-500">Appointment Details</h4>
+            <div class="mt-2 space-y-2">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span id="modal-appointment-date" class="text-gray-700">April 18, 2025</span>
+              </div>
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span id="modal-appointment-time" class="text-gray-700">2:00 PM - 3:00 PM</span>
+              </div>
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <span id="modal-appointment-type" class="text-gray-700">Video Call</span>
+              </div>
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span id="modal-appointment-status" class="text-gray-700">Confirmed</span>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <h4 class="text-sm font-medium text-gray-500">Meeting Information</h4>
+            <div class="mt-2 space-y-2">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                <span class="text-gray-700">Meeting Link: <a href="#" class="text-indigo-600 hover:underline">Join Session</a></span>
+              </div>
+              <div class="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+                <span id="modal-appointment-notes" class="text-gray-700">Focus areas: Performance anxiety and stress management techniques</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-6">
+          <h4 class="text-sm font-medium text-gray-500">Preparation Notes</h4>
+          <div class="mt-2 p-4 bg-indigo-50 rounded-lg">
+            <p id="modal-appointment-preparation" class="text-gray-700">Please prepare any questions you have about your recent performance. We'll focus on techniques to manage competition anxiety and develop a pre-game routine.</p>
+          </div>
+        </div>
+        
+        <div class="mt-6 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+          <button id="start-session-btn" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+            Start Session Now
+          </button>
+          <button id="reschedule-modal-btn" class="flex-1 px-4 py-2 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors duration-200">
+            Reschedule
+          </button>
+          <button id="cancel-modal-btn" class="flex-1 px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors duration-200">
+            Cancel Appointment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reschedule Modal -->
+<div id="reschedule-modal" class="fixed inset-0 z-50 hidden">
+  <div class="modal-backdrop absolute inset-0 bg-gray-900/50 backdrop-blur-sm"></div>
+  <div class="flex min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-xl bg-white shadow-xl modal-animate-in border border-gray-200">
+      <div class="absolute top-4 right-4">
+        <button id="close-reschedule-modal" class="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      
+      <div class="px-6 py-4">
+        <h3 class="text-xl font-bold text-gray-900">Reschedule Appointment</h3>
+        <p class="mt-2 text-gray-600">Select a new date and time for your session</p>
+        
+        <div class="mt-6">
+          <label for="reschedule-date" class="block text-sm font-medium text-gray-700">Date</label>
+          <input type="date" id="reschedule-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+        </div>
+        
+        <div class="mt-4">
+          <label for="reschedule-time" class="block text-sm font-medium text-gray-700">Time</label>
+          <select id="reschedule-time" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            <option value="">Select a time slot</option>
+            <option value="09:00">9:00 AM - 10:00 AM</option>
+            <option value="10:30">10:30 AM - 11:30 AM</option>
+            <option value="14:00">2:00 PM - 3:00 PM</option>
+            <option value="15:30">3:30 PM - 4:30 PM</option>
+          </select>
+        </div>
+        
+        <div class="mt-6">
+          <label for="reschedule-reason" class="block text-sm font-medium text-gray-700">Reason for Rescheduling (Optional)</label>
+          <textarea id="reschedule-reason" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+        </div>
+        
+        <div class="mt-6 flex justify-end space-x-3">
+          <button id="cancel-reschedule-btn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+            Cancel
+          </button>
+          <button id="confirm-reschedule-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+            Confirm Reschedule
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel Confirmation Modal -->
+<div id="cancel-confirm-modal" class="fixed inset-0 z-50 hidden">
+  <div class="modal-backdrop absolute inset-0 bg-gray-900/50 backdrop-blur-sm"></div>
+  <div class="flex min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-xl bg-white shadow-xl modal-animate-in border border-gray-200">
+      <div class="absolute top-4 right-4">
+        <button id="close-cancel-confirm-modal" class="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      
+      <div class="px-6 py-4 text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <h3 class="mt-4 text-xl font-bold text-gray-900">Cancel Appointment?</h3>
+        <p class="mt-2 text-gray-600">Are you sure you want to cancel this appointment? This action cannot be undone.</p>
+        
+        <div class="mt-6">
+          <label for="cancel-reason" class="block text-sm font-medium text-gray-700">Reason for Cancellation (Optional)</label>
+          <select id="cancel-reason" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            <option value="">Select a reason</option>
+            <option value="schedule-conflict">Schedule conflict</option>
+            <option value="no-longer-needed">No longer needed</option>
+            <option value="found-another-professional">Found another professional</option>
+            <option value="other">Other</option>
+          </select>
+          <textarea id="cancel-other-reason" rows="2" class="mt-2 hidden block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Please specify"></textarea>
+        </div>
+        
+        <div class="mt-6 flex justify-center space-x-3">
+          <button id="dont-cancel-btn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+            Don't Cancel
+          </button>
+          <button id="confirm-cancel-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200">
+            Confirm Cancellation
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback Modal -->
+<div id="feedback-modal" class="fixed inset-0 z-50 hidden">
+  <div class="modal-backdrop absolute inset-0 bg-gray-900/50 backdrop-blur-sm"></div>
+  <div class="flex min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-xl bg-white shadow-xl modal-animate-in border border-gray-200">
+      <div class="absolute top-4 right-4">
+        <button id="close-feedback-modal" class="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      
+      <div class="px-6 py-4">
+        <h3 class="text-xl font-bold text-gray-900">Session Feedback</h3>
+        <p class="mt-2 text-gray-600">Help us improve by sharing your experience with this session</p>
+        
+        <div class="mt-6">
+          <label class="block text-sm font-medium text-gray-700">Overall Rating</label>
+          <div class="mt-2 flex items-center">
+            <div class="rating-stars flex">
+              <svg class="h-8 w-8 text-gray-300 rating-star" data-rating="1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+              <svg class="h-8 w-8 text-gray-300 rating-star" data-rating="2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+              <svg class="h-8 w-8 text-gray-300 rating-star" data-rating="3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+              <svg class="h-8 w-8 text-gray-300 rating-star" data-rating="4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+              <svg class="h-8 w-8 text-gray-300 rating-star" data-rating="5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+            </div>
+            <span id="rating-value" class="ml-2 text-sm font-medium text-gray-500">0/5</span>
+          </div>
+        </div>
+        
+        <div class="mt-4">
+          <label for="feedback-comments" class="block text-sm font-medium text-gray-700">Comments</label>
+          <textarea id="feedback-comments" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="What did you like or dislike about the session?"></textarea>
+        </div>
+        
+        <div class="mt-4">
+          <label class="block text-sm font-medium text-gray-700">Would you recommend this professional?</label>
+          <div class="mt-2 flex space-x-4">
+            <div class="flex items-center">
+              <input id="recommend-yes" name="recommend" type="radio" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+              <label for="recommend-yes" class="ml-2 block text-sm text-gray-700">Yes</label>
+            </div>
+            <div class="flex items-center">
+              <input id="recommend-no" name="recommend" type="radio" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+              <label for="recommend-no" class="ml-2 block text-sm text-gray-700">No</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end">
+          <button id="submit-feedback-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+            Submit Feedback
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching functionality
+    const tabs = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Remove active class from all tabs
+        tabs.forEach(t => t.classList.remove('tab-active', 'text-indigo-600'));
+        tabs.forEach(t => t.classList.add('text-gray-500'));
+        
+        // Add active class to clicked tab
+        tab.classList.add('tab-active', 'text-indigo-600');
+        tab.classList.remove('text-gray-500');
+        
+        // Hide all tab contents
+        tabContents.forEach(content => content.classList.add('hidden'));
+        
+        // Show selected tab content
+        const tabId = tab.getAttribute('data-tab') + '-tab';
+        document.getElementById(tabId).classList.remove('hidden');
+        
+        // Show empty state if no appointments
+        const appointments = document.querySelectorAll(`#${tabId} .appointment-card`);
+        const emptyState = document.querySelector(`#${tab.getAttribute('data-tab')}-empty`);
+        
+        if (appointments.length === 0 && emptyState) {
+          emptyState.classList.remove('hidden');
+        } else if (emptyState) {
+          emptyState.classList.add('hidden');
+        }
+      });
+    });
+    
+    // Appointment details modal
+    const viewDetailsButtons = document.querySelectorAll('.view-details-btn');
+    const appointmentDetailsModal = document.getElementById('appointment-details-modal');
+    const closeDetailsModal = document.getElementById('close-details-modal');
+    
+    viewDetailsButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // In a real app, we'd fetch the appointment details based on data-id
+        appointmentDetailsModal.classList.remove('hidden');
+      });
+    });
+    
+    closeDetailsModal.addEventListener('click', () => {
+      appointmentDetailsModal.classList.add('hidden');
+    });
+    
+    // Reschedule modal
+    const rescheduleButtons = document.querySelectorAll('.reschedule-btn');
+    const rescheduleModal = document.getElementById('reschedule-modal');
+    const closeRescheduleModal = document.getElementById('close-reschedule-modal');
+    const cancelRescheduleBtn = document.getElementById('cancel-reschedule-btn');
+    const rescheduleModalBtn = document.getElementById('reschedule-modal-btn');
+    
+    rescheduleButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        rescheduleModal.classList.remove('hidden');
+      });
+    });
+    
+    rescheduleModalBtn.addEventListener('click', () => {
+      appointmentDetailsModal.classList.add('hidden');
+      rescheduleModal.classList.remove('hidden');
+    });
+    
+    closeRescheduleModal.addEventListener('click', () => {
+      rescheduleModal.classList.add('hidden');
+    });
+    
+    cancelRescheduleBtn.addEventListener('click', () => {
+      rescheduleModal.classList.add('hidden');
+    });
+    
+    // Cancel confirmation modal
+    const cancelButtons = document.querySelectorAll('.cancel-btn');
+    const cancelConfirmModal = document.getElementById('cancel-confirm-modal');
+    const closeCancelConfirmModal = document.getElementById('close-cancel-confirm-modal');
+    const dontCancelBtn = document.getElementById('dont-cancel-btn');
+    const cancelModalBtn = document.getElementById('cancel-modal-btn');
+    const cancelReason = document.getElementById('cancel-reason');
+    const cancelOtherReason = document.getElementById('cancel-other-reason');
+    
+    cancelButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        cancelConfirmModal.classList.remove('hidden');
+      });
+    });
+    
+    cancelModalBtn.addEventListener('click', () => {
+      appointmentDetailsModal.classList.add('hidden');
+      cancelConfirmModal.classList.remove('hidden');
+    });
+    
+    closeCancelConfirmModal.addEventListener('click', () => {
+      cancelConfirmModal.classList.add('hidden');
+    });
+    
+    dontCancelBtn.addEventListener('click', () => {
+      cancelConfirmModal.classList.add('hidden');
+    });
+    
+    cancelReason.addEventListener('change', (e) => {
+      if (e.target.value === 'other') {
+        cancelOtherReason.classList.remove('hidden');
+      } else {
+        cancelOtherReason.classList.add('hidden');
+      }
+    });
+    
+    // Feedback modal
+    const feedbackButtons = document.querySelectorAll('.feedback-btn');
+    const feedbackModal = document.getElementById('feedback-modal');
+    const closeFeedbackModal = document.getElementById('close-feedback-modal');
+    const ratingStars = document.querySelectorAll('.rating-star');
+    const ratingValue = document.getElementById('rating-value');
+    
+    feedbackButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        feedbackModal.classList.remove('hidden');
+      });
+    });
+    
+    closeFeedbackModal.addEventListener('click', () => {
+      feedbackModal.classList.add('hidden');
+    });
+    
+    ratingStars.forEach(star => {
+      star.addEventListener('click', () => {
+        const rating = star.getAttribute('data-rating');
+        
+        // Reset all stars
+        ratingStars.forEach(s => {
+          s.classList.remove('text-amber-400', 'fill-current');
+          s.classList.add('text-gray-300');
+        });
+        
+        // Fill stars up to the selected one
+        for (let i = 0; i < rating; i++) {
+          ratingStars[i].classList.remove('text-gray-300');
+          ratingStars[i].classList.add('text-amber-400', 'fill-current');
+        }
+        
+        ratingValue.textContent = `${rating}/5`;
+      });
+    });
+    
+    // Book new appointment button
+    const newAppointmentBtn = document.getElementById('new-appointment-btn');
+    
+    newAppointmentBtn.addEventListener('click', () => {
+      // In a real app, this would redirect to the booking page
+      window.location.href = "#";
+    });
+    
+    // Start session button
+    const startSessionBtn = document.getElementById('start-session-btn');
+    
+    startSessionBtn.addEventListener('click', () => {
+      // In a real app, this would launch the video session
+      alert('Starting video session...');
+      appointmentDetailsModal.classList.add('hidden');
+    });
+    
+    // Confirm reschedule button
+    const confirmRescheduleBtn = document.getElementById('confirm-reschedule-btn');
+    
+    confirmRescheduleBtn.addEventListener('click', () => {
+      const date = document.getElementById('reschedule-date').value;
+      const time = document.getElementById('reschedule-time').value;
+      const reason = document.getElementById('reschedule-reason').value;
+      
+      if (!date || !time) {
+        alert('Please select both date and time');
+        return;
+      }
+      
+      // In a real app, this would send the reschedule request to the server
+      alert(`Appointment rescheduled to ${date} at ${time}`);
+      rescheduleModal.classList.add('hidden');
+    });
+    
+    // Confirm cancel button
+    const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+    
+    confirmCancelBtn.addEventListener('click', () => {
+      const reason = document.getElementById('cancel-reason').value;
+      const otherReason = document.getElementById('cancel-other-reason').value;
+      
+      // In a real app, this would send the cancellation request to the server
+      alert('Appointment cancelled');
+      cancelConfirmModal.classList.add('hidden');
+    });
+    
+    // Submit feedback button
+    const submitFeedbackBtn = document.getElementById('submit-feedback-btn');
+    
+    submitFeedbackBtn.addEventListener('click', () => {
+      const rating = document.querySelector('.rating-stars .text-amber-400')?.getAttribute('data-rating') || 0;
+      const comments = document.getElementById('feedback-comments').value;
+      const recommend = document.querySelector('input[name="recommend"]:checked')?.id;
+      
+      if (rating === 0) {
+        alert('Please provide a rating');
+        return;
+      }
+      
+      // In a real app, this would send the feedback to the server
+      alert('Thank you for your feedback!');
+      feedbackModal.classList.add('hidden');
+    });
+    
+    // Book again button
+    const bookAgainButtons = document.querySelectorAll('.book-again-btn');
+    
+    bookAgainButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // In a real app, this would pre-fill the booking form with the same professional
+        window.location.href = "#";
+      });
+    });
+    
+    // Search functionality
+    const searchInput = document.getElementById('search-appointments');
+    
+    searchInput.addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const activeTab = document.querySelector('.tab-content:not(.hidden)');
+      const cards = activeTab.querySelectorAll('.appointment-card');
+      
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+    
+    // Filter functionality
+    const filterProfessional = document.getElementById('filter-professional');
+    const filterDate = document.getElementById('filter-date');
+    
+    function applyFilters() {
+      const professionalFilter = filterProfessional.value;
+      const dateFilter = filterDate.value;
+      const activeTab = document.querySelector('.tab-content:not(.hidden)');
+      const cards = activeTab.querySelectorAll('.appointment-card');
+      
+      cards.forEach(card => {
+        const professionalType = card.querySelector('p.text-gray-600').textContent.toLowerCase();
+        const dateText = card.querySelector('div.flex.items-center.text-sm.text-gray-600.mb-1').textContent;
+        
+        let professionalMatch = true;
+        let dateMatch = true;
+        
+        if (professionalFilter && !professionalType.includes(professionalFilter)) {
+          professionalMatch = false;
+        }
+        
+        if (dateFilter) {
+          const today = new Date();
+          const tomorrow = new Date();
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          
+          const cardDate = new Date(dateText);
+          
+          switch(dateFilter) {
+            case 'today':
+              dateMatch = cardDate.toDateString() === today.toDateString();
+              break;
+            case 'tomorrow':
+              dateMatch = cardDate.toDateString() === tomorrow.toDateString();
+              break;
+            case 'this-week':
+              const nextWeek = new Date(today);
+              nextWeek.setDate(nextWeek.getDate() + 7);
+              dateMatch = cardDate >= today && cardDate <= nextWeek;
+              break;
+            case 'next-week':
+              const nextWeekStart = new Date(today);
+              nextWeekStart.setDate(nextWeekStart.getDate() + 7);
+              const nextWeekEnd = new Date(nextWeekStart);
+              nextWeekEnd.setDate(nextWeekEnd.getDate() + 7);
+              dateMatch = cardDate >= nextWeekStart && cardDate <= nextWeekEnd;
+              break;
+          }
+        }
+        
+        if (professionalMatch && dateMatch) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
+    
+    filterProfessional.addEventListener('change', applyFilters);
+    filterDate.addEventListener('change', applyFilters);
+  });
+</script>
+{% endblock %}

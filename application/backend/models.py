@@ -8,6 +8,10 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 
 
@@ -29,13 +33,6 @@ class NewsletterSubscriber(models.Model):
     def __str__(self):
         return self.email
     
-# models.py - Add these to your User model file
-
-from django.db import models
-from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.utils import timezone
-
 class User(AbstractUser):
     USER_TYPE_CHOICES = (
         ('athlete', 'Athlete'),
